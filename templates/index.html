@@ -232,7 +232,7 @@
         <div class="cart-header"><h2>🛒 Your Cart</h2><button class="cart-close" onclick="closeCart()">✕</button></div>
         <div class="cart-items" id="cart-items"><div class="cart-empty"><div class="icon">🛒</div><p>Your cart is empty!</p></div></div>
         <div class="cart-footer" id="cart-footer" style="display:none">
-            <div class="cart-total"><span>Total:</span><span id="cart-total">$0.00</span></div>
+            <div class="cart-total"><span>Total:</span><span id="cart-total">GH₵ 0.00</span></div>
             <button class="checkout-btn" onclick="openCheckout()">✅ Checkout</button>
         </div>
     </div>
@@ -267,7 +267,7 @@
         <div class="modal">
             <div class="modal-header"><h2>📋 Complete Your Order</h2><button class="modal-close" onclick="closeOrderModal()">✕</button></div>
             <div class="modal-body">
-                <div class="order-summary"><h3>🛒 Order Summary</h3><div id="order-summary-items"></div><div class="order-summary-total"><span>Total</span><span id="order-summary-total">$0.00</span></div></div>
+                <div class="order-summary"><h3>🛒 Order Summary</h3><div id="order-summary-items"></div><div class="order-summary-total"><span>Total</span><span id="order-summary-total">GH₵ 0.00</span></div></div>
                 <form id="orderForm">
                     <div class="form-group"><label>👤 Full Name</label><input type="text" id="cust-name" required /></div>
                     <div class="form-group"><label>📱 Phone</label><input type="tel" id="cust-phone" required /></div>
@@ -417,7 +417,7 @@
                         <div class="my-order-card">
                             <div class="my-order-header"><h4>Order #${o.id}</h4><span class="status-badge ${o.status.toLowerCase()}">${o.status}</span></div>
                             <div class="my-order-items">${formatItems(o.items)}</div>
-                            <div class="my-order-footer"><span style="color:#aaa;font-size:13px;font-weight:700">${o.date_ordered}</span><span class="price">$${o.total_price.toFixed(2)}</span></div>
+                            <div class="my-order-footer"><span style="color:#aaa;font-size:13px;font-weight:700">${o.date_ordered}</span><span class="price">GH₵ ${o.total_price.toFixed(2)}</span></div>
                         </div>`).join('');
                 }
                 document.getElementById('myOrdersModal').classList.add('show');
@@ -451,7 +451,7 @@
                         <h3 class="item-name">${i.name}</h3>
                         <p class="item-description">${i.description || 'No description'}</p>
                         <div class="item-footer">
-                            <span class="item-price">$${i.price.toFixed(2)}</span>
+                            <span class="item-price">GH₵ ${i.price.toFixed(2)}</span>
                             <button class="add-to-cart-btn" onclick="addToCart(${i.id})" ${!i.in_stock ? 'disabled' : ''} id="cart-btn-${i.id}">${i.in_stock ? '🛒 Add' : '😢 N/A'}</button>
                         </div>
                     </div>
@@ -507,7 +507,7 @@
                              onerror="this.src='https://via.placeholder.com/70?text=?'" />
                         <div class="cart-item-info">
                             <div class="cart-item-name">${i.name}</div>
-                            <div class="cart-item-price">$${(i.price * i.quantity).toFixed(2)}</div>
+                            <div class="cart-item-price">GH₵ ${(i.price * i.quantity).toFixed(2)}</div>
                             <div class="cart-item-controls">
                                 <button class="qty-btn" onclick="changeQty(${i.id},-1)">−</button>
                                 <span class="qty-display">${i.quantity}</span>
@@ -517,7 +517,7 @@
                         </div>
                     </div>`).join('');
                 cf.style.display = 'block';
-                document.getElementById('cart-total').textContent = '$' + tp.toFixed(2);
+                document.getElementById('cart-total').textContent = 'GH₵ ' + tp.toFixed(2);
             }
         }
 
@@ -531,8 +531,8 @@
 
             const sd = document.getElementById('order-summary-items');
             const tp = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-            sd.innerHTML = cart.map(i => `<div class="order-summary-item"><span>${i.name} x${i.quantity}</span><span>$${(i.price * i.quantity).toFixed(2)}</span></div>`).join('');
-            document.getElementById('order-summary-total').textContent = '$' + tp.toFixed(2);
+            sd.innerHTML = cart.map(i => `<div class="order-summary-item"><span>${i.name} x${i.quantity}</span><span>GH₵ ${(i.price * i.quantity).toFixed(2)}</span></div>`).join('');
+            document.getElementById('order-summary-total').textContent = 'GH₵ ' + tp.toFixed(2);
 
             document.getElementById('cust-name').value = currentUser.fullname;
             document.getElementById('cust-phone').value = currentUser.phone;

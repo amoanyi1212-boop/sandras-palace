@@ -290,7 +290,7 @@
                 <form id="addItemForm" enctype="multipart/form-data">
                     <div class="form-grid">
                         <div class="form-group"><label>✨ Item Name *</label><input type="text" id="item-name" placeholder="e.g. Cute Pink Bag" required /></div>
-                        <div class="form-group"><label>💰 Price ($) *</label><input type="number" id="item-price" placeholder="0.00" step="0.01" min="0" required /></div>
+                        <div class="form-group"><label>💰 Price (GH₵) *</label><input type="number" id="item-price" placeholder="0.00" step="0.01" min="0" required /></div>
                         <div class="form-group"><label>📁 Category</label>
                             <select id="item-category"><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select>
                         </div>
@@ -359,7 +359,7 @@
                 <input type="hidden" id="edit-item-id" />
                 <div class="form-grid">
                     <div class="form-group"><label>✨ Name *</label><input type="text" id="edit-name" required /></div>
-                    <div class="form-group"><label>💰 Price *</label><input type="number" id="edit-price" step="0.01" min="0" required /></div>
+                    <div class="form-group"><label>💰 Price (GH₵) *</label><input type="number" id="edit-price" step="0.01" min="0" required /></div>
                     <div class="form-group"><label>📁 Category</label>
                         <select id="edit-category"><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select>
                     </div>
@@ -442,7 +442,7 @@
                 } else {
                     otb.innerHTML = recentOrders.map(o => `
                         <tr><td>#${o.id}</td><td>${o.customer_name}</td>
-                        <td>$${o.total_price.toFixed(2)}</td>
+                        <td>GH₵ ${o.total_price.toFixed(2)}</td>
                         <td><span class="status-badge ${o.status.toLowerCase()}">${o.status}</span></td></tr>
                     `).join('');
                 }
@@ -469,7 +469,7 @@
                             <img class="item-image" src="${getImageUrl(i.image_url)}" alt="${i.name}"
                                  onerror="this.src='https://via.placeholder.com/250x180?text=No+Image'" />
                             <div class="item-info">
-                                <h3>${i.name}</h3><p class="price">$${i.price.toFixed(2)}</p>
+                                <h3>${i.name}</h3><p class="price">GH₵ ${i.price.toFixed(2)}</p>
                                 <span class="stock-badge out-stock">❌ Out of Stock</span>
                                 <div class="item-actions">
                                     <button class="btn btn-success btn-sm" onclick="toggleStock(${i.id});setTimeout(loadDashboard,500)">✅ Mark In Stock</button>
@@ -523,7 +523,7 @@
                     <div class="item-info">
                         <h3>${i.name}</h3>
                         <p class="category">📁 ${i.category}</p>
-                        <p class="price">$${i.price.toFixed(2)}</p>
+                        <p class="price">GH₵ ${i.price.toFixed(2)}</p>
                         <span class="stock-badge ${i.in_stock ? 'in-stock' : 'out-stock'}">
                             ${i.in_stock ? '✅ In Stock' : '❌ Out of Stock'}
                         </span>
@@ -620,7 +620,7 @@
                     <tr>
                         <td>#${o.id}</td><td>${o.customer_name}</td><td>${o.customer_phone}</td>
                         <td>${o.customer_address}</td><td>${formatItems(o.items)}</td>
-                        <td>$${o.total_price.toFixed(2)}</td>
+                        <td>GH₵ ${o.total_price.toFixed(2)}</td>
                         <td><span class="status-badge ${o.status.toLowerCase()}">${o.status}</span></td>
                         <td>${o.date_ordered}</td>
                         <td><select class="status-select" onchange="updateStatus(${o.id}, this.value)">
