@@ -10,3 +10,6 @@ static/uploads/*
 !static/icon-512.png 
 !static/manifest.json 
 !static/sw.js 
+
+# Keep no-image placeholder
+!static/noimg.png

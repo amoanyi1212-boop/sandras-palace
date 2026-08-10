@@ -87,7 +87,7 @@ class Item(db.Model):
     category    = db.Column(db.String(50))
     in_stock    = db.Column(db.Boolean, default=True)
     image_url   = db.Column(db.String(500),
-                  default="https://via.placeholder.com/400x400?text=No+Image")
+                  default="/static/noimg.png")
     date_added  = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Order(db.Model):
@@ -133,7 +133,7 @@ def allowed_file(filename):
            {"png", "jpg", "jpeg", "gif", "webp"}
 
 def upload_image(image):
-    default = "https://via.placeholder.com/400x400?text=No+Image"
+    default = "/static/noimg.png"
     if not image or image.filename == "" or not allowed_file(image.filename):
         return default
     if CLOUD_NAME and CLOUD_KEY and CLOUD_SEC:
@@ -413,7 +413,7 @@ def add_item():
     try:
         data  = request.form
         image = request.files.get("image")
-        url   = "https://via.placeholder.com/400x400?text=No+Image"
+        url   = "/static/noimg.png"
         if image and image.filename != "":
             url = upload_image(image)
         new = Item(

@@ -358,7 +358,7 @@ var allItems=[],allOrders=[],allUsers=[],lastNCount=0;
 
 window.onload=function(){loadDashboard();loadNotifs();setInterval(loadNotifs,5000)};
 
-function getImg(u){if(!u)return'https://via.placeholder.com/400x400?text=No+Image';if(u.startsWith('http'))return u;if(u.startsWith('static/'))return'/'+u;return u}
+function getImg(u){if(!u)return'/static/noimg.png';if(u.startsWith('http'))return u;if(u.startsWith('static/'))return'/'+u;return u}
 
 function showSection(s){
     document.querySelectorAll('.section').forEach(function(x){x.classList.remove('active')});
@@ -390,7 +390,7 @@ function loadDashboard(){
         else utb.innerHTML=ru.map(function(u){return'<tr><td style="font-weight:800;color:#c2185b">#'+u.id+'</td><td>'+u.fullname+'</td><td>'+u.email+'</td><td style="font-weight:800;color:#e91e63">'+u.order_count+'</td></tr>'}).join('');
 
         var oos=allItems.filter(function(i){return!i.in_stock}),oc=document.getElementById('out-stock-card'),og=document.getElementById('out-stock-grid');
-        if(oos.length>0){oc.style.display='block';og.innerHTML=oos.map(function(i){return'<div class="item-card out-of-stock"><img class="item-image" src="'+getImg(i.image_url)+'" onerror="this.src=\'https://via.placeholder.com/250x180?text=No+Image\'" /><div class="item-info"><h3>'+i.name+'</h3><p class="price">GH&#8373; '+i.price.toFixed(2)+'</p><button class="btn btn-success btn-sm" onclick="toggleStock('+i.id+');setTimeout(loadDashboard,1000)">✅ Restock</button></div></div>'}).join('')}
+        if(oos.length>0){oc.style.display='block';og.innerHTML=oos.map(function(i){return'<div class="item-card out-of-stock"><img class="item-image" src="'+getImg(i.image_url)+'" onerror="this.src=\'/static/noimg.png\'" /><div class="item-info"><h3>'+i.name+'</h3><p class="price">GH&#8373; '+i.price.toFixed(2)+'</p><button class="btn btn-success btn-sm" onclick="toggleStock('+i.id+');setTimeout(loadDashboard,1000)">✅ Restock</button></div></div>'}).join('')}
         else oc.style.display='none';
     });
 }
@@ -414,7 +414,7 @@ function loadItems(){fetch('/api/items').then(function(r){return r.json()}).then
 function displayItems(items){
     var g=document.getElementById('items-grid');
     if(items.length===0){g.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📦</div><p>No items</p></div>';return}
-    g.innerHTML=items.map(function(i){return'<div class="item-card'+(i.in_stock?'':' out-of-stock')+'"><img class="item-image" src="'+getImg(i.image_url)+'" onerror="this.src=\'https://via.placeholder.com/250x180?text=No+Image\'" /><div class="item-info"><h3>'+i.name+'</h3><p class="category">📁 '+i.category+'</p><p class="price">GH&#8373; '+i.price.toFixed(2)+'</p><span class="stock-badge '+(i.in_stock?'in-stock':'out-stock')+'">'+(i.in_stock?'✅ In Stock':'❌ Out')+'</span><div class="item-actions"><button class="btn btn-warning btn-sm" onclick="editItem('+i.id+')">✏️</button><button class="btn btn-sm '+(i.in_stock?'btn-danger':'btn-success')+'" onclick="toggleStock('+i.id+')">'+(i.in_stock?'❌':'✅')+'</button><button class="btn btn-danger btn-sm" onclick="deleteItem('+i.id+')">🗑️</button></div></div></div>'}).join('');
+    g.innerHTML=items.map(function(i){return'<div class="item-card'+(i.in_stock?'':' out-of-stock')+'"><img class="item-image" src="'+getImg(i.image_url)+'" onerror="this.src=\'/static/noimg.png\'" /><div class="item-info"><h3>'+i.name+'</h3><p class="category">📁 '+i.category+'</p><p class="price">GH&#8373; '+i.price.toFixed(2)+'</p><span class="stock-badge '+(i.in_stock?'in-stock':'out-stock')+'">'+(i.in_stock?'✅ In Stock':'❌ Out')+'</span><div class="item-actions"><button class="btn btn-warning btn-sm" onclick="editItem('+i.id+')">✏️</button><button class="btn btn-sm '+(i.in_stock?'btn-danger':'btn-success')+'" onclick="toggleStock('+i.id+')">'+(i.in_stock?'❌':'✅')+'</button><button class="btn btn-danger btn-sm" onclick="deleteItem('+i.id+')">🗑️</button></div></div></div>'}).join('');
 }
 function filterItems(){
     var s=document.getElementById('search-input').value.toLowerCase(),c=document.getElementById('filter-category').value,st=document.getElementById('filter-stock').value;
