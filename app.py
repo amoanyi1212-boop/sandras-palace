@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import logging
 from urllib.parse import urlparse
+import cloudinary
+import cloudinary.uploader
 
 app = Flask(__name__)
 app.secret_key = "sandras_palace_secret_key_2024"
@@ -35,6 +37,15 @@ db = SQLAlchemy(app)
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# ==============================
+# CLOUDINARY SETUP
+# ==============================
+cloudinary.config(
+    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
+    api_key    = os.environ.get('CLOUDINARY_API_KEY', ''),
+    api_secret = os.environ.get('CLOUDINARY_API_SECRET', '')
+)
 
 # ==============================
 # DATABASE MODELS
@@ -75,8 +86,8 @@ class Order(db.Model):
 # ==============================
 # ADMIN CREDENTIALS
 # ==============================
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "admin123"
+ADMIN_USERNAME = "sandra"
+ADMIN_PASSWORD = "SandrasPalace2024!"
 
 # ==============================
 # HELPER
@@ -311,11 +322,17 @@ def add_item():
         image     = request.files.get('image')
         image_url = 'https://via.placeholder.com/400x400?text=No+Image'
 
-        if image and image.filename != '' and allowed_file(image.filename):
-            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{image.filename}"
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            image.save(filepath)
-            image_url = f"static/uploads/{filename}"
+if image and image.filename != '' and allowed_file(image.filename):
+    try:
+        # Try Cloudinary first (production)
+        result    = cloudinary.uploader.upload(image)
+        image_url = result['secure_url']
+    except Exception:
+        # Fall back to local storage (development)
+        filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{image.filename}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        image.save(filepath)
+        image_url = f"static/uploads/{filename}"
 
         if not data.get('name') or not data.get('price'):
             return jsonify({'success': False, 'message': 'Name and price required!'}), 400
@@ -348,11 +365,16 @@ def update_item(item_id):
         image = request.files.get('image')
 
         if image and image.filename != '' and allowed_file(image.filename):
-            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{image.filename}"
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            image.save(filepath)
-            item.image_url = f"static/uploads/{filename}"
-
+    try:
+        # Try Cloudinary first (production)
+        result         = cloudinary.uploader.upload(image)
+        item.image_url = result['secure_url']
+    except Exception:
+        # Fall back to local storage (development)
+        filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{image.filename}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        image.save(filepath)
+        item.image_url = f"static/uploads/{filename}"
         item.name        = data.get('name',        item.name)
         item.description = data.get('description', item.description)
         item.price       = float(data.get('price', item.price))

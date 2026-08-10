@@ -9,7 +9,6 @@
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Nunito',sans-serif}
         body{background:#fff5f7;color:#333}
 
-        /* HEADER */
         .header{background:linear-gradient(135deg,#e91e63,#ff6f00);padding:0 30px;position:sticky;top:0;z-index:100;box-shadow:0 4px 25px rgba(233,30,99,0.3)}
         .header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:75px}
         .logo{display:flex;align-items:center;gap:12px;text-decoration:none}
@@ -25,7 +24,6 @@
         .header-search .search-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:18px}
 
         .header-right{display:flex;align-items:center;gap:12px}
-
         .cart-btn{position:relative;background:rgba(255,255,255,0.2);border:none;border-radius:15px;padding:11px 22px;color:white;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.3s;font-weight:800;font-family:'Nunito'}
         .cart-btn:hover{background:rgba(255,255,255,0.3);transform:scale(1.05)}
         .cart-count{position:absolute;top:-8px;right:-8px;background:#fff;color:#e91e63;width:24px;height:24px;border-radius:50%;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
@@ -33,7 +31,6 @@
         .user-btn{background:rgba(255,255,255,0.2);border:none;border-radius:15px;padding:11px 22px;color:white;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.3s;font-weight:800;font-family:'Nunito'}
         .user-btn:hover{background:rgba(255,255,255,0.3);transform:scale(1.05)}
 
-        /* HERO */
         .hero{background:linear-gradient(135deg,#ff9a9e 0%,#fecfef 30%,#feada6 60%,#f6d365 100%);padding:70px 30px;text-align:center;position:relative;overflow:hidden}
         .hero h2{font-family:'Fredoka One',cursive;font-size:48px;color:white;margin-bottom:15px;position:relative;z-index:1;text-shadow:2px 2px 10px rgba(0,0,0,0.1)}
         .hero p{font-size:18px;color:rgba(255,255,255,0.9);margin-bottom:30px;position:relative;z-index:1;font-weight:700}
@@ -43,7 +40,6 @@
         .hero-search button{padding:16px 32px;background:linear-gradient(135deg,#e91e63,#c2185b);color:white;border:none;border-radius:18px;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.3s;font-family:'Nunito'}
         .hero-search button:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(233,30,99,0.4)}
 
-        /* CATEGORIES */
         .categories-bar{background:white;padding:18px 30px;box-shadow:0 4px 15px rgba(233,30,99,0.08)}
         .categories-inner{max-width:1200px;margin:0 auto;display:flex;gap:10px;overflow-x:auto;padding-bottom:5px}
         .cat-btn{padding:10px 22px;border:3px solid #fce4ec;border-radius:25px;background:white;font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all 0.3s;font-family:'Nunito';color:#888}
@@ -54,7 +50,6 @@
         .section-title h2{font-family:'Fredoka One',cursive;font-size:26px;color:#c2185b}
         .section-title p{color:#aaa;font-size:14px;font-weight:700}
 
-        /* ITEMS */
         .items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:25px}
         .item-card{background:white;border-radius:24px;overflow:hidden;box-shadow:0 4px 20px rgba(233,30,99,0.08);transition:all 0.3s;position:relative;border:3px solid transparent}
         .item-card:hover{transform:translateY(-8px) rotate(-1deg);box-shadow:0 15px 40px rgba(233,30,99,0.2);border-color:#e91e63}
@@ -81,7 +76,6 @@
         .spinner{width:50px;height:50px;border:5px solid #fce4ec;border-top-color:#e91e63;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 15px}
         @keyframes spin{to{transform:rotate(360deg)}}
 
-        /* CART */
         .cart-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:200;backdrop-filter:blur(5px)}
         .cart-overlay.show{display:block}
         .cart-sidebar{position:fixed;top:0;right:-430px;width:420px;height:100vh;background:white;z-index:201;display:flex;flex-direction:column;transition:right 0.4s cubic-bezier(0.68,-0.15,0.265,1.35);box-shadow:-5px 0 40px rgba(233,30,99,0.2);border-radius:30px 0 0 30px}
@@ -112,7 +106,6 @@
         .cart-empty .icon{font-size:65px;margin-bottom:15px}
         .cart-empty p{font-weight:700}
 
-        /* MODALS */
         .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
         .modal-overlay.show{display:flex}
         .modal{background:white;border-radius:28px;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;animation:modalIn 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);border:3px solid #fce4ec}
@@ -148,7 +141,6 @@
         .success-modal p{color:#aaa;font-weight:700;margin-bottom:20px}
         .success-modal .order-id{background:#e8f5e9;border-radius:16px;padding:15px 30px;font-family:'Fredoka One',cursive;font-size:20px;color:#43a047;margin-bottom:25px;display:inline-block}
 
-        /* USER MENU */
         .user-dropdown{position:relative;display:inline-block}
         .dropdown-menu{display:none;position:absolute;right:0;top:55px;background:white;border-radius:18px;box-shadow:0 10px 40px rgba(0,0,0,0.15);min-width:220px;z-index:300;border:3px solid #fce4ec;overflow:hidden}
         .dropdown-menu.show{display:block;animation:modalIn 0.3s ease}
@@ -161,7 +153,6 @@
         .error-msg.show{display:block;animation:shake 0.4s ease}
         @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 
-        /* MY ORDERS */
         .my-orders-list{max-height:400px;overflow-y:auto}
         .my-order-card{background:#fff0f3;border-radius:16px;padding:18px;margin-bottom:12px;border:2px solid #fce4ec}
         .my-order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
@@ -170,13 +161,17 @@
         .my-order-footer{display:flex;justify-content:space-between;align-items:center}
         .my-order-footer .price{font-family:'Fredoka One',cursive;color:#e91e63;font-size:16px}
 
-        /* TOAST */
+        .status-badge{padding:5px 14px;border-radius:25px;font-size:12px;font-weight:800}
+        .status-badge.pending{background:#fff8e1;color:#f9a825}
+        .status-badge.confirmed{background:#e3f2fd;color:#1976d2}
+        .status-badge.delivered{background:#e8f5e9;color:#43a047}
+        .status-badge.cancelled{background:#ffebee;color:#e53935}
+
         .toast{position:fixed;bottom:30px;right:30px;padding:16px 25px;border-radius:16px;color:white;font-weight:800;font-size:15px;z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.4s;font-family:'Nunito'}
         .toast.show{transform:translateY(0);opacity:1}
         .toast.success{background:linear-gradient(135deg,#43a047,#66bb6a)}
         .toast.error{background:linear-gradient(135deg,#e53935,#ef5350)}
 
-        /* FOOTER */
         .footer{background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;text-align:center;padding:35px;margin-top:60px;font-weight:700}
 
         @media(max-width:768px){
@@ -189,7 +184,6 @@
 </head>
 <body>
 
-    <!-- HEADER -->
     <header class="header">
         <div class="header-inner">
             <a class="logo" href="/"><div class="logo-icon">👑</div><div><h1>Sandra's Palace</h1><p>✨ Shop with Love</p></div></a>
@@ -198,15 +192,12 @@
                 <button class="cart-btn" onclick="openCart()">🛒 Cart<span class="cart-count" id="cart-count">0</span></button>
                 <div class="user-dropdown">
                     <button class="user-btn" id="user-btn" onclick="toggleUserMenu()">👤 <span id="user-btn-text">Login</span></button>
-                    <div class="dropdown-menu" id="dropdown-menu">
-                        <!-- Will be filled by JS -->
-                    </div>
+                    <div class="dropdown-menu" id="dropdown-menu"></div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- HERO -->
     <div class="hero">
         <h2>Welcome to Sandra's Palace 👑</h2>
         <p>✨ Find everything you love, delivered with care ✨</p>
@@ -216,7 +207,6 @@
         </div>
     </div>
 
-    <!-- CATEGORIES -->
     <div class="categories-bar">
         <div class="categories-inner">
             <button class="cat-btn active" onclick="filterByCategory('all',this)">🏷️ All</button>
@@ -230,7 +220,6 @@
         </div>
     </div>
 
-    <!-- MAIN -->
     <div class="container">
         <div class="section-title"><div><h2 id="section-heading">🛍️ All Products</h2><p id="items-count">Loading...</p></div></div>
         <div class="items-grid" id="items-grid"><div class="loading"><div class="spinner"></div><p style="color:#aaa;font-weight:700">Loading goodies... ✨</p></div></div>
@@ -238,7 +227,6 @@
 
     <footer class="footer"><p>👑 Sandra's Palace © 2024 — Made with 💛 for you</p></footer>
 
-    <!-- CART -->
     <div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
     <div class="cart-sidebar" id="cart-sidebar">
         <div class="cart-header"><h2>🛒 Your Cart</h2><button class="cart-close" onclick="closeCart()">✕</button></div>
@@ -255,16 +243,12 @@
             <div class="modal-header"><h2 id="auth-title">👤 Login</h2><button class="modal-close" onclick="closeAuthModal()">✕</button></div>
             <div class="modal-body">
                 <div class="error-msg" id="auth-error">Error</div>
-
-                <!-- LOGIN FORM -->
                 <form id="loginForm">
                     <div class="form-group"><label>📧 Email</label><input type="email" id="login-email" placeholder="your@email.com" required /></div>
                     <div class="form-group"><label>🔒 Password</label><input type="password" id="login-password" placeholder="Your password" required /></div>
                     <button type="submit" class="modal-btn">✨ Login</button>
                     <div class="auth-toggle"><p>Don't have an account? <a onclick="showRegister()">Sign Up</a></p></div>
                 </form>
-
-                <!-- REGISTER FORM -->
                 <form id="registerForm" style="display:none">
                     <div class="form-group"><label>👤 Full Name</label><input type="text" id="reg-name" placeholder="Your full name" required /></div>
                     <div class="form-group"><label>📧 Email</label><input type="email" id="reg-email" placeholder="your@email.com" required /></div>
@@ -321,198 +305,209 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        let allItems=[],cart=[],activeCategory='all',currentUser=null;
+        let allItems = [], cart = [], activeCategory = 'all', currentUser = null;
 
-        window.onload=function(){loadItems();checkAuth()};
+        window.onload = function() { loadItems(); checkAuth(); };
 
-        // === AUTH ===
-        async function checkAuth(){
-            try{
-                const r=await fetch('/api/auth/check');const d=await r.json();
-                if(d.logged_in){currentUser=d.user;updateUserUI();}
-                else{currentUser=null;updateUserUI();}
-            }catch(e){console.error(e)}
+        // Helper to get correct image URL
+        function getImageUrl(url) {
+            if (!url) return 'https://via.placeholder.com/400x400?text=No+Image';
+            if (url.startsWith('http')) return url;
+            return '/' + url;
         }
 
-        function updateUserUI(){
-            const btn=document.getElementById('user-btn-text');
-            const menu=document.getElementById('dropdown-menu');
-            if(currentUser){
-                btn.textContent=currentUser.fullname.split(' ')[0];
-                menu.innerHTML=`
+        // === AUTH ===
+        async function checkAuth() {
+            try {
+                const r = await fetch('/api/auth/check');
+                const d = await r.json();
+                if (d.logged_in) { currentUser = d.user; updateUserUI(); }
+                else { currentUser = null; updateUserUI(); }
+            } catch (e) { console.error(e); }
+        }
+
+        function updateUserUI() {
+            const btn = document.getElementById('user-btn-text');
+            const menu = document.getElementById('dropdown-menu');
+            if (currentUser) {
+                btn.textContent = currentUser.fullname.split(' ')[0];
+                menu.innerHTML = `
                     <div class="dropdown-header">👑 ${currentUser.fullname}</div>
                     <div class="dropdown-item" onclick="openMyOrders()">📦 My Orders</div>
                     <div class="dropdown-item" onclick="userLogout()">🚪 Logout</div>`;
-            }else{
-                btn.textContent='Login';
-                menu.innerHTML=`
+            } else {
+                btn.textContent = 'Login';
+                menu.innerHTML = `
                     <div class="dropdown-item" onclick="openAuthModal('login')">✨ Login</div>
                     <div class="dropdown-item" onclick="openAuthModal('register')">🎉 Sign Up</div>`;
             }
         }
 
-        function toggleUserMenu(){
-            document.getElementById('dropdown-menu').classList.toggle('show');
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click',function(e){
-            if(!e.target.closest('.user-dropdown')){
-                document.getElementById('dropdown-menu').classList.remove('show');
-            }
+        function toggleUserMenu() { document.getElementById('dropdown-menu').classList.toggle('show'); }
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-dropdown')) document.getElementById('dropdown-menu').classList.remove('show');
         });
 
-        function openAuthModal(type){
+        function openAuthModal(type) {
             document.getElementById('dropdown-menu').classList.remove('show');
             document.getElementById('auth-error').classList.remove('show');
-            if(type==='register')showRegister(); else showLogin();
+            if (type === 'register') showRegister(); else showLogin();
             document.getElementById('authModal').classList.add('show');
         }
-        function closeAuthModal(){document.getElementById('authModal').classList.remove('show')}
-        function showLogin(){
-            document.getElementById('loginForm').style.display='block';
-            document.getElementById('registerForm').style.display='none';
-            document.getElementById('auth-title').textContent='👤 Login';
+        function closeAuthModal() { document.getElementById('authModal').classList.remove('show'); }
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('auth-title').textContent = '👤 Login';
             document.getElementById('auth-error').classList.remove('show');
         }
-        function showRegister(){
-            document.getElementById('loginForm').style.display='none';
-            document.getElementById('registerForm').style.display='block';
-            document.getElementById('auth-title').textContent='🎉 Create Account';
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('auth-title').textContent = '🎉 Create Account';
             document.getElementById('auth-error').classList.remove('show');
         }
 
-        // LOGIN
-        document.getElementById('loginForm').addEventListener('submit',async function(e){
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const err=document.getElementById('auth-error');
-            try{
-                const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify({email:document.getElementById('login-email').value,password:document.getElementById('login-password').value})});
-                const d=await r.json();
-                if(d.success){currentUser=d.user;updateUserUI();closeAuthModal();showToast('✅ '+d.message,'success');this.reset();}
-                else{err.textContent='❌ '+d.message;err.classList.add('show');}
-            }catch(ex){err.textContent='❌ Error!';err.classList.add('show');}
+            const err = document.getElementById('auth-error');
+            try {
+                const r = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: document.getElementById('login-email').value, password: document.getElementById('login-password').value }) });
+                const d = await r.json();
+                if (d.success) { currentUser = d.user; updateUserUI(); closeAuthModal(); showToast('✅ ' + d.message, 'success'); this.reset(); }
+                else { err.textContent = '❌ ' + d.message; err.classList.add('show'); }
+            } catch (ex) { err.textContent = '❌ Error!'; err.classList.add('show'); }
         });
 
-        // REGISTER
-        document.getElementById('registerForm').addEventListener('submit',async function(e){
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const err=document.getElementById('auth-error');
-            try{
-                const r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify({
-                        fullname:document.getElementById('reg-name').value,
-                        email:document.getElementById('reg-email').value,
-                        phone:document.getElementById('reg-phone').value,
-                        address:document.getElementById('reg-address').value,
-                        password:document.getElementById('reg-password').value
-                    })});
-                const d=await r.json();
-                if(d.success){currentUser=d.user;updateUserUI();closeAuthModal();showToast('🎉 '+d.message,'success');this.reset();}
-                else{err.textContent='❌ '+d.message;err.classList.add('show');}
-            }catch(ex){err.textContent='❌ Error!';err.classList.add('show');}
+            const err = document.getElementById('auth-error');
+            try {
+                const r = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullname: document.getElementById('reg-name').value,
+                        email: document.getElementById('reg-email').value,
+                        phone: document.getElementById('reg-phone').value,
+                        address: document.getElementById('reg-address').value,
+                        password: document.getElementById('reg-password').value
+                    }) });
+                const d = await r.json();
+                if (d.success) { currentUser = d.user; updateUserUI(); closeAuthModal(); showToast('🎉 ' + d.message, 'success'); this.reset(); }
+                else { err.textContent = '❌ ' + d.message; err.classList.add('show'); }
+            } catch (ex) { err.textContent = '❌ Error!'; err.classList.add('show'); }
         });
 
-        async function userLogout(){
+        async function userLogout() {
             document.getElementById('dropdown-menu').classList.remove('show');
-            await fetch('/api/auth/logout',{method:'POST'});
-            currentUser=null;updateUserUI();showToast('👋 Logged out!','success');
+            await fetch('/api/auth/logout', { method: 'POST' });
+            currentUser = null; updateUserUI(); showToast('👋 Logged out!', 'success');
         }
 
         // === MY ORDERS ===
-        async function openMyOrders(){
+        async function openMyOrders() {
             document.getElementById('dropdown-menu').classList.remove('show');
-            try{
-                const r=await fetch('/api/orders/my');const d=await r.json();
-                const list=document.getElementById('my-orders-list');
-                if(d.length===0){list.innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><p>No orders yet! Start shopping! 💕</p></div>';}
-                else{list.innerHTML=d.map(o=>`
-                    <div class="my-order-card">
-                        <div class="my-order-header"><h4>Order #${o.id}</h4><span class="status-badge ${o.status.toLowerCase()}" style="padding:5px 14px;border-radius:25px;font-size:12px;font-weight:800">${o.status}</span></div>
-                        <div class="my-order-items">${formatItems(o.items)}</div>
-                        <div class="my-order-footer"><span style="color:#aaa;font-size:13px;font-weight:700">${o.date_ordered}</span><span class="price">$${o.total_price.toFixed(2)}</span></div>
-                    </div>`).join('');}
+            try {
+                const r = await fetch('/api/orders/my');
+                const d = await r.json();
+                const list = document.getElementById('my-orders-list');
+                if (d.length === 0) { list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>No orders yet! Start shopping! 💕</p></div>'; }
+                else {
+                    list.innerHTML = d.map(o => `
+                        <div class="my-order-card">
+                            <div class="my-order-header"><h4>Order #${o.id}</h4><span class="status-badge ${o.status.toLowerCase()}">${o.status}</span></div>
+                            <div class="my-order-items">${formatItems(o.items)}</div>
+                            <div class="my-order-footer"><span style="color:#aaa;font-size:13px;font-weight:700">${o.date_ordered}</span><span class="price">$${o.total_price.toFixed(2)}</span></div>
+                        </div>`).join('');
+                }
                 document.getElementById('myOrdersModal').classList.add('show');
-            }catch(e){showToast('❌ Error loading orders','error')}
+            } catch (e) { showToast('❌ Error loading orders', 'error'); }
         }
-        function closeMyOrdersModal(){document.getElementById('myOrdersModal').classList.remove('show')}
-        function formatItems(s){try{const i=JSON.parse(s.replace(/'/g,'"'));return i.map(x=>x.name+' x'+x.quantity).join(', ');}catch{return s;}}
+        function closeMyOrdersModal() { document.getElementById('myOrdersModal').classList.remove('show'); }
+        function formatItems(s) { try { const i = JSON.parse(s.replace(/'/g, '"')); return i.map(x => x.name + ' x' + x.quantity).join(', '); } catch { return s; } }
 
         // === ITEMS ===
-        async function loadItems(){
-            try{const r=await fetch('/api/items');allItems=await r.json();displayItems(allItems);}
-            catch(e){document.getElementById('items-grid').innerHTML='<div class="empty-state"><div class="empty-icon">😢</div><h3>Failed to load</h3></div>';}
+        async function loadItems() {
+            try {
+                const r = await fetch('/api/items');
+                allItems = await r.json();
+                displayItems(allItems);
+            } catch (e) { document.getElementById('items-grid').innerHTML = '<div class="empty-state"><div class="empty-icon">😢</div><h3>Failed to load</h3></div>'; }
         }
 
-        function displayItems(items){
-            const g=document.getElementById('items-grid');
-            document.getElementById('items-count').textContent=items.length+' product'+(items.length!==1?'s':'')+' ✨';
-            if(items.length===0){g.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><h3>No products found</h3><p>Try different search 💕</p></div>';return;}
-            g.innerHTML=items.map(i=>`
-                <div class="item-card ${!i.in_stock?'out-of-stock':''}">
+        function displayItems(items) {
+            const g = document.getElementById('items-grid');
+            document.getElementById('items-count').textContent = items.length + ' product' + (items.length !== 1 ? 's' : '') + ' ✨';
+            if (items.length === 0) { g.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><h3>No products found</h3><p>Try different search 💕</p></div>'; return; }
+            g.innerHTML = items.map(i => `
+                <div class="item-card ${!i.in_stock ? 'out-of-stock' : ''}">
                     <div class="item-image-wrap">
-                        <img class="item-image" src="/${i.image_url}" alt="${i.name}" onerror="this.src='https://via.placeholder.com/240x210?text=No+Image'" />
-                        ${!i.in_stock?'<div class="out-of-stock-overlay">Sold Out 😢</div>':''}
+                        <img class="item-image" src="${getImageUrl(i.image_url)}" alt="${i.name}"
+                             onerror="this.src='https://via.placeholder.com/240x210?text=No+Image'" />
+                        ${!i.in_stock ? '<div class="out-of-stock-overlay">Sold Out 😢</div>' : ''}
                     </div>
                     <div class="item-body">
                         <p class="item-category">📁 ${i.category}</p>
                         <h3 class="item-name">${i.name}</h3>
-                        <p class="item-description">${i.description||'No description'}</p>
+                        <p class="item-description">${i.description || 'No description'}</p>
                         <div class="item-footer">
                             <span class="item-price">$${i.price.toFixed(2)}</span>
-                            <button class="add-to-cart-btn" onclick="addToCart(${i.id})" ${!i.in_stock?'disabled':''} id="cart-btn-${i.id}">${i.in_stock?'🛒 Add':'😢 N/A'}</button>
+                            <button class="add-to-cart-btn" onclick="addToCart(${i.id})" ${!i.in_stock ? 'disabled' : ''} id="cart-btn-${i.id}">${i.in_stock ? '🛒 Add' : '😢 N/A'}</button>
                         </div>
                     </div>
                 </div>`).join('');
         }
 
-        function searchItems(q){
-            document.getElementById('header-search').value=q;document.getElementById('hero-search').value=q;
-            let f=allItems.filter(i=>{
-                const ms=i.name.toLowerCase().includes(q.toLowerCase())||(i.description||'').toLowerCase().includes(q.toLowerCase());
-                const mc=activeCategory==='all'||i.category===activeCategory;
-                return ms&&mc;
+        function searchItems(q) {
+            document.getElementById('header-search').value = q;
+            document.getElementById('hero-search').value = q;
+            let f = allItems.filter(i => {
+                const ms = i.name.toLowerCase().includes(q.toLowerCase()) || (i.description || '').toLowerCase().includes(q.toLowerCase());
+                const mc = activeCategory === 'all' || i.category === activeCategory;
+                return ms && mc;
             });
-            document.getElementById('section-heading').textContent=q?`🔍 Results for "${q}"`:'🛍️ All Products';
+            document.getElementById('section-heading').textContent = q ? `🔍 Results for "${q}"` : '🛍️ All Products';
             displayItems(f);
         }
 
-        function filterByCategory(c,btn){
-            activeCategory=c;
-            document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+        function filterByCategory(c, btn) {
+            activeCategory = c;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            const q=document.getElementById('header-search').value;
-            let f=allItems.filter(i=>{const mc=c==='all'||i.category===c;const ms=i.name.toLowerCase().includes(q.toLowerCase());return mc&&ms;});
-            document.getElementById('section-heading').textContent=c==='all'?'🛍️ All Products':'📁 '+c;
+            const q = document.getElementById('header-search').value;
+            let f = allItems.filter(i => { const mc = c === 'all' || i.category === c; const ms = i.name.toLowerCase().includes(q.toLowerCase()); return mc && ms; });
+            document.getElementById('section-heading').textContent = c === 'all' ? '🛍️ All Products' : '📁 ' + c;
             displayItems(f);
         }
 
         // === CART ===
-        function addToCart(id){
-            const item=allItems.find(i=>i.id===id);if(!item||!item.in_stock)return;
-            const ex=cart.find(c=>c.id===id);
-            if(ex)ex.quantity++;else cart.push({...item,quantity:1});
-            updateCartUI();showToast('✅ '+item.name+' added! 💕','success');
-            const btn=document.getElementById('cart-btn-'+id);
-            if(btn){btn.textContent='✅ Added!';setTimeout(()=>btn.textContent='🛒 Add',1500);}
+        function addToCart(id) {
+            const item = allItems.find(i => i.id === id);
+            if (!item || !item.in_stock) return;
+            const ex = cart.find(c => c.id === id);
+            if (ex) ex.quantity++; else cart.push({ ...item, quantity: 1 });
+            updateCartUI();
+            showToast('✅ ' + item.name + ' added! 💕', 'success');
+            const btn = document.getElementById('cart-btn-' + id);
+            if (btn) { btn.textContent = '✅ Added!'; setTimeout(() => btn.textContent = '🛒 Add', 1500); }
         }
-        function removeFromCart(id){cart=cart.filter(c=>c.id!==id);updateCartUI();}
-        function changeQty(id,ch){const i=cart.find(c=>c.id===id);if(!i)return;i.quantity+=ch;if(i.quantity<=0)removeFromCart(id);else updateCartUI();}
+        function removeFromCart(id) { cart = cart.filter(c => c.id !== id); updateCartUI(); }
+        function changeQty(id, ch) { const i = cart.find(c => c.id === id); if (!i) return; i.quantity += ch; if (i.quantity <= 0) removeFromCart(id); else updateCartUI(); }
 
-        function updateCartUI(){
-            const ti=cart.reduce((s,i)=>s+i.quantity,0);
-            const tp=cart.reduce((s,i)=>s+(i.price*i.quantity),0);
-            document.getElementById('cart-count').textContent=ti;
-            const cd=document.getElementById('cart-items'),cf=document.getElementById('cart-footer');
-            if(cart.length===0){cd.innerHTML='<div class="cart-empty"><div class="icon">🛒</div><p>Cart is empty!</p></div>';cf.style.display='none';}
-            else{
-                cd.innerHTML=cart.map(i=>`
+        function updateCartUI() {
+            const ti = cart.reduce((s, i) => s + i.quantity, 0);
+            const tp = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+            document.getElementById('cart-count').textContent = ti;
+            const cd = document.getElementById('cart-items'), cf = document.getElementById('cart-footer');
+            if (cart.length === 0) { cd.innerHTML = '<div class="cart-empty"><div class="icon">🛒</div><p>Cart is empty!</p></div>'; cf.style.display = 'none'; }
+            else {
+                cd.innerHTML = cart.map(i => `
                     <div class="cart-item">
-                        <img class="cart-item-image" src="/${i.image_url}" alt="${i.name}" onerror="this.src='https://via.placeholder.com/70?text=?'" />
+                        <img class="cart-item-image" src="${getImageUrl(i.image_url)}" alt="${i.name}"
+                             onerror="this.src='https://via.placeholder.com/70?text=?'" />
                         <div class="cart-item-info">
                             <div class="cart-item-name">${i.name}</div>
-                            <div class="cart-item-price">$${(i.price*i.quantity).toFixed(2)}</div>
+                            <div class="cart-item-price">$${(i.price * i.quantity).toFixed(2)}</div>
                             <div class="cart-item-controls">
                                 <button class="qty-btn" onclick="changeQty(${i.id},-1)">−</button>
                                 <span class="qty-display">${i.quantity}</span>
@@ -521,61 +516,65 @@
                             </div>
                         </div>
                     </div>`).join('');
-                cf.style.display='block';
-                document.getElementById('cart-total').textContent='$'+tp.toFixed(2);
+                cf.style.display = 'block';
+                document.getElementById('cart-total').textContent = '$' + tp.toFixed(2);
             }
         }
 
-        function openCart(){document.getElementById('cart-sidebar').classList.add('open');document.getElementById('cart-overlay').classList.add('show');}
-        function closeCart(){document.getElementById('cart-sidebar').classList.remove('open');document.getElementById('cart-overlay').classList.remove('show');}
+        function openCart() { document.getElementById('cart-sidebar').classList.add('open'); document.getElementById('cart-overlay').classList.add('show'); }
+        function closeCart() { document.getElementById('cart-sidebar').classList.remove('open'); document.getElementById('cart-overlay').classList.remove('show'); }
 
         // === CHECKOUT ===
-        function openCheckout(){
-            if(cart.length===0){showToast('❌ Cart is empty!','error');return;}
-            if(!currentUser){showToast('❌ Please login first!','error');closeCart();openAuthModal('login');return;}
+        function openCheckout() {
+            if (cart.length === 0) { showToast('❌ Cart is empty!', 'error'); return; }
+            if (!currentUser) { showToast('❌ Please login first!', 'error'); closeCart(); openAuthModal('login'); return; }
 
-            const sd=document.getElementById('order-summary-items');
-            const tp=cart.reduce((s,i)=>s+(i.price*i.quantity),0);
-            sd.innerHTML=cart.map(i=>`<div class="order-summary-item"><span>${i.name} x${i.quantity}</span><span>$${(i.price*i.quantity).toFixed(2)}</span></div>`).join('');
-            document.getElementById('order-summary-total').textContent='$'+tp.toFixed(2);
+            const sd = document.getElementById('order-summary-items');
+            const tp = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+            sd.innerHTML = cart.map(i => `<div class="order-summary-item"><span>${i.name} x${i.quantity}</span><span>$${(i.price * i.quantity).toFixed(2)}</span></div>`).join('');
+            document.getElementById('order-summary-total').textContent = '$' + tp.toFixed(2);
 
-            // Pre-fill user info
-            document.getElementById('cust-name').value=currentUser.fullname;
-            document.getElementById('cust-phone').value=currentUser.phone;
-            document.getElementById('cust-address').value=currentUser.address;
+            document.getElementById('cust-name').value = currentUser.fullname;
+            document.getElementById('cust-phone').value = currentUser.phone;
+            document.getElementById('cust-address').value = currentUser.address;
 
             closeCart();
             document.getElementById('orderModal').classList.add('show');
         }
-        function closeOrderModal(){document.getElementById('orderModal').classList.remove('show')}
+        function closeOrderModal() { document.getElementById('orderModal').classList.remove('show'); }
 
-        document.getElementById('orderForm').addEventListener('submit',async function(e){
+        document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const tp=cart.reduce((s,i)=>s+(i.price*i.quantity),0);
-            try{
-                const r=await fetch('/api/orders/place',{method:'POST',headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify({
-                        customer_name:document.getElementById('cust-name').value,
-                        customer_phone:document.getElementById('cust-phone').value,
-                        customer_address:document.getElementById('cust-address').value,
-                        items:cart.map(i=>({id:i.id,name:i.name,price:i.price,quantity:i.quantity})),
-                        total_price:tp
-                    })});
-                const d=await r.json();
-                if(d.success){closeOrderModal();document.getElementById('success-order-id').textContent='Order #'+d.order_id;document.getElementById('successModal').classList.add('show');cart=[];updateCartUI();this.reset();}
-                else if(d.need_login){showToast('❌ Please login first!','error');closeOrderModal();openAuthModal('login');}
-                else showToast('❌ '+d.message,'error');
-            }catch(ex){showToast('❌ Error!','error');}
+            const tp = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+            try {
+                const r = await fetch('/api/orders/place', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customer_name: document.getElementById('cust-name').value,
+                        customer_phone: document.getElementById('cust-phone').value,
+                        customer_address: document.getElementById('cust-address').value,
+                        items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity })),
+                        total_price: tp
+                    }) });
+                const d = await r.json();
+                if (d.success) {
+                    closeOrderModal();
+                    document.getElementById('success-order-id').textContent = 'Order #' + d.order_id;
+                    document.getElementById('successModal').classList.add('show');
+                    cart = []; updateCartUI(); this.reset();
+                }
+                else if (d.need_login) { showToast('❌ Please login first!', 'error'); closeOrderModal(); openAuthModal('login'); }
+                else showToast('❌ ' + d.message, 'error');
+            } catch (ex) { showToast('❌ Error!', 'error'); }
         });
 
-        function closeSuccessModal(){document.getElementById('successModal').classList.remove('show')}
+        function closeSuccessModal() { document.getElementById('successModal').classList.remove('show'); }
 
-        function showToast(m,t='success'){const x=document.getElementById('toast');x.textContent=m;x.className='toast '+t+' show';setTimeout(()=>x.classList.remove('show'),3000);}
+        function showToast(m, t) { const x = document.getElementById('toast'); x.textContent = m; x.className = 'toast ' + t + ' show'; setTimeout(() => x.classList.remove('show'), 3000); }
 
-        document.getElementById('authModal').addEventListener('click',function(e){if(e.target===this)closeAuthModal()});
-        document.getElementById('orderModal').addEventListener('click',function(e){if(e.target===this)closeOrderModal()});
-        document.getElementById('successModal').addEventListener('click',function(e){if(e.target===this)closeSuccessModal()});
-        document.getElementById('myOrdersModal').addEventListener('click',function(e){if(e.target===this)closeMyOrdersModal()});
+        document.getElementById('authModal').addEventListener('click', function(e) { if (e.target === this) closeAuthModal(); });
+        document.getElementById('orderModal').addEventListener('click', function(e) { if (e.target === this) closeOrderModal(); });
+        document.getElementById('successModal').addEventListener('click', function(e) { if (e.target === this) closeSuccessModal(); });
+        document.getElementById('myOrdersModal').addEventListener('click', function(e) { if (e.target === this) closeMyOrdersModal(); });
     </script>
 </body>
 </html>
