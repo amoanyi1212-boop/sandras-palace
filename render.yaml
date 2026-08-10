@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: sandras-palace
+    name: sandras-palace-1
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app

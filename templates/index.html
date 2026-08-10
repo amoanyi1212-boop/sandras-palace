@@ -8,7 +8,7 @@
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#e91e63">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Esirifuah's Palace">
+    <meta name="apple-mobile-web-app-title" content="Esirifuah Palace">
     <link rel="apple-touch-icon" href="/static/icon-192.png">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Nunito',sans-serif}
@@ -29,7 +29,7 @@
         .search-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:18px}
 
         .header-right{display:flex;align-items:center;gap:12px}
-        .hdr-btn{background:rgba(255,255,255,0.2);border:none;border-radius:15px;padding:11px 22px;color:white;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:8px;font-weight:800;font-family:'Nunito';position:relative;transition:all 0.2s}
+        .hdr-btn{background:rgba(255,255,255,0.2);border:none;border-radius:15px;padding:11px 22px;color:white;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:8px;font-weight:800;font-family:'Nunito';position:relative}
         .hdr-btn:hover{background:rgba(255,255,255,0.3)}
         .cart-count{position:absolute;top:-8px;right:-8px;background:#fff;color:#e91e63;width:24px;height:24px;border-radius:50%;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:800}
         .notif-dot{position:absolute;top:-4px;right:-4px;background:#e53935;color:white;min-width:20px;height:20px;border-radius:50%;font-size:10px;display:none;align-items:center;justify-content:center;font-weight:800;padding:0 4px}
@@ -44,7 +44,7 @@
 
         .categories-bar{background:white;padding:18px 30px;box-shadow:0 4px 15px rgba(233,30,99,0.08)}
         .categories-inner{max-width:1200px;margin:0 auto;display:flex;gap:10px;overflow-x:auto}
-        .cat-btn{padding:10px 22px;border:3px solid #fce4ec;border-radius:25px;background:white;font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'Nunito';color:#888;transition:all 0.2s}
+        .cat-btn{padding:10px 22px;border:3px solid #fce4ec;border-radius:25px;background:white;font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'Nunito';color:#888}
         .cat-btn:hover,.cat-btn.active{background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border-color:transparent}
 
         .container{max-width:1200px;margin:0 auto;padding:35px 30px}
@@ -53,7 +53,7 @@
         .section-title p{color:#aaa;font-size:14px;font-weight:700}
 
         .items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:25px}
-        .item-card{background:white;border-radius:24px;overflow:hidden;box-shadow:0 4px 20px rgba(233,30,99,0.08);transition:all 0.3s;position:relative;border:3px solid transparent}
+        .item-card{background:white;border-radius:24px;overflow:hidden;box-shadow:0 4px 20px rgba(233,30,99,0.08);transition:all 0.3s;position:relative;border:3px solid transparent;cursor:pointer}
         .item-card:hover{transform:translateY(-8px);box-shadow:0 15px 40px rgba(233,30,99,0.2);border-color:#e91e63}
         .item-card.oos{opacity:0.65}
         .oos-badge{position:absolute;top:15px;right:15px;background:linear-gradient(135deg,#e53935,#ef5350);color:white;padding:6px 14px;border-radius:25px;font-size:12px;font-weight:800;z-index:2}
@@ -77,7 +77,6 @@
         .spinner{width:50px;height:50px;border:5px solid #fce4ec;border-top-color:#e91e63;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 15px}
         @keyframes spin{to{transform:rotate(360deg)}}
 
-        /* CART */
         .cart-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:200;backdrop-filter:blur(5px)}
         .cart-overlay.show{display:block}
         .cart-sidebar{position:fixed;top:0;right:-430px;width:420px;height:100vh;background:white;z-index:201;display:flex;flex-direction:column;transition:right 0.4s ease;box-shadow:-5px 0 40px rgba(233,30,99,0.2);border-radius:30px 0 0 30px}
@@ -103,9 +102,7 @@
         .checkout-btn{width:100%;padding:17px;background:linear-gradient(135deg,#43a047,#66bb6a);color:white;border:none;border-radius:16px;font-size:17px;font-weight:800;cursor:pointer;font-family:'Nunito'}
         .cart-empty{text-align:center;padding:60px 20px;color:#aaa}
         .cart-empty .icon{font-size:65px;margin-bottom:15px}
-        .cart-empty p{font-weight:700}
 
-        /* MODALS */
         .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
         .modal-overlay.show{display:flex}
         .modal{background:white;border-radius:28px;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;border:3px solid #fce4ec;animation:popIn 0.3s ease}
@@ -120,7 +117,7 @@
         .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:#e91e63;background:white}
         .fg textarea{resize:vertical;min-height:90px}
 
-        .m-btn{width:100%;padding:17px;background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border:none;border-radius:16px;font-size:17px;font-weight:800;cursor:pointer;font-family:'Nunito';transition:all 0.3s}
+        .m-btn{width:100%;padding:17px;background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border:none;border-radius:16px;font-size:17px;font-weight:800;cursor:pointer;font-family:'Nunito'}
         .m-btn:hover{opacity:0.9}
         .m-btn.green{background:linear-gradient(135deg,#43a047,#66bb6a)}
         .m-btn.grey{background:none;border:3px solid #fce4ec;color:#aaa;margin-top:10px}
@@ -142,7 +139,7 @@
         .momo-amt{background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border-radius:12px;padding:12px;font-family:'Fredoka One',cursive;font-size:20px}
 
         .success-content{text-align:center;padding:50px 30px}
-        .success-content .s-icon{font-size:90px;margin-bottom:20px;animation:popIn 0.5s ease}
+        .success-content .s-icon{font-size:90px;margin-bottom:20px}
         .success-content h2{font-family:'Fredoka One',cursive;font-size:28px;color:#43a047;margin-bottom:10px}
         .success-content p{color:#aaa;font-weight:700;margin-bottom:20px}
         .s-order-id{background:#e8f5e9;border-radius:16px;padding:15px 30px;font-family:'Fredoka One',cursive;font-size:20px;color:#43a047;margin-bottom:25px;display:inline-block}
@@ -198,8 +195,8 @@
 
 <header class="header">
     <div class="header-inner">
-        <a class="logo" href="/"><div class="logo-icon">👑</div><div><h1>Esirifuah's Palace</h1><p>✨ Shop with Love</p></div></a>
-        <div class="header-search"><span class="search-icon">🔍</span><input type="text" id="h-search" placeholder="Search products..." oninput="search(this.value)" /></div>
+        <a class="logo" href="/"><div class="logo-icon">👑</div><div><h1>Esirifuah's Palace</h1><p>Shop with Love</p></div></a>
+        <div class="header-search"><span class="search-icon">🔍</span><input type="text" id="h-search" placeholder="Search products..." oninput="doSearch(this.value)" /></div>
         <div class="header-right">
             <button class="hdr-btn" onclick="openNotifs()">🔔<span class="notif-dot" id="n-dot">0</span></button>
             <button class="hdr-btn" onclick="openCart()">🛒 Cart<span class="cart-count" id="c-count">0</span></button>
@@ -213,10 +210,10 @@
 
 <div class="hero">
     <h2>Esirifuah's Palace 👑</h2>
-    <p>✨ Find everything you love ✨</p>
+    <p>Find everything you love</p>
     <div class="hero-search">
         <input type="text" id="hero-search" placeholder="What are you looking for?" />
-        <button onclick="search(document.getElementById('hero-search').value)">🔍 Search</button>
+        <button onclick="doSearch(document.getElementById('hero-search').value)">🔍 Search</button>
     </div>
 </div>
 
@@ -238,7 +235,7 @@
     <div class="items-grid" id="items-grid"><div class="loading"><div class="spinner"></div><p style="color:#aaa;font-weight:700">Loading... ✨</p></div></div>
 </div>
 
-<footer class="footer"><p>👑 Esirifuah's Palace © 2024</p></footer>
+<footer class="footer"><p>👑 Esirifuah's Palace 2024</p></footer>
 
 <!-- CART -->
 <div class="cart-overlay" id="c-overlay" onclick="closeCart()"></div>
@@ -246,7 +243,7 @@
     <div class="cart-head"><h2>🛒 Cart</h2><button class="cart-x" onclick="closeCart()">✕</button></div>
     <div class="cart-body" id="c-body"><div class="cart-empty"><div class="icon">🛒</div><p>Cart is empty!</p></div></div>
     <div class="cart-foot" id="c-foot" style="display:none">
-        <div class="cart-total"><span>Total:</span><span id="c-total">GH₵ 0.00</span></div>
+        <div class="cart-total"><span>Total:</span><span id="c-total">GH₵ 0</span></div>
         <button class="checkout-btn" onclick="openCheckout()">✅ Checkout</button>
     </div>
 </div>
@@ -276,6 +273,39 @@
     </div>
 </div>
 
+<!-- ITEM DETAIL -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal" style="max-width:600px">
+        <div class="m-head"><h2 id="d-title">Item</h2><button class="m-x" onclick="closeDetail()">✕</button></div>
+        <div class="m-body" style="padding:0">
+            <div style="position:relative;overflow:hidden">
+                <img id="d-img" src="" style="width:100%;height:300px;object-fit:cover;background:#fff0f3" onerror="this.src='https://via.placeholder.com/600x300?text=No+Image'" />
+                <div id="d-oos" style="display:none;position:absolute;top:15px;right:15px;background:linear-gradient(135deg,#e53935,#ef5350);color:white;padding:8px 18px;border-radius:25px;font-size:14px;font-weight:800">Sold Out</div>
+            </div>
+            <div style="padding:25px">
+                <span id="d-cat" style="background:#fce4ec;color:#c2185b;padding:5px 14px;border-radius:25px;font-size:12px;font-weight:800;display:inline-block;margin-bottom:12px">Category</span>
+                <h2 id="d-name" style="font-family:'Fredoka One',cursive;font-size:26px;color:#c2185b;margin-bottom:10px">Name</h2>
+                <div id="d-price" style="font-family:'Fredoka One',cursive;font-size:30px;color:#e91e63;margin-bottom:15px">GH₵ 0</div>
+                <div id="d-stock" style="margin-bottom:20px"></div>
+                <div style="background:#fff0f3;border-radius:16px;padding:20px;margin-bottom:20px;border:2px solid #fce4ec">
+                    <h3 style="font-family:'Fredoka One',cursive;font-size:16px;color:#c2185b;margin-bottom:10px">📝 Description</h3>
+                    <p id="d-desc" style="font-size:15px;color:#555;line-height:1.8;font-weight:600;white-space:pre-wrap">No description</p>
+                </div>
+                <p id="d-date" style="font-size:13px;color:#aaa;font-weight:700;margin-bottom:20px">Added: -</p>
+                <div id="d-actions" style="display:flex;align-items:center;gap:15px">
+                    <div style="display:flex;align-items:center;gap:10px;background:#fff0f3;border-radius:14px;padding:8px 15px">
+                        <button onclick="chgDQty(-1)" style="width:35px;height:35px;border:3px solid #fce4ec;border-radius:10px;background:white;font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+                        <span id="d-qty" style="font-family:'Fredoka One',cursive;font-size:20px;color:#c2185b;min-width:30px;text-align:center">1</span>
+                        <button onclick="chgDQty(1)" style="width:35px;height:35px;border:3px solid #fce4ec;border-radius:10px;background:white;font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+                    </div>
+                    <button id="d-add" onclick="addFromDetail()" style="flex:1;padding:15px 25px;background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:'Nunito'">🛒 Add to Cart</button>
+                </div>
+                <div id="d-sub" style="text-align:right;margin-top:12px;font-family:'Fredoka One',cursive;font-size:18px;color:#e91e63">Subtotal: GH₵ 0</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ORDER -->
 <div class="modal-overlay" id="orderModal">
     <div class="modal">
@@ -296,11 +326,9 @@
                     <div class="momo-acc" style="margin-bottom:15px"><div class="momo-num">0540882629</div><div class="momo-name">👤 Milicent Nkrumah</div></div>
                     <div class="momo-amt" id="o-amt">Amount: GH₵ 0</div>
                 </div>
-                <div class="fg"><label>📱 Paid to which number? *</label>
-                    <select id="o-momo"><option value="">-- Select --</option><option value="0550618807 - Sandra Nkrumah">0550618807 - Sandra</option><option value="0540882629 - Milicent Nkrumah">0540882629 - Milicent</option></select>
-                </div>
-                <div class="fg"><label>🔢 Transaction ID *</label><input type="text" id="o-trans" placeholder="e.g. 1234567890" /><small style="color:#aaa;font-size:12px;font-weight:700;display:block;margin-top:5px">From your MoMo SMS</small></div>
-                <button class="m-btn green" id="pay-btn" onclick="placeOrder()">✅ I Have Paid - Place Order</button>
+                <div class="fg"><label>📱 Paid to?</label><select id="o-momo"><option value="">-- Select --</option><option value="0550618807 - Sandra Nkrumah">0550618807 - Sandra</option><option value="0540882629 - Milicent Nkrumah">0540882629 - Milicent</option></select></div>
+                <div class="fg"><label>🔢 Transaction ID</label><input type="text" id="o-trans" placeholder="e.g. 1234567890" /><small style="color:#aaa;font-size:12px;font-weight:700;display:block;margin-top:5px">From MoMo SMS</small></div>
+                <button class="m-btn green" id="pay-btn" onclick="placeOrder()">✅ I Have Paid</button>
                 <button class="m-btn grey" onclick="goStep1()">← Back</button>
             </div>
         </div>
@@ -308,500 +336,462 @@
 </div>
 
 <!-- SUCCESS -->
-<div class="modal-overlay" id="successModal">
-    <div class="modal">
-        <div class="success-content">
-            <div class="s-icon">🎉</div><h2>Order Placed!</h2>
-            <p>Your order is confirmed! 💕</p>
-            <div class="s-order-id" id="s-oid">Order #0</div>
-            <p>We will contact you shortly! ✨</p><br>
-            <button class="m-btn" onclick="document.getElementById('successModal').classList.remove('show')">🛍️ Continue</button>
-        </div>
-    </div>
-</div>
+<div class="modal-overlay" id="successModal"><div class="modal"><div class="success-content"><div class="s-icon">🎉</div><h2>Order Placed!</h2><p>Your order is confirmed!</p><div class="s-order-id" id="s-oid">Order #0</div><p>We will contact you shortly!</p><br><button class="m-btn" onclick="document.getElementById('successModal').classList.remove('show')">🛍️ Continue</button></div></div></div>
 
 <!-- MY ORDERS -->
-<div class="modal-overlay" id="ordersModal">
-    <div class="modal">
-        <div class="m-head"><h2>📦 My Orders</h2><button class="m-x" onclick="document.getElementById('ordersModal').classList.remove('show')">✕</button></div>
-        <div class="m-body"><div id="my-orders" style="max-height:400px;overflow-y:auto"><div class="empty-state"><div class="e-icon">📭</div><p>No orders</p></div></div></div>
-    </div>
-</div>
+<div class="modal-overlay" id="ordersModal"><div class="modal"><div class="m-head"><h2>📦 My Orders</h2><button class="m-x" onclick="document.getElementById('ordersModal').classList.remove('show')">✕</button></div><div class="m-body"><div id="my-orders" style="max-height:400px;overflow-y:auto"><div class="empty-state"><div class="e-icon">📭</div><p>No orders</p></div></div></div></div></div>
 
 <!-- NOTIFICATIONS -->
-<div class="modal-overlay" id="notifModal">
-    <div class="modal">
-        <div class="m-head"><h2>🔔 Notifications</h2><button class="m-x" onclick="document.getElementById('notifModal').classList.remove('show')">✕</button></div>
-        <div class="m-body"><div id="n-list" style="max-height:400px;overflow-y:auto"><div class="empty-state"><div class="e-icon">🔔</div><p>No notifications</p></div></div></div>
-    </div>
-</div>
+<div class="modal-overlay" id="notifModal"><div class="modal"><div class="m-head"><h2>🔔 Notifications</h2><button class="m-x" onclick="document.getElementById('notifModal').classList.remove('show')">✕</button></div><div class="m-body"><div id="n-list" style="max-height:400px;overflow-y:auto"><div class="empty-state"><div class="e-icon">🔔</div><p>No notifications</p></div></div></div></div></div>
 
 <!-- DISPUTE -->
-<div class="modal-overlay" id="disputeModal">
-    <div class="modal">
-        <div class="m-head"><h2>⚠️ Raise Dispute</h2><button class="m-x" onclick="document.getElementById('disputeModal').classList.remove('show')">✕</button></div>
-        <div class="m-body">
-            <input type="hidden" id="dispute-oid" />
-            <div class="fg"><label>Why are you disputing this order?</label><textarea id="dispute-reason" placeholder="Explain the issue..."></textarea></div>
-            <button class="m-btn" style="background:linear-gradient(135deg,#e53935,#ef5350)" onclick="submitDispute()">⚠️ Submit Dispute</button>
-        </div>
-    </div>
-</div>
-
-<!-- ITEM DETAIL -->
-<div class="modal-overlay" id="detailModal">
-    <div class="modal" style="max-width:600px">
-        <div class="m-head">
-            <h2 id="d-title">Item Details</h2>
-            <button class="m-x" onclick="closeDetail()">✕</button>
-        </div>
-        <div class="m-body" style="padding:0">
-
-            <!-- Big Image -->
-            <div style="position:relative;overflow:hidden">
-                <img id="d-img" src="" alt=""
-                     style="width:100%;height:300px;object-fit:cover;background:#fff0f3"
-                     onerror="this.src='https://via.placeholder.com/600x300?text=No+Image'" />
-                <div id="d-oos-badge" style="
-                    display:none;position:absolute;top:15px;right:15px;
-                    background:linear-gradient(135deg,#e53935,#ef5350);
-                    color:white;padding:8px 18px;border-radius:25px;
-                    font-size:14px;font-weight:800;
-                ">Sold Out</div>
-            </div>
-
-            <!-- Item Info -->
-            <div style="padding:25px">
-
-                <!-- Category -->
-                <span id="d-cat" style="
-                    background:#fce4ec;color:#c2185b;padding:5px 14px;
-                    border-radius:25px;font-size:12px;font-weight:800;
-                    display:inline-block;margin-bottom:12px;
-                ">Category</span>
-
-                <!-- Name -->
-                <h2 id="d-name" style="
-                    font-family:'Fredoka One',cursive;font-size:26px;
-                    color:#c2185b;margin-bottom:10px;
-                ">Item Name</h2>
-
-                <!-- Price -->
-                <div id="d-price" style="
-                    font-family:'Fredoka One',cursive;font-size:30px;
-                    color:#e91e63;margin-bottom:15px;
-                ">GH₵ 0.00</div>
-
-                <!-- Stock Status -->
-                <div id="d-stock" style="margin-bottom:20px"></div>
-
-                <!-- Description -->
-                <div style="
-                    background:#fff0f3;border-radius:16px;padding:20px;
-                    margin-bottom:20px;border:2px solid #fce4ec;
-                ">
-                    <h3 style="
-                        font-family:'Fredoka One',cursive;font-size:16px;
-                        color:#c2185b;margin-bottom:10px;
-                    ">📝 Description</h3>
-                    <p id="d-desc" style="
-                        font-size:15px;color:#555;line-height:1.8;
-                        font-weight:600;white-space:pre-wrap;
-                    ">No description available</p>
-                </div>
-
-                <!-- Date Added -->
-                <p id="d-date" style="
-                    font-size:13px;color:#aaa;font-weight:700;
-                    margin-bottom:20px;
-                ">Added: 2024-01-01</p>
-
-                <!-- Quantity Selector + Add to Cart -->
-                <div id="d-actions" style="
-                    display:flex;align-items:center;gap:15px;
-                ">
-                    <div style="
-                        display:flex;align-items:center;gap:10px;
-                        background:#fff0f3;border-radius:14px;padding:8px 15px;
-                    ">
-                        <button onclick="changeDetailQty(-1)" style="
-                            width:35px;height:35px;border:3px solid #fce4ec;
-                            border-radius:10px;background:white;font-size:18px;
-                            font-weight:800;cursor:pointer;display:flex;
-                            align-items:center;justify-content:center;
-                        ">−</button>
-                        <span id="d-qty" style="
-                            font-family:'Fredoka One',cursive;font-size:20px;
-                            color:#c2185b;min-width:30px;text-align:center;
-                        ">1</span>
-                        <button onclick="changeDetailQty(1)" style="
-                            width:35px;height:35px;border:3px solid #fce4ec;
-                            border-radius:10px;background:white;font-size:18px;
-                            font-weight:800;cursor:pointer;display:flex;
-                            align-items:center;justify-content:center;
-                        ">+</button>
-                    </div>
-                    <button id="d-add-btn" onclick="addFromDetail()" style="
-                        flex:1;padding:15px 25px;
-                        background:linear-gradient(135deg,#e91e63,#ff6f00);
-                        color:white;border:none;border-radius:14px;
-                        font-size:16px;font-weight:800;cursor:pointer;
-                        font-family:'Nunito';transition:all 0.3s;
-                    ">🛒 Add to Cart</button>
-                </div>
-
-                <!-- Total for selected qty -->
-                <div id="d-subtotal" style="
-                    text-align:right;margin-top:12px;
-                    font-family:'Fredoka One',cursive;
-                    font-size:18px;color:#e91e63;
-                ">Subtotal: GH₵ 0.00</div>
-
-            </div>
-        </div>
-    </div>
-</div>
+<div class="modal-overlay" id="disputeModal"><div class="modal"><div class="m-head"><h2>⚠️ Raise Dispute</h2><button class="m-x" onclick="document.getElementById('disputeModal').classList.remove('show')">✕</button></div><div class="m-body"><input type="hidden" id="dispute-oid" /><div class="fg"><label>Why are you disputing?</label><textarea id="dispute-reason" placeholder="Explain..."></textarea></div><button class="m-btn" style="background:linear-gradient(135deg,#e53935,#ef5350)" onclick="submitDispute()">⚠️ Submit Dispute</button></div></div></div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-var allItems=[],cart=[],activeCat='all',user=null,lastNC=0;
+    var allItems = [];
+    var cart = [];
+    var activeCat = 'all';
+    var user = null;
+    var lastNC = 0;
+    var detailItem = null;
+    var detailQty = 1;
 
-window.onload=function(){loadItems();checkAuth();if('serviceWorker' in navigator)navigator.serviceWorker.register('/static/sw.js').catch(function(){});setInterval(checkNotifs,5000)};
-
-function getImg(u){if(!u)return'https://via.placeholder.com/400?text=No+Image';if(u.startsWith('http'))return u;if(u.startsWith('static/'))return'/'+u;return u}
-
-// AUTH
-function checkAuth(){fetch('/api/auth/check').then(function(r){return r.json()}).then(function(d){if(d.logged_in){user=d.user;updateUI();setTimeout(checkNotifs,1000)}else{user=null;updateUI()}}).catch(function(){})}
-
-function updateUI(){
-    var btn=document.getElementById('u-btn'),menu=document.getElementById('dd-menu');
-    if(user){
-        btn.textContent=user.fullname.split(' ')[0];
-        menu.innerHTML='<div class="dd-head">👑 '+user.fullname+'</div>'+
-            '<div class="dd-item" onclick="openNotifs()">🔔 Notifications <span id="dd-n-count" style="background:#e53935;color:white;border-radius:50%;padding:2px 8px;font-size:11px;margin-left:5px;display:none">0</span></div>'+
-            '<div class="dd-item" onclick="openMyOrders()">📦 My Orders</div>'+
-            '<div class="dd-item" onclick="doLogout()">🚪 Logout</div>';
-    }else{
-        btn.textContent='Login';
-        menu.innerHTML='<div class="dd-item" onclick="openAuth(\'login\')">✨ Login</div><div class="dd-item" onclick="openAuth(\'reg\')">🎉 Sign Up</div>';
-    }
-}
-
-function toggleDD(){document.getElementById('dd-menu').classList.toggle('show')}
-document.addEventListener('click',function(e){if(!e.target.closest('.user-dropdown'))document.getElementById('dd-menu').classList.remove('show')});
-
-function openAuth(t){document.getElementById('dd-menu').classList.remove('show');document.getElementById('auth-err').classList.remove('show');if(t==='reg')showReg();else showLogin();document.getElementById('authModal').classList.add('show')}
-function closeAuth(){document.getElementById('authModal').classList.remove('show')}
-function showLogin(){document.getElementById('loginForm').style.display='block';document.getElementById('regForm').style.display='none';document.getElementById('auth-title').textContent='👤 Login';document.getElementById('auth-err').classList.remove('show')}
-function showReg(){document.getElementById('loginForm').style.display='none';document.getElementById('regForm').style.display='block';document.getElementById('auth-title').textContent='🎉 Sign Up';document.getElementById('auth-err').classList.remove('show')}
-
-document.getElementById('loginForm').addEventListener('submit',function(e){
-    e.preventDefault();var err=document.getElementById('auth-err');
-    fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('l-email').value,password:document.getElementById('l-pass').value})})
-    .then(function(r){return r.json()}).then(function(d){
-        if(d.success){user=d.user;updateUI();closeAuth();toast('Welcome back!','success');this.reset();setTimeout(checkNotifs,1000)}
-        else{err.textContent=d.message;err.classList.add('show')}}.bind(this))
-    .catch(function(){err.textContent='Error!';err.classList.add('show')});
-});
-
-document.getElementById('regForm').addEventListener('submit',function(e){
-    e.preventDefault();var err=document.getElementById('auth-err');
-    fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        fullname:document.getElementById('r-name').value,email:document.getElementById('r-email').value,
-        phone:document.getElementById('r-phone').value,address:document.getElementById('r-addr').value,
-        password:document.getElementById('r-pass').value})})
-    .then(function(r){return r.json()}).then(function(d){
-        if(d.success){user=d.user;updateUI();closeAuth();toast('Welcome!','success');this.reset();setTimeout(checkNotifs,1000)}
-        else{err.textContent=d.message;err.classList.add('show')}}.bind(this))
-    .catch(function(){err.textContent='Error!';err.classList.add('show')});
-});
-
-function doLogout(){document.getElementById('dd-menu').classList.remove('show');fetch('/api/auth/logout',{method:'POST'}).then(function(){user=null;updateUI();toast('Logged out!','success')})}
-
-// NOTIFICATIONS
-function checkNotifs(){
-    if(!user)return;
-    fetch('/api/notifications/user').then(function(r){return r.json()}).then(function(data){
-        var dot=document.getElementById('n-dot');
-        var ddCount=document.getElementById('dd-n-count');
-        if(data.unread_count>0){
-            dot.textContent=data.unread_count;dot.style.display='flex';
-            if(ddCount){ddCount.textContent=data.unread_count;ddCount.style.display='inline'}
-            if(data.unread_count>lastNC&&lastNC>=0&&data.notifications.length>0){
-                var n=data.notifications[0];if(!n.is_read)showPopup(n.title,n.message)}
-            lastNC=data.unread_count;
-        }else{
-            dot.style.display='none';lastNC=0;
-            if(ddCount)ddCount.style.display='none';
+    window.onload = function() {
+        console.log('Page loading...');
+        loadItems();
+        checkAuth();
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js').catch(function(){});
         }
-    }).catch(function(){});
-}
+        setInterval(checkNotifs, 5000);
+        // Retry loading if stuck
+        setTimeout(function() {
+            var g = document.getElementById('items-grid');
+            if (g && g.innerHTML.indexOf('Loading') > -1) {
+                console.log('Retrying load...');
+                loadItems();
+            }
+        }, 8000);
+    };
 
-function showPopup(title,msg){
-    var old=document.getElementById('u-popup');if(old)old.remove();
-    var p=document.createElement('div');p.id='u-popup';
-    p.style.cssText='position:fixed;top:20px;right:20px;background:white;border-radius:20px;padding:20px 25px;box-shadow:0 10px 40px rgba(233,30,99,0.3);border:3px solid #fce4ec;z-index:10000;max-width:350px;animation:popIn 0.3s ease;cursor:pointer';
-    p.onclick=function(){p.remove();openNotifs()};
-    p.innerHTML='<div style="display:flex;align-items:center;gap:12px"><div style="font-size:30px">🔔</div><div style="flex:1"><div style="font-family:Fredoka One,cursive;color:#c2185b;font-size:14px">'+title+'</div><div style="font-size:13px;color:#666;font-weight:600;margin-top:3px">'+msg+'</div></div><button onclick="event.stopPropagation();this.parentElement.parentElement.remove()" style="background:#ffebee;border:none;color:#e53935;width:25px;height:25px;border-radius:50%;cursor:pointer;font-weight:800;flex-shrink:0">x</button></div>';
-    document.body.appendChild(p);
-    setTimeout(function(){var el=document.getElementById('u-popup');if(el){el.style.opacity='0';el.style.transition='all 0.3s';setTimeout(function(){el.remove()},300)}},8000);
-}
+    function getImg(u) {
+        if (!u) return 'https://via.placeholder.com/400?text=No+Image';
+        if (u.startsWith('http')) return u;
+        if (u.startsWith('static/')) return '/' + u;
+        return u;
+    }
 
-function openNotifs(){
-    document.getElementById('dd-menu').classList.remove('show');
-    if(!user){openAuth('login');return}
-    fetch('/api/notifications/user').then(function(r){return r.json()}).then(function(data){
-        var list=document.getElementById('n-list');
-        if(!data.notifications||data.notifications.length===0){list.innerHTML='<div class="empty-state"><div class="e-icon">🔔</div><p>No notifications</p></div>'}
-        else{list.innerHTML=data.notifications.map(function(n){return'<div class="n-item'+(n.is_read?'':' unread')+'"><div class="n-title">'+(n.is_read?'':'🔴 ')+n.title+'</div><div class="n-msg">'+n.message+'</div><div class="n-time">'+n.created_at+'</div></div>'}).join('')}
-        document.getElementById('notifModal').classList.add('show');
-        fetch('/api/notifications/read-all',{method:'POST'}).then(function(){checkNotifs()});
-    }).catch(function(){toast('Error!','error')});
-}
+    // ===== AUTH =====
+    function checkAuth() {
+        fetch('/api/auth/check')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.logged_in) { user = d.user; updateUI(); setTimeout(checkNotifs, 1000); }
+            else { user = null; updateUI(); }
+        }).catch(function(e) { console.log('Auth check:', e); });
+    }
 
-// MY ORDERS
-function openMyOrders(){
-    document.getElementById('dd-menu').classList.remove('show');
-    if(!user){openAuth('login');return}
-    fetch('/api/orders/my').then(function(r){return r.json()}).then(function(orders){
-        var list=document.getElementById('my-orders');
-        if(!orders||orders.length===0){list.innerHTML='<div class="empty-state"><div class="e-icon">📭</div><p>No orders yet!</p></div>';
-        }else{
-            list.innerHTML=orders.map(function(o){
-                var sc=o.status==='Awaiting Delivery'?'awaiting':o.status==='Disputed'?'disputed':o.status.toLowerCase();
-                var btns='';
-                if(o.status==='Awaiting Delivery'){
-                    btns='<button class="confirm-btn" onclick="confirmDel('+o.id+')">✅ Confirm I Received It</button>'+
-                         '<button class="dispute-btn" onclick="openDispute('+o.id+')">⚠️ Raise Dispute</button>';
+    function updateUI() {
+        var btn = document.getElementById('u-btn');
+        var menu = document.getElementById('dd-menu');
+        if (user) {
+            btn.textContent = user.fullname.split(' ')[0];
+            menu.innerHTML = '<div class="dd-head">\u{1f451} ' + user.fullname + '</div>' +
+                '<div class="dd-item" onclick="openNotifs()">🔔 Notifications <span id="dd-nc" style="background:#e53935;color:white;border-radius:50%;padding:2px 8px;font-size:11px;margin-left:5px;display:none">0</span></div>' +
+                '<div class="dd-item" onclick="openMyOrders()">📦 My Orders</div>' +
+                '<div class="dd-item" onclick="doLogout()">🚪 Logout</div>';
+        } else {
+            btn.textContent = 'Login';
+            menu.innerHTML = '<div class="dd-item" onclick="openAuth(\'login\')">✨ Login</div>' +
+                '<div class="dd-item" onclick="openAuth(\'reg\')">🎉 Sign Up</div>';
+        }
+    }
+
+    function toggleDD() { document.getElementById('dd-menu').classList.toggle('show'); }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.user-dropdown')) document.getElementById('dd-menu').classList.remove('show');
+    });
+
+    function openAuth(t) {
+        document.getElementById('dd-menu').classList.remove('show');
+        document.getElementById('auth-err').classList.remove('show');
+        if (t === 'reg') showReg(); else showLogin();
+        document.getElementById('authModal').classList.add('show');
+    }
+    function closeAuth() { document.getElementById('authModal').classList.remove('show'); }
+    function showLogin() {
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('regForm').style.display = 'none';
+        document.getElementById('auth-title').textContent = '👤 Login';
+        document.getElementById('auth-err').classList.remove('show');
+    }
+    function showReg() {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('regForm').style.display = 'block';
+        document.getElementById('auth-title').textContent = '🎉 Sign Up';
+        document.getElementById('auth-err').classList.remove('show');
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var err = document.getElementById('auth-err');
+        var self = this;
+        fetch('/api/auth/login', { method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: document.getElementById('l-email').value, password: document.getElementById('l-pass').value})
+        }).then(function(r) { return r.json(); }).then(function(d) {
+            if (d.success) { user = d.user; updateUI(); closeAuth(); toast('Welcome back!', 'success'); self.reset(); setTimeout(checkNotifs, 1000); }
+            else { err.textContent = d.message; err.classList.add('show'); }
+        }).catch(function() { err.textContent = 'Error!'; err.classList.add('show'); });
+    });
+
+    document.getElementById('regForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var err = document.getElementById('auth-err');
+        var self = this;
+        fetch('/api/auth/register', { method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                fullname: document.getElementById('r-name').value, email: document.getElementById('r-email').value,
+                phone: document.getElementById('r-phone').value, address: document.getElementById('r-addr').value,
+                password: document.getElementById('r-pass').value
+            })
+        }).then(function(r) { return r.json(); }).then(function(d) {
+            if (d.success) { user = d.user; updateUI(); closeAuth(); toast('Welcome!', 'success'); self.reset(); setTimeout(checkNotifs, 1000); }
+            else { err.textContent = d.message; err.classList.add('show'); }
+        }).catch(function() { err.textContent = 'Error!'; err.classList.add('show'); });
+    });
+
+    function doLogout() {
+        document.getElementById('dd-menu').classList.remove('show');
+        fetch('/api/auth/logout', {method:'POST'}).then(function() {
+            user = null; updateUI(); toast('Logged out!', 'success');
+        });
+    }
+
+    // ===== NOTIFICATIONS =====
+    function checkNotifs() {
+        if (!user) return;
+        fetch('/api/notifications/user').then(function(r) { return r.json(); }).then(function(data) {
+            var dot = document.getElementById('n-dot');
+            var ddc = document.getElementById('dd-nc');
+            if (data.unread_count > 0) {
+                dot.textContent = data.unread_count; dot.style.display = 'flex';
+                if (ddc) { ddc.textContent = data.unread_count; ddc.style.display = 'inline'; }
+                if (data.unread_count > lastNC && lastNC >= 0 && data.notifications.length > 0) {
+                    var n = data.notifications[0];
+                    if (!n.is_read) showPopup(n.title, n.message);
                 }
-                return'<div class="my-o-card"><div class="my-o-head"><h4>Order #'+o.id+'</h4><span class="badge badge-'+sc+'">'+o.status+'</span></div><div class="my-o-items">'+fmtItems(o.items)+'</div><div class="my-o-foot"><span style="color:#aaa;font-size:13px">'+o.date_ordered+'</span><span class="my-o-price">GH&#8373; '+o.total_price.toFixed(2)+'</span></div>'+btns+'</div>';
-            }).join('');
+                lastNC = data.unread_count;
+            } else {
+                dot.style.display = 'none'; lastNC = 0;
+                if (ddc) ddc.style.display = 'none';
+            }
+        }).catch(function() {});
+    }
+
+    function showPopup(title, msg) {
+        var old = document.getElementById('u-popup'); if (old) old.remove();
+        var p = document.createElement('div'); p.id = 'u-popup';
+        p.style.cssText = 'position:fixed;top:20px;right:20px;background:white;border-radius:20px;padding:20px 25px;box-shadow:0 10px 40px rgba(233,30,99,0.3);border:3px solid #fce4ec;z-index:10000;max-width:350px;animation:popIn 0.3s ease;cursor:pointer';
+        p.onclick = function() { p.remove(); openNotifs(); };
+        p.innerHTML = '<div style="display:flex;align-items:center;gap:12px"><div style="font-size:30px">🔔</div><div style="flex:1"><div style="font-family:Fredoka One,cursive;color:#c2185b;font-size:14px">' + title + '</div><div style="font-size:13px;color:#666;font-weight:600;margin-top:3px">' + msg + '</div></div><button onclick="event.stopPropagation();this.parentElement.parentElement.remove()" style="background:#ffebee;border:none;color:#e53935;width:25px;height:25px;border-radius:50%;cursor:pointer;font-weight:800;flex-shrink:0">x</button></div>';
+        document.body.appendChild(p);
+        setTimeout(function() { var el = document.getElementById('u-popup'); if (el) { el.style.opacity = '0'; el.style.transition = 'all 0.3s'; setTimeout(function() { el.remove(); }, 300); } }, 8000);
+    }
+
+    function openNotifs() {
+        document.getElementById('dd-menu').classList.remove('show');
+        if (!user) { openAuth('login'); return; }
+        fetch('/api/notifications/user').then(function(r) { return r.json(); }).then(function(data) {
+            var list = document.getElementById('n-list');
+            if (!data.notifications || data.notifications.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="e-icon">🔔</div><p>No notifications</p></div>';
+            } else {
+                list.innerHTML = data.notifications.map(function(n) {
+                    return '<div class="n-item' + (n.is_read ? '' : ' unread') + '"><div class="n-title">' + (n.is_read ? '' : '🔴 ') + n.title + '</div><div class="n-msg">' + n.message + '</div><div class="n-time">' + n.created_at + '</div></div>';
+                }).join('');
+            }
+            document.getElementById('notifModal').classList.add('show');
+            fetch('/api/notifications/read-all', {method:'POST'}).then(function() { checkNotifs(); });
+        }).catch(function() { toast('Error!', 'error'); });
+    }
+
+    // ===== MY ORDERS =====
+    function openMyOrders() {
+        document.getElementById('dd-menu').classList.remove('show');
+        if (!user) { openAuth('login'); return; }
+        fetch('/api/orders/my').then(function(r) { return r.json(); }).then(function(orders) {
+            var list = document.getElementById('my-orders');
+            if (!orders || orders.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="e-icon">📭</div><p>No orders yet!</p></div>';
+            } else {
+                list.innerHTML = orders.map(function(o) {
+                    var sc = o.status === 'Awaiting Delivery' ? 'awaiting' : o.status === 'Disputed' ? 'disputed' : o.status.toLowerCase();
+                    var btns = '';
+                    if (o.status === 'Awaiting Delivery') {
+                        btns = '<button class="confirm-btn" onclick="confirmDel(' + o.id + ')">✅ Confirm Received</button>' +
+                               '<button class="dispute-btn" onclick="openDispute(' + o.id + ')">⚠️ Raise Dispute</button>';
+                    }
+                    return '<div class="my-o-card"><div class="my-o-head"><h4>Order #' + o.id + '</h4><span class="badge badge-' + sc + '">' + o.status + '</span></div><div class="my-o-items">' + fmtItems(o.items) + '</div><div class="my-o-foot"><span style="color:#aaa;font-size:13px">' + o.date_ordered + '</span><span class="my-o-price">GH&#8373; ' + o.total_price.toFixed(2) + '</span></div>' + btns + '</div>';
+                }).join('');
+            }
+            document.getElementById('ordersModal').classList.add('show');
+        }).catch(function() { toast('Error!', 'error'); });
+    }
+
+    function confirmDel(id) {
+        if (!confirm('Confirm you received your order?')) return;
+        fetch('/api/orders/confirm-delivery/' + id, {method:'POST'}).then(function(r) { return r.json(); }).then(function(d) {
+            if (d.success) { toast('Confirmed!', 'success'); openMyOrders(); } else toast(d.message || 'Error!', 'error');
+        }).catch(function() { toast('Error!', 'error'); });
+    }
+
+    function openDispute(id) {
+        document.getElementById('dispute-oid').value = id;
+        document.getElementById('dispute-reason').value = '';
+        document.getElementById('disputeModal').classList.add('show');
+    }
+
+    function submitDispute() {
+        var oid = document.getElementById('dispute-oid').value;
+        var reason = document.getElementById('dispute-reason').value.trim();
+        if (!reason) { toast('Please explain!', 'error'); return; }
+        fetch('/api/orders/dispute/' + oid, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({reason:reason})})
+        .then(function(r) { return r.json(); }).then(function(d) {
+            if (d.success) { document.getElementById('disputeModal').classList.remove('show'); toast('Dispute filed!', 'success'); openMyOrders(); }
+            else toast(d.message || 'Error!', 'error');
+        }).catch(function() { toast('Error!', 'error'); });
+    }
+
+    function fmtItems(s) { try { var i = JSON.parse(s.replace(/'/g, '"')); return i.map(function(x) { return x.name + ' x' + x.quantity; }).join(', '); } catch(e) { return s; } }
+
+    // ===== ITEMS =====
+    function loadItems() {
+        console.log('Fetching items...');
+        fetch('/api/items')
+        .then(function(r) {
+            console.log('Items response:', r.status);
+            return r.json();
+        })
+        .then(function(items) {
+            console.log('Items loaded:', items.length);
+            allItems = items;
+            displayItems(items);
+        })
+        .catch(function(err) {
+            console.error('Load items error:', err);
+            document.getElementById('items-grid').innerHTML =
+                '<div class="empty-state"><div class="e-icon">😢</div><h3>Failed to load</h3><p>Please refresh</p>' +
+                '<button onclick="loadItems()" style="margin-top:15px;padding:12px 25px;background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-family:Nunito">🔄 Retry</button></div>';
+        });
+    }
+
+    function displayItems(items) {
+        var g = document.getElementById('items-grid');
+        document.getElementById('item-count').textContent = items.length + ' product' + (items.length !== 1 ? 's' : '') + ' ✨';
+        if (items.length === 0) {
+            g.innerHTML = '<div class="empty-state"><div class="e-icon">🔍</div><h3>No products found</h3><p>Try a different search</p></div>';
+            return;
         }
-        document.getElementById('ordersModal').classList.add('show');
-    }).catch(function(){toast('Error!','error')});
-}
-
-function confirmDel(id){
-    if(!confirm('Confirm you received your order?'))return;
-    fetch('/api/orders/confirm-delivery/'+id,{method:'POST'}).then(function(r){return r.json()}).then(function(d){
-        if(d.success){toast('Delivery confirmed!','success');openMyOrders()}else toast(d.message||'Error!','error')
-    }).catch(function(){toast('Error!','error')});
-}
-
-function openDispute(id){
-    document.getElementById('dispute-oid').value=id;
-    document.getElementById('dispute-reason').value='';
-    document.getElementById('disputeModal').classList.add('show');
-}
-
-function submitDispute(){
-    var oid=document.getElementById('dispute-oid').value;
-    var reason=document.getElementById('dispute-reason').value.trim();
-    if(!reason){toast('Please explain the issue!','error');return}
-    fetch('/api/orders/dispute/'+oid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reason:reason})})
-    .then(function(r){return r.json()}).then(function(d){
-        if(d.success){document.getElementById('disputeModal').classList.remove('show');toast('Dispute filed!','success');openMyOrders()}
-        else toast(d.message||'Error!','error')
-    }).catch(function(){toast('Error!','error')});
-}
-
-function fmtItems(s){try{var i=JSON.parse(s.replace(/'/g,'"'));return i.map(function(x){return x.name+' x'+x.quantity}).join(', ')}catch(e){return s}}
-
-// ITEMS
-function loadItems(){
-    fetch('/api/items').then(function(r){return r.json()}).then(function(items){allItems=items;displayItems(items)})
-    .catch(function(){document.getElementById('items-grid').innerHTML='<div class="empty-state"><div class="e-icon">😢</div><h3>Failed to load</h3></div>'});
-}
-
-function displayItems(items){
-    var g=document.getElementById('items-grid');
-    document.getElementById('item-count').textContent=items.length+' product'+(items.length!==1?'s':'')+' ✨';
-    if(items.length===0){g.innerHTML='<div class="empty-state"><div class="e-icon">🔍</div><h3>No products</h3></div>';return}
-    g.innerHTML=items.map(function(i){
-        return'<div class="item-card'+(i.in_stock?'':' oos')+'" onclick="openDetail('+i.id+')" style="cursor:pointer"><div class="item-img-wrap"><img class="item-img" src="'+getImg(i.image_url)+'" alt="'+i.name+'" onerror="this.src=\'https://via.placeholder.com/240x210?text=No+Image\'" />'+(i.in_stock?'':'<div class="oos-badge">Sold Out</div>')+'</div><div class="item-body"><p class="item-cat">📁 '+i.category+'</p><h3 class="item-name">'+i.name+'</h3><p class="item-desc">'+(i.description||'No description')+'</p><div class="item-foot"><span class="item-price">GH&#8373; '+i.price.toFixed(2)+'</span><button class="add-btn" '+(i.in_stock?'onclick="event.stopPropagation();addToCart('+i.id+')"':'disabled')+' id="cb-'+i.id+'">'+(i.in_stock?'🛒 Add':'N/A')+'</button></div></div></div>';
-    }).join('');
-}
-
-function search(q){document.getElementById('h-search').value=q;document.getElementById('hero-search').value=q;
-    var f=allItems.filter(function(i){return(i.name.toLowerCase().includes(q.toLowerCase())||(i.description||'').toLowerCase().includes(q.toLowerCase()))&&(activeCat==='all'||i.category===activeCat)});
-    document.getElementById('sec-head').textContent=q?'Results for "'+q+'"':'All Products';displayItems(f);
-}
-
-function filterCat(c,btn){activeCat=c;document.querySelectorAll('.cat-btn').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');
-    var q=document.getElementById('h-search').value;
-    var f=allItems.filter(function(i){return(c==='all'||i.category===c)&&i.name.toLowerCase().includes(q.toLowerCase())});
-    document.getElementById('sec-head').textContent=c==='all'?'All Products':c;displayItems(f);
-}
-
-// CART
-function addToCart(id){var item=allItems.find(function(i){return i.id===id});if(!item||!item.in_stock)return;
-    var ex=cart.find(function(c){return c.id===id});if(ex)ex.quantity++;else{var copy={};for(var k in item)copy[k]=item[k];copy.quantity=1;cart.push(copy)}
-    updateCart();toast(item.name+' added!','success');
-    var btn=document.getElementById('cb-'+id);if(btn){btn.textContent='Added!';setTimeout(function(){btn.textContent='🛒 Add'},1500)}
-}
-
-function rmCart(id){cart=cart.filter(function(c){return c.id!==id});updateCart()}
-function chgQty(id,d){var i=cart.find(function(c){return c.id===id});if(!i)return;i.quantity+=d;if(i.quantity<=0)rmCart(id);else updateCart()}
-
-function updateCart(){
-    var ti=cart.reduce(function(s,i){return s+i.quantity},0);
-    var tp=cart.reduce(function(s,i){return s+(i.price*i.quantity)},0);
-    document.getElementById('c-count').textContent=ti;
-    var body=document.getElementById('c-body'),foot=document.getElementById('c-foot');
-    if(cart.length===0){body.innerHTML='<div class="cart-empty"><div class="icon">🛒</div><p>Cart is empty!</p></div>';foot.style.display='none'}
-    else{
-        body.innerHTML=cart.map(function(i){return'<div class="c-item"><img class="c-img" src="'+getImg(i.image_url)+'" onerror="this.src=\'https://via.placeholder.com/70?text=?\'" /><div class="c-info"><div class="c-name">'+i.name+'</div><div class="c-price">GH&#8373; '+(i.price*i.quantity).toFixed(2)+'</div><div class="c-ctrl"><button class="q-btn" onclick="chgQty('+i.id+',-1)">−</button><span class="q-num">'+i.quantity+'</span><button class="q-btn" onclick="chgQty('+i.id+',1)">+</button><button class="rm-btn" onclick="rmCart('+i.id+')">🗑️</button></div></div></div>'}).join('');
-        foot.style.display='block';document.getElementById('c-total').textContent='GH₵ '+tp.toFixed(2);
-    }
-}
-
-function openCart(){document.getElementById('c-sidebar').classList.add('open');document.getElementById('c-overlay').classList.add('show')}
-function closeCart(){document.getElementById('c-sidebar').classList.remove('open');document.getElementById('c-overlay').classList.remove('show')}
-
-// CHECKOUT
-function openCheckout(){
-    if(cart.length===0){toast('Cart empty!','error');return}
-    if(!user){toast('Please login!','error');closeCart();openAuth('login');return}
-    var tp=cart.reduce(function(s,i){return s+(i.price*i.quantity)},0);
-    document.getElementById('o-items').innerHTML=cart.map(function(i){return'<div class="o-s-item"><span>'+i.name+' x'+i.quantity+'</span><span>GH&#8373; '+(i.price*i.quantity).toFixed(2)+'</span></div>'}).join('');
-    document.getElementById('o-total').textContent='GH₵ '+tp.toFixed(2);
-    document.getElementById('o-amt').textContent='Amount: GH₵ '+tp.toFixed(2);
-    document.getElementById('o-name').value=user.fullname||'';
-    document.getElementById('o-phone').value=user.phone||'';
-    document.getElementById('o-addr').value=user.address||'';
-    goStep1();closeCart();document.getElementById('orderModal').classList.add('show');
-}
-
-function closeOrder(){document.getElementById('orderModal').classList.remove('show')}
-function goStep1(){document.getElementById('step1').style.display='block';document.getElementById('step2').style.display='none';document.getElementById('o-title').textContent='📋 Delivery Details'}
-function goStep2(){
-    if(!document.getElementById('o-name').value.trim()){toast('Enter name!','error');return}
-    if(!document.getElementById('o-phone').value.trim()){toast('Enter phone!','error');return}
-    if(!document.getElementById('o-addr').value.trim()){toast('Enter address!','error');return}
-    document.getElementById('step1').style.display='none';document.getElementById('step2').style.display='block';document.getElementById('o-title').textContent='💳 Payment';
-}
-
-function placeOrder(){
-    var momo=document.getElementById('o-momo').value.trim();
-    var trans=document.getElementById('o-trans').value.trim();
-    if(!momo){toast('Select payment number!','error');return}
-    if(!trans){toast('Enter Transaction ID!','error');return}
-
-    var btn=document.getElementById('pay-btn');btn.textContent='Placing...';btn.disabled=true;
-    var tp=cart.reduce(function(s,i){return s+(i.price*i.quantity)},0);
-
-    fetch('/api/orders/place',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        customer_name:document.getElementById('o-name').value.trim(),
-        customer_phone:document.getElementById('o-phone').value.trim(),
-        customer_address:document.getElementById('o-addr').value.trim(),
-        items:cart.map(function(i){return{id:i.id,name:i.name,price:i.price,quantity:i.quantity}}),
-        total_price:tp,transaction_id:trans,momo_number:momo
-    })}).then(function(r){return r.json()}).then(function(d){
-        if(d.success){closeOrder();document.getElementById('s-oid').textContent='Order #'+d.order_id;document.getElementById('successModal').classList.add('show');
-            cart=[];updateCart();document.getElementById('o-momo').value='';document.getElementById('o-trans').value='';setTimeout(checkNotifs,2000)}
-        else if(d.need_login){toast('Login first!','error');closeOrder();openAuth('login')}
-        else toast(d.message||'Error!','error');
-    }).catch(function(){toast('Error!','error')}).finally(function(){btn.textContent='✅ I Have Paid - Place Order';btn.disabled=false});
-}
-
-// ITEM DETAIL
-var detailItem = null;
-var detailQty  = 1;
-
-function openDetail(id) {
-    detailItem = allItems.find(function(i) { return i.id === id });
-    if (!detailItem) return;
-    detailQty = 1;
-
-    document.getElementById('d-img').src     = getImg(detailItem.image_url);
-    document.getElementById('d-title').textContent = detailItem.name;
-    document.getElementById('d-name').textContent  = detailItem.name;
-    document.getElementById('d-cat').textContent   = '📁 ' + detailItem.category;
-    document.getElementById('d-price').textContent  = 'GH\u20b5 ' + detailItem.price.toFixed(2);
-    document.getElementById('d-desc').textContent   = detailItem.description || 'No description available for this item.';
-    document.getElementById('d-date').textContent   = 'Added: ' + detailItem.date_added;
-    document.getElementById('d-qty').textContent    = '1';
-    document.getElementById('d-subtotal').textContent = 'Subtotal: GH\u20b5 ' + detailItem.price.toFixed(2);
-
-    // Stock badge
-    if (detailItem.in_stock) {
-        document.getElementById('d-stock').innerHTML = '<span class="badge badge-confirmed" style="font-size:14px;padding:8px 18px">✅ In Stock</span>';
-        document.getElementById('d-oos-badge').style.display = 'none';
-        document.getElementById('d-actions').style.display   = 'flex';
-        document.getElementById('d-subtotal').style.display  = 'block';
-    } else {
-        document.getElementById('d-stock').innerHTML = '<span class="badge badge-cancelled" style="font-size:14px;padding:8px 18px">❌ Out of Stock</span>';
-        document.getElementById('d-oos-badge').style.display = 'block';
-        document.getElementById('d-actions').style.display   = 'none';
-        document.getElementById('d-subtotal').style.display  = 'none';
+        g.innerHTML = items.map(function(i) {
+            return '<div class="item-card' + (i.in_stock ? '' : ' oos') + '" onclick="openDetail(' + i.id + ')">' +
+                '<div class="item-img-wrap">' +
+                '<img class="item-img" src="' + getImg(i.image_url) + '" alt="' + i.name + '" onerror="this.src=\'https://via.placeholder.com/240x210?text=No+Image\'" />' +
+                (i.in_stock ? '' : '<div class="oos-badge">Sold Out</div>') +
+                '</div>' +
+                '<div class="item-body">' +
+                '<p class="item-cat">📁 ' + i.category + '</p>' +
+                '<h3 class="item-name">' + i.name + '</h3>' +
+                '<p class="item-desc">' + (i.description || 'No description') + '</p>' +
+                '<div class="item-foot">' +
+                '<span class="item-price">GH&#8373; ' + i.price.toFixed(2) + '</span>' +
+                '<button class="add-btn" ' + (i.in_stock ? 'onclick="event.stopPropagation();addToCart(' + i.id + ')"' : 'disabled') + ' id="cb-' + i.id + '">' + (i.in_stock ? '🛒 Add' : 'N/A') + '</button>' +
+                '</div></div></div>';
+        }).join('');
     }
 
-    document.getElementById('detailModal').classList.add('show');
-}
-
-function closeDetail() {
-    document.getElementById('detailModal').classList.remove('show');
-}
-
-function changeDetailQty(change) {
-    detailQty += change;
-    if (detailQty < 1) detailQty = 1;
-    if (detailQty > 99) detailQty = 99;
-    document.getElementById('d-qty').textContent = detailQty;
-    if (detailItem) {
-        var subtotal = detailItem.price * detailQty;
-        document.getElementById('d-subtotal').textContent = 'Subtotal: GH\u20b5 ' + subtotal.toFixed(2);
-    }
-}
-
-function addFromDetail() {
-    if (!detailItem || !detailItem.in_stock) return;
-
-    var existing = cart.find(function(c) { return c.id === detailItem.id });
-    if (existing) {
-        existing.quantity += detailQty;
-    } else {
-        var copy = {};
-        for (var k in detailItem) copy[k] = detailItem[k];
-        copy.quantity = detailQty;
-        cart.push(copy);
+    function doSearch(q) {
+        document.getElementById('h-search').value = q;
+        document.getElementById('hero-search').value = q;
+        var f = allItems.filter(function(i) {
+            return (i.name.toLowerCase().indexOf(q.toLowerCase()) > -1 || (i.description || '').toLowerCase().indexOf(q.toLowerCase()) > -1) &&
+                   (activeCat === 'all' || i.category === activeCat);
+        });
+        document.getElementById('sec-head').textContent = q ? 'Results for "' + q + '"' : 'All Products';
+        displayItems(f);
     }
 
-    updateCart();
-    toast(detailItem.name + ' x' + detailQty + ' added!', 'success');
-
-    // Animate button
-    var btn = document.getElementById('d-add-btn');
-    btn.textContent = '✅ Added!';
-    btn.style.background = 'linear-gradient(135deg,#43a047,#66bb6a)';
-    setTimeout(function() {
-        btn.textContent = '🛒 Add to Cart';
-        btn.style.background = 'linear-gradient(135deg,#e91e63,#ff6f00)';
-    }, 1500);
-
-    // Update main page button too
-    var mainBtn = document.getElementById('cb-' + detailItem.id);
-    if (mainBtn) {
-        mainBtn.textContent = 'Added!';
-        setTimeout(function() { mainBtn.textContent = '🛒 Add'; }, 1500);
+    function filterCat(c, btn) {
+        activeCat = c;
+        document.querySelectorAll('.cat-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var q = document.getElementById('h-search').value;
+        var f = allItems.filter(function(i) {
+            return (c === 'all' || i.category === c) && i.name.toLowerCase().indexOf(q.toLowerCase()) > -1;
+        });
+        document.getElementById('sec-head').textContent = c === 'all' ? 'All Products' : c;
+        displayItems(f);
     }
-}
 
-// Close detail modal
-document.getElementById('detailModal').addEventListener('click', function(e) {
-    if (e.target === this) closeDetail();
-});
+    // ===== ITEM DETAIL =====
+    function openDetail(id) {
+        detailItem = allItems.find(function(i) { return i.id === id; });
+        if (!detailItem) return;
+        detailQty = 1;
+        document.getElementById('d-img').src = getImg(detailItem.image_url);
+        document.getElementById('d-title').textContent = detailItem.name;
+        document.getElementById('d-name').textContent = detailItem.name;
+        document.getElementById('d-cat').textContent = '📁 ' + detailItem.category;
+        document.getElementById('d-price').textContent = 'GH\u20b5 ' + detailItem.price.toFixed(2);
+        document.getElementById('d-desc').textContent = detailItem.description || 'No description available.';
+        document.getElementById('d-date').textContent = 'Added: ' + detailItem.date_added;
+        document.getElementById('d-qty').textContent = '1';
+        document.getElementById('d-sub').textContent = 'Subtotal: GH\u20b5 ' + detailItem.price.toFixed(2);
+        if (detailItem.in_stock) {
+            document.getElementById('d-stock').innerHTML = '<span class="badge badge-confirmed" style="font-size:14px;padding:8px 18px">✅ In Stock</span>';
+            document.getElementById('d-oos').style.display = 'none';
+            document.getElementById('d-actions').style.display = 'flex';
+            document.getElementById('d-sub').style.display = 'block';
+        } else {
+            document.getElementById('d-stock').innerHTML = '<span class="badge badge-cancelled" style="font-size:14px;padding:8px 18px">❌ Out of Stock</span>';
+            document.getElementById('d-oos').style.display = 'block';
+            document.getElementById('d-actions').style.display = 'none';
+            document.getElementById('d-sub').style.display = 'none';
+        }
+        document.getElementById('detailModal').classList.add('show');
+    }
 
-function toast(m,t){var x=document.getElementById('toast');x.textContent=m;x.className='toast '+t+' show';setTimeout(function(){x.classList.remove('show')},3000)}
+    function closeDetail() { document.getElementById('detailModal').classList.remove('show'); }
 
-// CLOSE MODALS
-document.getElementById('authModal').addEventListener('click',function(e){if(e.target===this)closeAuth()});
-document.getElementById('orderModal').addEventListener('click',function(e){if(e.target===this)closeOrder()});
-document.getElementById('successModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
-document.getElementById('ordersModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
-document.getElementById('notifModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
-document.getElementById('disputeModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
+    function chgDQty(d) {
+        detailQty += d;
+        if (detailQty < 1) detailQty = 1;
+        if (detailQty > 99) detailQty = 99;
+        document.getElementById('d-qty').textContent = detailQty;
+        if (detailItem) {
+            document.getElementById('d-sub').textContent = 'Subtotal: GH\u20b5 ' + (detailItem.price * detailQty).toFixed(2);
+        }
+    }
+
+    function addFromDetail() {
+        if (!detailItem || !detailItem.in_stock) return;
+        var ex = cart.find(function(c) { return c.id === detailItem.id; });
+        if (ex) { ex.quantity += detailQty; }
+        else { var cp = {}; for (var k in detailItem) cp[k] = detailItem[k]; cp.quantity = detailQty; cart.push(cp); }
+        updateCart();
+        toast(detailItem.name + ' x' + detailQty + ' added!', 'success');
+        var btn = document.getElementById('d-add');
+        btn.textContent = '✅ Added!'; btn.style.background = 'linear-gradient(135deg,#43a047,#66bb6a)';
+        setTimeout(function() { btn.textContent = '🛒 Add to Cart'; btn.style.background = 'linear-gradient(135deg,#e91e63,#ff6f00)'; }, 1500);
+    }
+
+    // ===== CART =====
+    function addToCart(id) {
+        var item = allItems.find(function(i) { return i.id === id; });
+        if (!item || !item.in_stock) return;
+        var ex = cart.find(function(c) { return c.id === id; });
+        if (ex) ex.quantity++;
+        else { var cp = {}; for (var k in item) cp[k] = item[k]; cp.quantity = 1; cart.push(cp); }
+        updateCart(); toast(item.name + ' added!', 'success');
+        var btn = document.getElementById('cb-' + id);
+        if (btn) { btn.textContent = 'Added!'; setTimeout(function() { btn.textContent = '🛒 Add'; }, 1500); }
+    }
+
+    function rmCart(id) { cart = cart.filter(function(c) { return c.id !== id; }); updateCart(); }
+    function chgQty(id, d) { var i = cart.find(function(c) { return c.id === id; }); if (!i) return; i.quantity += d; if (i.quantity <= 0) rmCart(id); else updateCart(); }
+
+    function updateCart() {
+        var ti = cart.reduce(function(s, i) { return s + i.quantity; }, 0);
+        var tp = cart.reduce(function(s, i) { return s + (i.price * i.quantity); }, 0);
+        document.getElementById('c-count').textContent = ti;
+        var body = document.getElementById('c-body'), foot = document.getElementById('c-foot');
+        if (cart.length === 0) {
+            body.innerHTML = '<div class="cart-empty"><div class="icon">🛒</div><p>Cart is empty!</p></div>';
+            foot.style.display = 'none';
+        } else {
+            body.innerHTML = cart.map(function(i) {
+                return '<div class="c-item"><img class="c-img" src="' + getImg(i.image_url) + '" onerror="this.src=\'https://via.placeholder.com/70?text=?\'" /><div class="c-info"><div class="c-name">' + i.name + '</div><div class="c-price">GH&#8373; ' + (i.price * i.quantity).toFixed(2) + '</div><div class="c-ctrl"><button class="q-btn" onclick="chgQty(' + i.id + ',-1)">−</button><span class="q-num">' + i.quantity + '</span><button class="q-btn" onclick="chgQty(' + i.id + ',1)">+</button><button class="rm-btn" onclick="rmCart(' + i.id + ')">🗑️</button></div></div></div>';
+            }).join('');
+            foot.style.display = 'block';
+            document.getElementById('c-total').textContent = 'GH\u20b5 ' + tp.toFixed(2);
+        }
+    }
+
+    function openCart() { document.getElementById('c-sidebar').classList.add('open'); document.getElementById('c-overlay').classList.add('show'); }
+    function closeCart() { document.getElementById('c-sidebar').classList.remove('open'); document.getElementById('c-overlay').classList.remove('show'); }
+
+    // ===== CHECKOUT =====
+    function openCheckout() {
+        if (cart.length === 0) { toast('Cart empty!', 'error'); return; }
+        if (!user) { toast('Please login!', 'error'); closeCart(); openAuth('login'); return; }
+        var tp = cart.reduce(function(s, i) { return s + (i.price * i.quantity); }, 0);
+        document.getElementById('o-items').innerHTML = cart.map(function(i) {
+            return '<div class="o-s-item"><span>' + i.name + ' x' + i.quantity + '</span><span>GH&#8373; ' + (i.price * i.quantity).toFixed(2) + '</span></div>';
+        }).join('');
+        document.getElementById('o-total').textContent = 'GH\u20b5 ' + tp.toFixed(2);
+        document.getElementById('o-amt').textContent = 'Amount: GH\u20b5 ' + tp.toFixed(2);
+        document.getElementById('o-name').value = user.fullname || '';
+        document.getElementById('o-phone').value = user.phone || '';
+        document.getElementById('o-addr').value = user.address || '';
+        goStep1(); closeCart();
+        document.getElementById('orderModal').classList.add('show');
+    }
+
+    function closeOrder() { document.getElementById('orderModal').classList.remove('show'); }
+    function goStep1() { document.getElementById('step1').style.display = 'block'; document.getElementById('step2').style.display = 'none'; document.getElementById('o-title').textContent = '📋 Delivery Details'; }
+    function goStep2() {
+        if (!document.getElementById('o-name').value.trim()) { toast('Enter name!', 'error'); return; }
+        if (!document.getElementById('o-phone').value.trim()) { toast('Enter phone!', 'error'); return; }
+        if (!document.getElementById('o-addr').value.trim()) { toast('Enter address!', 'error'); return; }
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
+        document.getElementById('o-title').textContent = '💳 Payment';
+    }
+
+    function placeOrder() {
+        var momo = document.getElementById('o-momo').value.trim();
+        var trans = document.getElementById('o-trans').value.trim();
+        if (!momo) { toast('Select payment number!', 'error'); return; }
+        if (!trans) { toast('Enter Transaction ID!', 'error'); return; }
+        var btn = document.getElementById('pay-btn');
+        btn.textContent = 'Placing...'; btn.disabled = true;
+        var tp = cart.reduce(function(s, i) { return s + (i.price * i.quantity); }, 0);
+        fetch('/api/orders/place', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+            customer_name: document.getElementById('o-name').value.trim(),
+            customer_phone: document.getElementById('o-phone').value.trim(),
+            customer_address: document.getElementById('o-addr').value.trim(),
+            items: cart.map(function(i) { return {id:i.id, name:i.name, price:i.price, quantity:i.quantity}; }),
+            total_price: tp, transaction_id: trans, momo_number: momo
+        })}).then(function(r) { return r.json(); }).then(function(d) {
+            if (d.success) {
+                closeOrder();
+                document.getElementById('s-oid').textContent = 'Order #' + d.order_id;
+                document.getElementById('successModal').classList.add('show');
+                cart = []; updateCart();
+                document.getElementById('o-momo').value = '';
+                document.getElementById('o-trans').value = '';
+                setTimeout(checkNotifs, 2000);
+            } else if (d.need_login) { toast('Login first!', 'error'); closeOrder(); openAuth('login'); }
+            else toast(d.message || 'Error!', 'error');
+        }).catch(function() { toast('Error!', 'error'); })
+        .finally(function() { btn.textContent = '✅ I Have Paid'; btn.disabled = false; });
+    }
+
+    function toast(m, t) {
+        var x = document.getElementById('toast');
+        x.textContent = m; x.className = 'toast ' + t + ' show';
+        setTimeout(function() { x.classList.remove('show'); }, 3000);
+    }
+
+    // ===== CLOSE MODALS =====
+    document.getElementById('authModal').addEventListener('click', function(e) { if (e.target === this) closeAuth(); });
+    document.getElementById('orderModal').addEventListener('click', function(e) { if (e.target === this) closeOrder(); });
+    document.getElementById('detailModal').addEventListener('click', function(e) { if (e.target === this) closeDetail(); });
+    document.getElementById('successModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+    document.getElementById('ordersModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+    document.getElementById('notifModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+    document.getElementById('disputeModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
 </script>
 </body>
 </html>
