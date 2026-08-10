@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import os
 import logging
 import cloudinary
@@ -132,6 +133,69 @@ def upload_image(image):
             return f"static/uploads/{filename}"
         except:
             return 'https://via.placeholder.com/400x400?text=No+Image'
+
+def upload_image(image):
+    """Upload image to Cloudinary or save locally"""
+    default_image = 'https://via.placeholder.com/400x400?text=No+Image'
+
+    if not image or image.filename == '':
+        return default_image
+
+    try:
+        filename = secure_filename(image.filename)
+    except:
+        filename = image.filename
+
+    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', '').strip()
+    api_key    = os.environ.get('CLOUDINARY_API_KEY',    '').strip()
+    api_secret = os.environ.get('CLOUDINARY_API_SECRET', '').strip()
+
+    # Try Cloudinary if credentials exist
+    if cloud_name and api_key and api_secret:
+        try:
+            # Reset stream before upload
+            try:
+                image.stream.seek(0)
+            except:
+                pass
+
+            result = cloudinary.uploader.upload(
+                image,
+                folder        = "sandras_palace",
+                resource_type = "image"
+            )
+
+            if result and result.get('secure_url'):
+                print("✅ Cloudinary upload success:", result['secure_url'])
+                return result['secure_url']
+
+        except Exception as e:
+            print(f"⚠️ Cloudinary upload failed: {e}")
+
+    # Fallback: save locally
+    try:
+        try:
+            image.stream.seek(0)
+        except:
+            pass
+
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+        fname = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{secure_filename(image.filename)}"
+        fpath = os.path.join(UPLOAD_FOLDER, fname)
+
+        image.save(fpath)
+
+        if os.path.exists(fpath) and os.path.getsize(fpath) > 0:
+            print("✅ Local image saved:", fpath)
+            return f"static/uploads/{fname}"
+        else:
+            print("⚠️ Local file empty or broken")
+
+    except Exception as e:
+        print(f"⚠️ Local save failed: {e}")
+
+    return default_image
 
 # ==============================
 # CREATE TABLES SAFELY
