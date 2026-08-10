@@ -28,14 +28,22 @@ if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_pre_ping': True,
-    'pool_recycle': 300,
-    'connect_args': {
-        'sslmode': 'require',
-        'connect_timeout': 10
-    } if DATABASE_URL.startswith('postgresql') else {}
-}
+
+# Only use SSL for PostgreSQL
+if DATABASE_URL.startswith('postgresql'):
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_pre_ping': True,
+        'pool_recycle':  300,
+        'connect_args':  {
+            'sslmode':         'require',
+            'connect_timeout': 10
+        }
+    }
+else:
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_pre_ping': True,
+        'pool_recycle':  300,
+    }
 
 db = SQLAlchemy(app)
 
@@ -49,10 +57,14 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # ==============================
 # CLOUDINARY SETUP
 # ==============================
+CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '').strip()
+CLOUDINARY_API_KEY    = os.environ.get('CLOUDINARY_API_KEY',    '').strip()
+CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '').strip()
+
 cloudinary.config(
-    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
-    api_key    = os.environ.get('CLOUDINARY_API_KEY', ''),
-    api_secret = os.environ.get('CLOUDINARY_API_SECRET', '')
+    cloud_name = CLOUDINARY_CLOUD_NAME,
+    api_key    = CLOUDINARY_API_KEY,
+    api_secret = CLOUDINARY_API_SECRET
 )
 
 # ==============================
@@ -61,40 +73,39 @@ cloudinary.config(
 
 class User(db.Model):
     __tablename__ = 'users'
-    id         = db.Column(db.Integer, primary_key=True)
+    id         = db.Column(db.Integer,     primary_key=True)
     fullname   = db.Column(db.String(100), nullable=False)
     email      = db.Column(db.String(120), unique=True, nullable=False)
     phone      = db.Column(db.String(20),  nullable=False)
     address    = db.Column(db.String(300), nullable=False)
     password   = db.Column(db.String(200), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime,   default=datetime.utcnow)
     orders     = db.relationship('Order', backref='user', lazy=True)
 
 class Item(db.Model):
     __tablename__ = 'items'
-    id          = db.Column(db.Integer, primary_key=True)
+    id          = db.Column(db.Integer,     primary_key=True)
     name        = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500))
-    price       = db.Column(db.Float, nullable=False)
+    price       = db.Column(db.Float,       nullable=False)
     category    = db.Column(db.String(50))
-    in_stock    = db.Column(db.Boolean, default=True)
-    image_url   = db.Column(db.String(500),
-                            default='https://via.placeholder.com/400x400?text=No+Image')
-    date_added  = db.Column(db.DateTime, default=datetime.utcnow)
+    in_stock    = db.Column(db.Boolean,     default=True)
+    image_url   = db.Column(db.String(500), default='https://via.placeholder.com/400x400?text=No+Image')
+    date_added  = db.Column(db.DateTime,   default=datetime.utcnow)
 
 class Order(db.Model):
     __tablename__ = 'orders'
-    id               = db.Column(db.Integer, primary_key=True)
-    user_id          = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    id               = db.Column(db.Integer,     primary_key=True)
+    user_id          = db.Column(db.Integer,     db.ForeignKey('users.id'), nullable=False)
     customer_name    = db.Column(db.String(100), nullable=False)
     customer_phone   = db.Column(db.String(20),  nullable=False)
     customer_address = db.Column(db.String(300), nullable=False)
     items            = db.Column(db.Text,        nullable=False)
     total_price      = db.Column(db.Float,       nullable=False)
     status           = db.Column(db.String(50),  default='Pending')
-    payment_status   = db.Column(db.String(50),  default='Unpaid')
+    payment_status   = db.Column(db.String(50),  default='Paid')
     transaction_id   = db.Column(db.String(100), default='')
-    momo_number      = db.Column(db.String(20),  default='')
+    momo_number      = db.Column(db.String(100), default='')
     date_ordered     = db.Column(db.DateTime,    default=datetime.utcnow)
 
 # ==============================
@@ -106,98 +117,94 @@ ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'SandrasPalace2024')
 # ==============================
 # HELPER FUNCTIONS
 # ==============================
+
 def allowed_file(filename):
     ALLOWED = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED
 
 def upload_image(image):
-    """Upload image to Cloudinary or save locally"""
-    try:
-        cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
-        if cloud_name:
-            result = cloudinary.uploader.upload(
-                image,
-                folder    = "sandras_palace",
-                overwrite = True
-            )
-            return result['secure_url']
-        else:
-            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{image.filename}"
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            image.save(filepath)
-            return f"static/uploads/{filename}"
-    except Exception as e:
-        print(f"Image upload error: {e}")
-        try:
-            filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{image.filename}"
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            image.save(filepath)
-            return f"static/uploads/{filename}"
-        except:
-            return 'https://via.placeholder.com/400x400?text=No+Image'
-
-def upload_image(image):
-    """Upload image to Cloudinary or save locally"""
+    """
+    Upload image to Cloudinary (production)
+    or save locally (development)
+    Returns the image URL string
+    """
     default_image = 'https://via.placeholder.com/400x400?text=No+Image'
 
+    # Check image exists
     if not image or image.filename == '':
+        print("⚠️ No image provided")
         return default_image
 
-    try:
-        filename = secure_filename(image.filename)
-    except:
-        filename = image.filename
+    # Check file type
+    if not allowed_file(image.filename):
+        print("⚠️ File type not allowed")
+        return default_image
 
-    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', '').strip()
-    api_key    = os.environ.get('CLOUDINARY_API_KEY',    '').strip()
-    api_secret = os.environ.get('CLOUDINARY_API_SECRET', '').strip()
-
-    # Try Cloudinary if credentials exist
-    if cloud_name and api_key and api_secret:
+    # ==============================
+    # TRY CLOUDINARY FIRST
+    # ==============================
+    if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
         try:
-            # Reset stream before upload
-            try:
-                image.stream.seek(0)
-            except:
-                pass
+            print(f"📤 Uploading to Cloudinary...")
+            print(f"   Cloud: {CLOUDINARY_CLOUD_NAME}")
 
+            # Reset file stream to beginning
+            image.stream.seek(0)
+
+            # Upload to Cloudinary
             result = cloudinary.uploader.upload(
-                image,
-                folder        = "sandras_palace",
-                resource_type = "image"
+                image.stream,
+                folder        = "esirifuahs_palace",
+                resource_type = "image",
+                overwrite     = True
             )
 
             if result and result.get('secure_url'):
-                print("✅ Cloudinary upload success:", result['secure_url'])
-                return result['secure_url']
+                url = result['secure_url']
+                print(f"✅ Cloudinary upload success!")
+                print(f"   URL: {url}")
+                return url
+            else:
+                print("⚠️ Cloudinary returned no URL")
 
         except Exception as e:
             print(f"⚠️ Cloudinary upload failed: {e}")
 
-    # Fallback: save locally
+    else:
+        print("⚠️ Cloudinary credentials missing!")
+        print(f"   CLOUD_NAME: {'✅' if CLOUDINARY_CLOUD_NAME else '❌ MISSING'}")
+        print(f"   API_KEY:    {'✅' if CLOUDINARY_API_KEY    else '❌ MISSING'}")
+        print(f"   API_SECRET: {'✅' if CLOUDINARY_API_SECRET else '❌ MISSING'}")
+
+    # ==============================
+    # FALLBACK: SAVE LOCALLY
+    # ==============================
     try:
-        try:
-            image.stream.seek(0)
-        except:
-            pass
+        print("📁 Saving image locally...")
+
+        # Reset stream again
+        image.stream.seek(0)
 
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-        fname = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{secure_filename(image.filename)}"
-        fpath = os.path.join(UPLOAD_FOLDER, fname)
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        filename  = f"{timestamp}_{secure_filename(image.filename)}"
+        filepath  = os.path.join(UPLOAD_FOLDER, filename)
 
-        image.save(fpath)
+        image.save(filepath)
 
-        if os.path.exists(fpath) and os.path.getsize(fpath) > 0:
-            print("✅ Local image saved:", fpath)
-            return f"static/uploads/{fname}"
+        if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+            url = f"static/uploads/{filename}"
+            print(f"✅ Local save success: {url}")
+            return url
         else:
-            print("⚠️ Local file empty or broken")
+            print("⚠️ Local file is empty or broken")
 
     except Exception as e:
         print(f"⚠️ Local save failed: {e}")
 
+    print("❌ All upload methods failed - using placeholder")
     return default_image
 
 # ==============================
@@ -208,44 +215,29 @@ def create_tables():
         with app.app_context():
             db.create_all()
 
-            # Add missing columns if they dont exist
-            # This handles existing databases
+            # Add missing columns safely
             try:
                 with db.engine.connect() as conn:
-                    # Check and add payment_status
-                    try:
-                        conn.execute(db.text(
-                            "ALTER TABLE orders ADD COLUMN payment_status VARCHAR(50) DEFAULT 'Paid'"
-                        ))
-                        conn.commit()
-                        print("✅ Added payment_status column")
-                    except Exception:
-                        pass
 
-                    # Check and add transaction_id
-                    try:
-                        conn.execute(db.text(
-                            "ALTER TABLE orders ADD COLUMN transaction_id VARCHAR(100) DEFAULT ''"
-                        ))
-                        conn.commit()
-                        print("✅ Added transaction_id column")
-                    except Exception:
-                        pass
-
-                    # Check and add momo_number
-                    try:
-                        conn.execute(db.text(
-                            "ALTER TABLE orders ADD COLUMN momo_number VARCHAR(20) DEFAULT ''"
-                        ))
-                        conn.commit()
-                        print("✅ Added momo_number column")
-                    except Exception:
-                        pass
+                    for column, definition in [
+                        ('payment_status', "VARCHAR(50) DEFAULT 'Paid'"),
+                        ('transaction_id', "VARCHAR(100) DEFAULT ''"),
+                        ('momo_number',    "VARCHAR(100) DEFAULT ''"),
+                    ]:
+                        try:
+                            conn.execute(db.text(
+                                f"ALTER TABLE orders ADD COLUMN {column} {definition}"
+                            ))
+                            conn.commit()
+                            print(f"✅ Added column: {column}")
+                        except Exception:
+                            pass  # Column already exists
 
             except Exception as col_err:
-                print(f"Column check: {col_err}")
+                print(f"Column check info: {col_err}")
 
             print("✅ Database tables ready!")
+
     except Exception as e:
         print(f"⚠️ Database connection warning: {e}")
         print("⚠️ App will start anyway...")
@@ -271,10 +263,7 @@ def admin_login():
     if request.method == 'POST':
         data = request.get_json()
         if not data:
-            return jsonify({
-                'success': False,
-                'message': 'Invalid request'
-            }), 400
+            return jsonify({'success': False, 'message': 'Invalid request'}), 400
 
         username = data.get('username', '')
         password = data.get('password', '')
@@ -283,10 +272,7 @@ def admin_login():
             session['admin_logged_in'] = True
             return jsonify({'success': True})
 
-        return jsonify({
-            'success': False,
-            'message': 'Wrong username or password'
-        })
+        return jsonify({'success': False, 'message': 'Wrong username or password'})
 
     return render_template('admin_login.html')
 
@@ -307,29 +293,20 @@ def register():
             return jsonify({'success': False, 'message': 'Invalid request'}), 400
 
         fullname = data.get('fullname', '').strip()
-        email    = data.get('email', '').strip().lower()
-        phone    = data.get('phone', '').strip()
-        address  = data.get('address', '').strip()
+        email    = data.get('email',    '').strip().lower()
+        phone    = data.get('phone',    '').strip()
+        address  = data.get('address',  '').strip()
         password = data.get('password', '')
 
         if not fullname or not email or not phone or not address or not password:
-            return jsonify({
-                'success': False,
-                'message': 'All fields are required!'
-            })
+            return jsonify({'success': False, 'message': 'All fields are required!'})
 
         if len(password) < 6:
-            return jsonify({
-                'success': False,
-                'message': 'Password must be at least 6 characters!'
-            })
+            return jsonify({'success': False, 'message': 'Password must be at least 6 characters!'})
 
         existing = User.query.filter_by(email=email).first()
         if existing:
-            return jsonify({
-                'success': False,
-                'message': 'Email already registered! Please login.'
-            })
+            return jsonify({'success': False, 'message': 'Email already registered! Please login.'})
 
         new_user = User(
             fullname = fullname,
@@ -370,22 +347,16 @@ def user_login():
         if not data:
             return jsonify({'success': False, 'message': 'Invalid request'}), 400
 
-        email    = data.get('email', '').strip().lower()
+        email    = data.get('email',    '').strip().lower()
         password = data.get('password', '')
 
         if not email or not password:
-            return jsonify({
-                'success': False,
-                'message': 'Email and password required!'
-            })
+            return jsonify({'success': False, 'message': 'Email and password required!'})
 
         user = User.query.filter_by(email=email).first()
 
         if not user or not check_password_hash(user.password, password):
-            return jsonify({
-                'success': False,
-                'message': 'Invalid email or password!'
-            })
+            return jsonify({'success': False, 'message': 'Invalid email or password!'})
 
         session['user_id']    = user.id
         session['user_name']  = user.fullname
@@ -498,14 +469,13 @@ def add_item():
         image     = request.files.get('image')
         image_url = 'https://via.placeholder.com/400x400?text=No+Image'
 
-        if image and image.filename != '' and allowed_file(image.filename):
+        # Upload image if provided
+        if image and image.filename != '':
             image_url = upload_image(image)
+            print(f"📸 Final image URL: {image_url}")
 
         if not data.get('name') or not data.get('price'):
-            return jsonify({
-                'success': False,
-                'message': 'Name and price are required!'
-            }), 400
+            return jsonify({'success': False, 'message': 'Name and price are required!'}), 400
 
         new_item = Item(
             name        = data.get('name'),
@@ -518,6 +488,8 @@ def add_item():
 
         db.session.add(new_item)
         db.session.commit()
+
+        print(f"✅ Item saved with image: {image_url}")
 
         return jsonify({
             'success': True,
@@ -539,8 +511,10 @@ def update_item(item_id):
         data  = request.form
         image = request.files.get('image')
 
-        if image and image.filename != '' and allowed_file(image.filename):
-            item.image_url = upload_image(image)
+        if image and image.filename != '':
+            new_url        = upload_image(image)
+            item.image_url = new_url
+            print(f"📸 Updated image URL: {new_url}")
 
         item.name        = data.get('name',        item.name)
         item.description = data.get('description', item.description)
@@ -550,10 +524,7 @@ def update_item(item_id):
 
         db.session.commit()
 
-        return jsonify({
-            'success': True,
-            'message': 'Item updated successfully! ✨'
-        })
+        return jsonify({'success': True, 'message': 'Item updated successfully! ✨'})
 
     except Exception as e:
         db.session.rollback()
@@ -575,10 +546,7 @@ def delete_item(item_id):
         db.session.delete(item)
         db.session.commit()
 
-        return jsonify({
-            'success': True,
-            'message': 'Item deleted successfully!'
-        })
+        return jsonify({'success': True, 'message': 'Item deleted successfully!'})
 
     except Exception as e:
         db.session.rollback()
@@ -593,16 +561,12 @@ def toggle_stock(item_id):
     try:
         item = Item.query.get(item_id)
         if not item:
-            return jsonify({
-                'success': False,
-                'message': 'Item not found!'
-            }), 404
+            return jsonify({'success': False, 'message': 'Item not found!'}), 404
 
         item.in_stock = not item.in_stock
         db.session.commit()
 
         status_text = 'In Stock ✅' if item.in_stock else 'Out of Stock ❌'
-
         return jsonify({
             'success':  True,
             'in_stock': item.in_stock,
@@ -648,8 +612,8 @@ def place_order():
             total_price      = float(data.get('total_price')),
             status           = 'Pending',
             payment_status   = 'Paid',
-            transaction_id   = data.get('transaction_id',  ''),
-            momo_number      = data.get('momo_number',     '')
+            transaction_id   = data.get('transaction_id', ''),
+            momo_number      = data.get('momo_number',    '')
         )
 
         db.session.add(new_order)
@@ -705,9 +669,9 @@ def get_orders():
             'items':            o.items,
             'total_price':      o.total_price,
             'status':           o.status,
-            'payment_status':   o.payment_status  if o.payment_status  else 'Paid',
-            'transaction_id':   o.transaction_id  if o.transaction_id  else '',
-            'momo_number':      o.momo_number     if o.momo_number     else '',
+            'payment_status':   o.payment_status if o.payment_status else 'Paid',
+            'transaction_id':   o.transaction_id if o.transaction_id else '',
+            'momo_number':      o.momo_number    if o.momo_number    else '',
             'date_ordered':     o.date_ordered.strftime('%Y-%m-%d %H:%M'),
             'user_id':          o.user_id
         } for o in orders])
@@ -728,18 +692,12 @@ def update_order_status(order_id):
 
         valid_statuses = ['Pending', 'Confirmed', 'Delivered', 'Cancelled']
         if status not in valid_statuses:
-            return jsonify({
-                'success': False,
-                'message': 'Invalid status!'
-            }), 400
+            return jsonify({'success': False, 'message': 'Invalid status!'}), 400
 
         order.status = status
         db.session.commit()
 
-        return jsonify({
-            'success': True,
-            'message': f'Order status updated to {status}!'
-        })
+        return jsonify({'success': True, 'message': f'Order status updated to {status}!'})
 
     except Exception as e:
         db.session.rollback()
@@ -773,11 +731,11 @@ def get_users():
 if __name__ == '__main__':
     print("")
     print("  👑✨ Esirifuah's Palace is LIVE! ✨👑")
-    print("  ══════════════════════════════════")
+    print("  ══════════════════════════════════════")
     print("  🏪 Store    → http://localhost:5000")
     print("  🔧 Admin    → http://localhost:5000/admin")
     print("  👤 Username → sandra")
     print("  🔑 Password → SandrasPalace2024")
-    print("  ══════════════════════════════════")
+    print("  ══════════════════════════════════════")
     print("")
     app.run(debug=False, host='0.0.0.0', port=5000)
