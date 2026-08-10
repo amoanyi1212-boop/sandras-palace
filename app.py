@@ -92,6 +92,9 @@ class Order(db.Model):
     items            = db.Column(db.Text,        nullable=False)
     total_price      = db.Column(db.Float,       nullable=False)
     status           = db.Column(db.String(50),  default='Pending')
+    payment_status   = db.Column(db.String(50),  default='Unpaid')
+    transaction_id   = db.Column(db.String(100), default='')
+    momo_number      = db.Column(db.String(20),  default='')
     date_ordered     = db.Column(db.DateTime,    default=datetime.utcnow)
 
 # ==============================
@@ -605,7 +608,10 @@ def place_order():
             customer_address = data.get('customer_address', user.address),
             items            = str(data.get('items')),
             total_price      = float(data.get('total_price')),
-            status           = 'Pending'
+            status           = 'Pending',
+            payment_status   = 'Paid',
+            transaction_id   = data.get('transaction_id',  ''),
+            momo_number      = data.get('momo_number',     '')
         )
 
         db.session.add(new_order)
@@ -633,11 +639,13 @@ def my_orders():
         ).order_by(Order.date_ordered.desc()).all()
 
         return jsonify([{
-            'id':           o.id,
-            'items':        o.items,
-            'total_price':  o.total_price,
-            'status':       o.status,
-            'date_ordered': o.date_ordered.strftime('%Y-%m-%d %H:%M')
+            'id':             o.id,
+            'items':          o.items,
+            'total_price':    o.total_price,
+            'status':         o.status,
+            'payment_status': o.payment_status if o.payment_status else 'Paid',
+            'transaction_id': o.transaction_id if o.transaction_id else '',
+            'date_ordered':   o.date_ordered.strftime('%Y-%m-%d %H:%M')
         } for o in orders])
 
     except Exception as e:
@@ -659,6 +667,9 @@ def get_orders():
             'items':            o.items,
             'total_price':      o.total_price,
             'status':           o.status,
+            'payment_status':   o.payment_status  if o.payment_status  else 'Paid',
+            'transaction_id':   o.transaction_id  if o.transaction_id  else '',
+            'momo_number':      o.momo_number     if o.momo_number     else '',
             'date_ordered':     o.date_ordered.strftime('%Y-%m-%d %H:%M'),
             'user_id':          o.user_id
         } for o in orders])
