@@ -1,743 +1,753 @@
 import os
-import re
 
 print("")
 print("  ========================================")
-print("  Complete Fix - All Files")
+print("  Adding Notifications + Order Flow Fix")
 print("  ========================================")
 print("")
 
 # ==============================
-# WRITE COMPLETE app.py
+# UPDATE app.py - Add Notification Model
 # ==============================
-print("  Writing clean app.py...")
+print("  Updating app.py...")
 
-app_content = '''from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
-import os
-import logging
-import cloudinary
-import cloudinary.uploader
+with open('app.py', 'r', encoding='utf-8') as f:
+    content = f.read()
 
-app = Flask(__name__)
-app.secret_key = "sandras_palace_secret_key_2024"
+# Add Notification model after Order model
+old_model_end = '''ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "sandra")'''
 
-log = logging.getLogger("werkzeug")
-log.setLevel(logging.ERROR)
-
-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///store.db")
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-if DATABASE_URL.startswith("postgresql"):
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_pre_ping": True,
-        "pool_recycle": 300,
-        "connect_args": {"sslmode": "require", "connect_timeout": 10}
-    }
-else:
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_pre_ping": True,
-        "pool_recycle": 300
-    }
-
-db = SQLAlchemy(app)
-
-UPLOAD_FOLDER = os.path.join("static", "uploads")
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME", "").strip()
-CLOUDINARY_API_KEY    = os.environ.get("CLOUDINARY_API_KEY",    "").strip()
-CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET", "").strip()
-
-cloudinary.config(
-    cloud_name = CLOUDINARY_CLOUD_NAME,
-    api_key    = CLOUDINARY_API_KEY,
-    api_secret = CLOUDINARY_API_SECRET
-)
-
-class User(db.Model):
-    __tablename__ = "users"
+new_model = '''class Notification(db.Model):
+    __tablename__ = "notifications"
     id         = db.Column(db.Integer,     primary_key=True)
-    fullname   = db.Column(db.String(100), nullable=False)
-    email      = db.Column(db.String(120), unique=True, nullable=False)
-    phone      = db.Column(db.String(20),  nullable=False)
-    address    = db.Column(db.String(300), nullable=False)
-    password   = db.Column(db.String(200), nullable=False)
+    user_id    = db.Column(db.Integer,     default=0)
+    for_admin  = db.Column(db.Boolean,     default=False)
+    title      = db.Column(db.String(200), nullable=False)
+    message    = db.Column(db.String(500), nullable=False)
+    is_read    = db.Column(db.Boolean,     default=False)
+    order_id   = db.Column(db.Integer,     default=0)
     created_at = db.Column(db.DateTime,    default=datetime.utcnow)
-    orders     = db.relationship("Order",  backref="user", lazy=True)
 
-class Item(db.Model):
-    __tablename__ = "items"
-    id          = db.Column(db.Integer,     primary_key=True)
-    name        = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(500))
-    price       = db.Column(db.Float,       nullable=False)
-    category    = db.Column(db.String(50))
-    in_stock    = db.Column(db.Boolean,     default=True)
-    image_url   = db.Column(db.String(500), default="https://via.placeholder.com/400x400?text=No+Image")
-    date_added  = db.Column(db.DateTime,    default=datetime.utcnow)
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "sandra")'''
 
-class Order(db.Model):
-    __tablename__ = "orders"
-    id               = db.Column(db.Integer,     primary_key=True)
-    user_id          = db.Column(db.Integer,     db.ForeignKey("users.id"), nullable=False)
-    customer_name    = db.Column(db.String(100), nullable=False)
-    customer_phone   = db.Column(db.String(20),  nullable=False)
-    customer_address = db.Column(db.String(300), nullable=False)
-    items            = db.Column(db.Text,        nullable=False)
-    total_price      = db.Column(db.Float,       nullable=False)
-    status           = db.Column(db.String(50),  default="Pending")
-    payment_status   = db.Column(db.String(50),  default="Paid")
-    transaction_id   = db.Column(db.String(100), default="")
-    momo_number      = db.Column(db.String(100), default="")
-    date_ordered     = db.Column(db.DateTime,    default=datetime.utcnow)
+content = content.replace(old_model_end, new_model)
+print("  ✅ Added Notification model")
 
-ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "sandra")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "SandrasPalace2024")
+# Add notification table creation
+old_columns = '''                    columns = [
+                        ("payment_status", "VARCHAR(50)  DEFAULT 'Paid'"),
+                        ("transaction_id", "VARCHAR(100) DEFAULT ''"),
+                        ("momo_number",    "VARCHAR(100) DEFAULT ''"),
+                    ]'''
 
-def allowed_file(filename):
-    ALLOWED = {"png", "jpg", "jpeg", "gif", "webp"}
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED
+new_columns = '''                    columns = [
+                        ("payment_status", "VARCHAR(50)  DEFAULT 'Paid'"),
+                        ("transaction_id", "VARCHAR(100) DEFAULT ''"),
+                        ("momo_number",    "VARCHAR(100) DEFAULT ''"),
+                    ]
 
-def upload_image(image):
-    default_image = "https://via.placeholder.com/400x400?text=No+Image"
-    if not image or image.filename == "":
-        return default_image
-    if not allowed_file(image.filename):
-        return default_image
+                    # Create notifications table
+                    try:
+                        conn.execute(db.text("""
+                            CREATE TABLE IF NOT EXISTS notifications (
+                                id SERIAL PRIMARY KEY,
+                                user_id INTEGER DEFAULT 0,
+                                for_admin BOOLEAN DEFAULT FALSE,
+                                title VARCHAR(200) NOT NULL,
+                                message VARCHAR(500) NOT NULL,
+                                is_read BOOLEAN DEFAULT FALSE,
+                                order_id INTEGER DEFAULT 0,
+                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                            )
+                        """))
+                        conn.commit()
+                    except Exception:
+                        pass'''
 
-    if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
+content = content.replace(old_columns, new_columns)
+print("  ✅ Added notifications table creation")
+
+# Update place_order to create notification for admin
+old_place_success = '''        db.session.add(new_order)
+        db.session.commit()
+
+        return jsonify({
+            "success":  True,
+            "message":  "Order placed!",
+            "order_id": new_order.id
+        })'''
+
+new_place_success = '''        db.session.add(new_order)
+        db.session.commit()
+
+        # Create notification for admin
         try:
-            image.stream.seek(0)
-            result = cloudinary.uploader.upload(
-                image.stream,
-                folder="esirifuahs_palace",
-                resource_type="image"
+            admin_notif = Notification(
+                user_id   = 0,
+                for_admin = True,
+                title     = "New Order #" + str(new_order.id),
+                message   = user.fullname + " placed an order for GH" + chr(8373) + " " + str(new_order.total_price) + ". Transaction ID: " + data.get("transaction_id", "N/A"),
+                order_id  = new_order.id
             )
-            if result and result.get("secure_url"):
-                print("Cloudinary OK:", result["secure_url"])
-                return result["secure_url"]
+            db.session.add(admin_notif)
+            db.session.commit()
         except Exception as e:
-            print(f"Cloudinary error: {e}")
-    else:
-        print("Cloudinary credentials missing!")
+            print("Notification error:", e)
 
-    try:
-        image.stream.seek(0)
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        fname = f"{datetime.now().strftime(\\'%Y%m%d%H%M%S\\')}_{secure_filename(image.filename)}"
-        fpath = os.path.join(UPLOAD_FOLDER, fname)
-        image.save(fpath)
-        if os.path.exists(fpath) and os.path.getsize(fpath) > 0:
-            print("Local save OK:", fpath)
-            return f"static/uploads/{fname}"
-    except Exception as e:
-        print(f"Local save error: {e}")
+        return jsonify({
+            "success":  True,
+            "message":  "Order placed!",
+            "order_id": new_order.id
+        })'''
 
-    return default_image
+content = content.replace(old_place_success, new_place_success)
+print("  ✅ Added admin notification on new order")
 
-def create_tables():
-    try:
-        with app.app_context():
-            db.create_all()
-            try:
-                with db.engine.connect() as conn:
-                    for col, defn in [
-                        ("payment_status", "VARCHAR(50) DEFAULT \\'Paid\\'"),
-                        ("transaction_id", "VARCHAR(100) DEFAULT \\'\\'"),
-                        ("momo_number",    "VARCHAR(100) DEFAULT \\'\\'"  ),
-                    ]:
-                        try:
-                            conn.execute(db.text(f"ALTER TABLE orders ADD COLUMN {col} {defn}"))
-                            conn.commit()
-                            print(f"Added column: {col}")
-                        except Exception:
-                            pass
-            except Exception as e:
-                print(f"Column check: {e}")
-            print("Database ready!")
-    except Exception as e:
-        print(f"DB warning: {e}")
-        print("App will start anyway...")
-
-create_tables()
-
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-@app.route("/admin")
-def admin():
-    if not session.get("admin_logged_in"):
-        return redirect(url_for("admin_login"))
-    return render_template("admin.html")
-
-@app.route("/admin/login", methods=["GET", "POST"])
-def admin_login():
-    if request.method == "POST":
-        data = request.get_json()
-        if not data:
-            return jsonify({"success": False, "message": "Invalid request"}), 400
-        if data.get("username") == ADMIN_USERNAME and data.get("password") == ADMIN_PASSWORD:
-            session["admin_logged_in"] = True
-            return jsonify({"success": True})
-        return jsonify({"success": False, "message": "Wrong username or password"})
-    return render_template("admin_login.html")
-
-@app.route("/admin/logout")
-def admin_logout():
-    session.pop("admin_logged_in", None)
-    return redirect(url_for("admin_login"))
-
-@app.route("/api/auth/register", methods=["POST"])
-def register():
-    try:
-        data     = request.get_json()
-        fullname = data.get("fullname", "").strip()
-        email    = data.get("email",    "").strip().lower()
-        phone    = data.get("phone",    "").strip()
-        address  = data.get("address",  "").strip()
-        password = data.get("password", "")
-
-        if not all([fullname, email, phone, address, password]):
-            return jsonify({"success": False, "message": "All fields are required!"})
-        if len(password) < 6:
-            return jsonify({"success": False, "message": "Password must be at least 6 characters!"})
-        if User.query.filter_by(email=email).first():
-            return jsonify({"success": False, "message": "Email already registered!"})
-
-        user = User(
-            fullname = fullname, email    = email,
-            phone    = phone,    address  = address,
-            password = generate_password_hash(password)
-        )
-        db.session.add(user)
-        db.session.commit()
-
-        session["user_id"]    = user.id
-        session["user_name"]  = user.fullname
-        session["user_email"] = user.email
-
-        return jsonify({"success": True, "message": "Account created! Welcome!",
-            "user": {"id": user.id, "fullname": user.fullname,
-                     "email": user.email, "phone": user.phone, "address": user.address}})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"success": False, "message": str(e)}), 500
-
-@app.route("/api/auth/login", methods=["POST"])
-def user_login():
-    try:
-        data     = request.get_json()
-        email    = data.get("email",    "").strip().lower()
-        password = data.get("password", "")
-
-        user = User.query.filter_by(email=email).first()
-        if not user or not check_password_hash(user.password, password):
-            return jsonify({"success": False, "message": "Invalid email or password!"})
-
-        session["user_id"]    = user.id
-        session["user_name"]  = user.fullname
-        session["user_email"] = user.email
-
-        return jsonify({"success": True, "message": f"Welcome back, {user.fullname}!",
-            "user": {"id": user.id, "fullname": user.fullname,
-                     "email": user.email, "phone": user.phone, "address": user.address}})
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
-
-@app.route("/api/auth/logout", methods=["POST"])
-def user_logout():
-    session.pop("user_id",    None)
-    session.pop("user_name",  None)
-    session.pop("user_email", None)
-    return jsonify({"success": True})
-
-@app.route("/api/auth/check", methods=["GET"])
-def check_auth():
-    if session.get("user_id"):
-        user = User.query.get(session["user_id"])
-        if user:
-            return jsonify({"logged_in": True,
-                "user": {"id": user.id, "fullname": user.fullname,
-                         "email": user.email, "phone": user.phone, "address": user.address}})
-    return jsonify({"logged_in": False})
-
-@app.route("/api/items", methods=["GET"])
-def get_items():
-    try:
-        items = Item.query.all()
-        return jsonify([{
-            "id": i.id, "name": i.name, "description": i.description,
-            "price": i.price, "category": i.category, "in_stock": i.in_stock,
-            "image_url": i.image_url, "date_added": i.date_added.strftime("%Y-%m-%d")
-        } for i in items])
-    except Exception as e:
-        print(f"Get items error: {e}")
-        return jsonify([])
-
-@app.route("/api/items/add", methods=["POST"])
-def add_item():
-    if not session.get("admin_logged_in"):
-        return jsonify({"success": False, "message": "Unauthorized"}), 401
-    try:
-        data      = request.form
-        image     = request.files.get("image")
-        image_url = "https://via.placeholder.com/400x400?text=No+Image"
-
-        if image and image.filename != "":
-            image_url = upload_image(image)
-
-        new_item = Item(
-            name        = data.get("name"),
-            description = data.get("description", ""),
-            price       = float(data.get("price")),
-            category    = data.get("category", "General"),
-            in_stock    = data.get("in_stock", "true") == "true",
-            image_url   = image_url
-        )
-        db.session.add(new_item)
-        db.session.commit()
-        return jsonify({"success": True, "message": "Item added!"})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"success": False, "message": str(e)}), 500
-
-@app.route("/api/items/update/<int:item_id>", methods=["POST"])
-def update_item(item_id):
-    if not session.get("admin_logged_in"):
-        return jsonify({"success": False, "message": "Unauthorized"}), 401
-    try:
-        item  = Item.query.get_or_404(item_id)
-        data  = request.form
-        image = request.files.get("image")
-
-        if image and image.filename != "":
-            item.image_url = upload_image(image)
-
-        item.name        = data.get("name",        item.name)
-        item.description = data.get("description", item.description)
-        item.price       = float(data.get("price", item.price))
-        item.category    = data.get("category",    item.category)
-        item.in_stock    = data.get("in_stock", "true") == "true"
-
-        db.session.commit()
-        return jsonify({"success": True, "message": "Item updated!"})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"success": False, "message": str(e)}), 500
-
-@app.route("/api/items/delete/<int:item_id>", methods=["DELETE"])
-def delete_item(item_id):
-    if not session.get("admin_logged_in"):
-        return jsonify({"success": False, "message": "Unauthorized"}), 401
-    try:
-        item = Item.query.get_or_404(item_id)
-        if item.image_url and item.image_url.startswith("static/uploads/"):
-            if os.path.exists(item.image_url):
-                os.remove(item.image_url)
-        db.session.delete(item)
-        db.session.commit()
-        return jsonify({"success": True, "message": "Item deleted!"})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"success": False, "message": str(e)}), 500
-
-@app.route("/api/items/toggle/<int:item_id>", methods=["POST"])
-def toggle_stock(item_id):
-    if not session.get("admin_logged_in"):
-        return jsonify({"success": False, "message": "Unauthorized"}), 401
-    try:
-        item = Item.query.get(item_id)
-        if not item:
-            return jsonify({"success": False, "message": "Item not found!"}), 404
-        item.in_stock = not item.in_stock
-        db.session.commit()
-        return jsonify({"success": True, "in_stock": item.in_stock,
-            "message": f"Item marked as {\\'In Stock\\' if item.in_stock else \\'Out of Stock\\'}"})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"success": False, "message": str(e)}), 500
-
-@app.route("/api/orders/place", methods=["POST"])
-def place_order():
-    if not session.get("user_id"):
-        return jsonify({"success": False, "message": "Please login first!", "need_login": True}), 401
-    try:
-        data = request.get_json()
-        if not data or not data.get("items"):
-            return jsonify({"success": False, "message": "No items in order!"}), 400
-
-        user = User.query.get(session["user_id"])
-        if not user:
-            return jsonify({"success": False, "message": "User not found!"}), 404
-
-        new_order = Order(
-            user_id          = user.id,
-            customer_name    = data.get("customer_name",    user.fullname),
-            customer_phone   = data.get("customer_phone",   user.phone),
-            customer_address = data.get("customer_address", user.address),
-            items            = str(data.get("items")),
-            total_price      = float(data.get("total_price")),
-            status           = "Pending",
-            payment_status   = "Paid",
-            transaction_id   = data.get("transaction_id", ""),
-            momo_number      = data.get("momo_number",    "")
-        )
-        db.session.add(new_order)
-        db.session.commit()
-        return jsonify({"success": True, "message": "Order placed!", "order_id": new_order.id})
-    except Exception as e:
-        db.session.rollback()
-        print(f"Order error: {e}")
-        return jsonify({"success": False, "message": str(e)}), 500
-
-@app.route("/api/orders/my", methods=["GET"])
-def my_orders():
-    if not session.get("user_id"):
-        return jsonify({"success": False, "message": "Not logged in"}), 401
-    try:
-        orders = Order.query.filter_by(user_id=session["user_id"]).order_by(Order.date_ordered.desc()).all()
-        return jsonify([{
-            "id": o.id, "items": o.items, "total_price": o.total_price,
-            "status": o.status,
-            "payment_status": o.payment_status or "Paid",
-            "transaction_id": o.transaction_id or "",
-            "date_ordered":   o.date_ordered.strftime("%Y-%m-%d %H:%M")
-        } for o in orders])
-    except Exception as e:
-        print(f"My orders error: {e}")
-        return jsonify([])
-
-@app.route("/api/orders", methods=["GET"])
-def get_orders():
-    if not session.get("admin_logged_in"):
-        return jsonify({"success": False, "message": "Unauthorized"}), 401
-    try:
-        orders = Order.query.order_by(Order.date_ordered.desc()).all()
-        return jsonify([{
-            "id": o.id, "customer_name": o.customer_name,
-            "customer_phone": o.customer_phone, "customer_address": o.customer_address,
-            "items": o.items, "total_price": o.total_price, "status": o.status,
-            "payment_status": o.payment_status or "Paid",
-            "transaction_id": o.transaction_id or "",
-            "momo_number":    o.momo_number    or "",
-            "date_ordered":   o.date_ordered.strftime("%Y-%m-%d %H:%M"),
-            "user_id": o.user_id
-        } for o in orders])
-    except Exception as e:
-        print(f"Get orders error: {e}")
-        return jsonify([])
-
-@app.route("/api/orders/status/<int:order_id>", methods=["POST"])
-def update_order_status(order_id):
-    if not session.get("admin_logged_in"):
-        return jsonify({"success": False, "message": "Unauthorized"}), 401
-    try:
+# Update order status to create notification for customer + enforce flow
+old_status_update = '''    try:
         order  = Order.query.get_or_404(order_id)
         data   = request.get_json()
         status = data.get("status", order.status)
+
         if status not in ["Pending", "Confirmed", "Delivered", "Cancelled"]:
             return jsonify({"success": False, "message": "Invalid status!"}), 400
+
         order.status = status
         db.session.commit()
-        return jsonify({"success": True, "message": f"Status updated to {status}!"})
+        return jsonify({"success": True, "message": "Status updated to " + status})'''
+
+new_status_update = '''    try:
+        order  = Order.query.get_or_404(order_id)
+        data   = request.get_json()
+        status = data.get("status", order.status)
+
+        if status not in ["Pending", "Confirmed", "Delivered", "Cancelled"]:
+            return jsonify({"success": False, "message": "Invalid status!"}), 400
+
+        # Enforce order flow
+        current = order.status
+
+        # Cannot change from Delivered or Cancelled
+        if current in ["Delivered", "Cancelled"]:
+            return jsonify({"success": False, "message": "Cannot change " + current + " orders!"}), 400
+
+        # Pending can only go to Confirmed or Cancelled
+        if current == "Pending" and status not in ["Confirmed", "Cancelled"]:
+            return jsonify({"success": False, "message": "Pending orders can only be Confirmed or Cancelled!"}), 400
+
+        # Confirmed can only go to Delivered
+        if current == "Confirmed" and status != "Delivered":
+            return jsonify({"success": False, "message": "Confirmed orders can only be marked as Delivered!"}), 400
+
+        # If marking as Delivered, set to Awaiting Confirmation
+        if status == "Delivered":
+            order.status = "Awaiting Delivery"
+        else:
+            order.status = status
+
+        db.session.commit()
+
+        # Create notification for customer
+        try:
+            status_messages = {
+                "Confirmed": "Your order #" + str(order.id) + " has been confirmed! We are preparing it now.",
+                "Awaiting Delivery": "Your order #" + str(order.id) + " is on its way! Please confirm when you receive it.",
+                "Cancelled": "Your order #" + str(order.id) + " has been cancelled. Contact us for more info."
+            }
+            
+            actual_status = "Awaiting Delivery" if status == "Delivered" else status
+            
+            if actual_status in status_messages:
+                user_notif = Notification(
+                    user_id   = order.user_id,
+                    for_admin = False,
+                    title     = "Order #" + str(order.id) + " - " + actual_status,
+                    message   = status_messages[actual_status],
+                    order_id  = order.id
+                )
+                db.session.add(user_notif)
+                db.session.commit()
+        except Exception as e:
+            print("Notification error:", e)
+
+        return jsonify({"success": True, "message": "Status updated!"})'''
+
+content = content.replace(old_status_update, new_status_update)
+print("  ✅ Updated order flow + customer notifications")
+
+# Add valid status update
+old_valid = '''        if status not in ["Pending", "Confirmed", "Delivered", "Cancelled"]:'''
+new_valid = '''        if status not in ["Pending", "Confirmed", "Delivered", "Cancelled", "Awaiting Delivery"]:'''
+content   = content.replace(old_valid, new_valid)
+
+# Add notification API routes before RUN section
+old_run = '''# ==============================
+# RUN
+# =============================='''
+
+new_notification_routes = '''# ==============================
+# NOTIFICATION ROUTES
+# ==============================
+
+@app.route("/api/notifications/admin", methods=["GET"])
+def admin_notifications():
+    if not session.get("admin_logged_in"):
+        return jsonify({"success": False}), 401
+    try:
+        notifs = Notification.query.filter_by(for_admin=True).order_by(Notification.created_at.desc()).limit(50).all()
+        unread = Notification.query.filter_by(for_admin=True, is_read=False).count()
+        return jsonify({
+            "notifications": [{
+                "id":         n.id,
+                "title":      n.title,
+                "message":    n.message,
+                "is_read":    n.is_read,
+                "order_id":   n.order_id,
+                "created_at": n.created_at.strftime("%Y-%m-%d %H:%M")
+            } for n in notifs],
+            "unread_count": unread
+        })
+    except Exception as e:
+        print("Admin notif error:", e)
+        return jsonify({"notifications": [], "unread_count": 0})
+
+@app.route("/api/notifications/user", methods=["GET"])
+def user_notifications():
+    if not session.get("user_id"):
+        return jsonify({"success": False}), 401
+    try:
+        notifs = Notification.query.filter_by(
+            user_id=session["user_id"], for_admin=False
+        ).order_by(Notification.created_at.desc()).limit(50).all()
+        unread = Notification.query.filter_by(
+            user_id=session["user_id"], for_admin=False, is_read=False
+        ).count()
+        return jsonify({
+            "notifications": [{
+                "id":         n.id,
+                "title":      n.title,
+                "message":    n.message,
+                "is_read":    n.is_read,
+                "order_id":   n.order_id,
+                "created_at": n.created_at.strftime("%Y-%m-%d %H:%M")
+            } for n in notifs],
+            "unread_count": unread
+        })
+    except Exception as e:
+        print("User notif error:", e)
+        return jsonify({"notifications": [], "unread_count": 0})
+
+@app.route("/api/notifications/read/<int:notif_id>", methods=["POST"])
+def mark_read(notif_id):
+    try:
+        notif = Notification.query.get(notif_id)
+        if notif:
+            notif.is_read = True
+            db.session.commit()
+        return jsonify({"success": True})
+    except Exception:
+        return jsonify({"success": False})
+
+@app.route("/api/notifications/read-all", methods=["POST"])
+def mark_all_read():
+    try:
+        if session.get("admin_logged_in"):
+            Notification.query.filter_by(for_admin=True, is_read=False).update({"is_read": True})
+        elif session.get("user_id"):
+            Notification.query.filter_by(user_id=session["user_id"], is_read=False).update({"is_read": True})
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception:
+        return jsonify({"success": False})
+
+@app.route("/api/orders/confirm-delivery/<int:order_id>", methods=["POST"])
+def confirm_delivery(order_id):
+    if not session.get("user_id"):
+        return jsonify({"success": False, "message": "Not logged in"}), 401
+    try:
+        order = Order.query.get_or_404(order_id)
+        if order.user_id != session["user_id"]:
+            return jsonify({"success": False, "message": "Not your order!"}), 403
+        if order.status != "Awaiting Delivery":
+            return jsonify({"success": False, "message": "Order not awaiting delivery!"}), 400
+
+        order.status = "Delivered"
+        db.session.commit()
+
+        # Notify admin
+        try:
+            admin_notif = Notification(
+                user_id   = 0,
+                for_admin = True,
+                title     = "Delivery Confirmed - Order #" + str(order.id),
+                message   = order.customer_name + " confirmed receiving order #" + str(order.id),
+                order_id  = order.id
+            )
+            db.session.add(admin_notif)
+            db.session.commit()
+        except Exception:
+            pass
+
+        return jsonify({"success": True, "message": "Delivery confirmed! Thank you!"})
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
 
-@app.route("/api/users", methods=["GET"])
-def get_users():
-    if not session.get("admin_logged_in"):
-        return jsonify({"success": False, "message": "Unauthorized"}), 401
-    try:
-        users = User.query.all()
-        return jsonify([{
-            "id": u.id, "fullname": u.fullname, "email": u.email,
-            "phone": u.phone, "address": u.address,
-            "created_at":  u.created_at.strftime("%Y-%m-%d %H:%M"),
-            "order_count": len(u.orders)
-        } for u in users])
-    except Exception as e:
-        return jsonify([])
+# ==============================
+# RUN
+# =============================='''
 
-if __name__ == "__main__":
-    print("")
-    print("  Esirifuah\\'s Palace is LIVE!")
-    print("  Store → http://localhost:5000")
-    print("  Admin → http://localhost:5000/admin")
-    print("  User  → sandra")
-    print("  Pass  → SandrasPalace2024")
-    print("")
-    app.run(debug=False, host="0.0.0.0", port=5000)
-'''
+content = content.replace(old_run, new_notification_routes)
+print("  ✅ Added notification API routes")
+print("  ✅ Added delivery confirmation route")
 
 with open('app.py', 'w', encoding='utf-8') as f:
-    f.write(app_content)
-print("  ✅ app.py written!")
+    f.write(content)
+
+print("  ✅ app.py saved!")
+print("")
 
 # ==============================
-# WRITE COMPLETE index.html
+# UPDATE admin.html - Add notifications bell + order flow
 # ==============================
-print("  Writing clean index.html...")
+print("  Updating admin.html...")
 
-index_content = open('templates/index.html', 'r', encoding='utf-8').read()
+with open('templates/admin.html', 'r', encoding='utf-8') as f:
+    admin = f.read()
 
-# Remove ALL old checkout/order related JS functions
-patterns_to_remove = [
-    r'function openCheckout\(\).*?(?=function \w|\Z)',
-    r'function closeOrderModal\(\).*?(?=function \w|\Z)',
-    r'function goToPayment\(\).*?(?=function \w|\Z)',
-    r'function backToDelivery\(\).*?(?=function \w|\Z)',
-    r'function submitOrder\(\).*?(?=function \w|\Z)',
-    r'document\.getElementById\(\'orderForm\'\)\.addEventListener.*?(?=function \w|document\.getElementById\(\'auth|\Z)',
-]
+# Add notification bell to topbar
+old_topbar = '''    <div class="topbar">
+        <div>
+            <h1 id="page-title">📊 Dashboard</h1>
+            <p id="page-subtitle">Welcome back, Sandra! 👑</p>
+        </div>
+    </div>'''
 
-for pattern in patterns_to_remove:
-    index_content = re.sub(pattern, '', index_content, flags=re.DOTALL)
+new_topbar = '''    <div class="topbar">
+        <div>
+            <h1 id="page-title">📊 Dashboard</h1>
+            <p id="page-subtitle">Welcome back, Sandra! 👑</p>
+        </div>
+        <div style="position:relative;">
+            <button onclick="toggleNotifications()" style="
+                background:linear-gradient(135deg,#e91e63,#ff6f00);
+                border:none; border-radius:15px; padding:12px 20px;
+                color:white; font-size:18px; cursor:pointer;
+                font-weight:800; font-family:'Nunito';
+                position:relative;
+            ">
+                🔔
+                <span id="notif-count" style="
+                    position:absolute; top:-5px; right:-5px;
+                    background:#e53935; color:white;
+                    width:22px; height:22px; border-radius:50%;
+                    font-size:11px; display:none;
+                    align-items:center; justify-content:center;
+                    font-weight:800;
+                ">0</span>
+            </button>
 
-# Remove old order modal
-index_content = re.sub(
-    r'<!-- ORDER MODAL -->.*?<!-- SUCCESS MODAL -->',
-    '<!-- SUCCESS MODAL -->',
-    index_content,
-    flags=re.DOTALL
+            <!-- Notification Dropdown -->
+            <div id="notif-dropdown" style="
+                display:none; position:absolute; right:0; top:55px;
+                background:white; border-radius:20px; width:350px;
+                max-height:450px; overflow-y:auto;
+                box-shadow:0 10px 40px rgba(0,0,0,0.15);
+                border:3px solid #fce4ec; z-index:500;
+            ">
+                <div style="
+                    padding:18px 20px; background:#fff0f3;
+                    border-radius:17px 17px 0 0;
+                    display:flex; justify-content:space-between;
+                    align-items:center;
+                ">
+                    <span style="font-family:'Fredoka One',cursive;color:#c2185b;font-size:16px;">
+                        🔔 Notifications
+                    </span>
+                    <button onclick="markAllRead()" style="
+                        background:none; border:none; color:#e91e63;
+                        font-size:13px; font-weight:800; cursor:pointer;
+                    ">Mark all read</button>
+                </div>
+                <div id="notif-list" style="padding:10px;">
+                    <div style="text-align:center;padding:30px;color:#aaa;font-weight:700;">
+                        No notifications
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>'''
+
+admin = admin.replace(old_topbar, new_topbar)
+print("  ✅ Added notification bell to admin")
+
+# Update order status select to enforce flow
+old_order_select = '''                        \'<select class="status-select" onchange="updateStatus(\' + o.id + \', this.value)">\\' +
+                        \'<option \' + (o.status === \\\'Pending\\\'   ? \\\'selected\\\' : \\\'\\\') + \'>Pending</option>\' +
+                        \'<option \' + (o.status === \\\'Confirmed\\\' ? \\\'selected\\\' : \\\'\\\') + \'>Confirmed</option>\' +
+                        \'<option \' + (o.status === \\\'Delivered\\\' ? \\\'selected\\\' : \\\'\\\') + \'>Delivered</option>\' +
+                        \'<option \' + (o.status === \\\'Cancelled\\\' ? \\\'selected\\\' : \\\'\\\') + \'>Cancelled</option>\' +
+                        \'</select>\\'''
+
+# Instead let's replace the whole loadOrders order action
+admin = admin.replace(
+    "'<select class=\"status-select\" onchange=\"updateStatus(' + o.id + ', this.value)\">' +\n                        '<option ' + (o.status === 'Pending'   ? 'selected' : '') + '>Pending</option>' +\n                        '<option ' + (o.status === 'Confirmed' ? 'selected' : '') + '>Confirmed</option>' +\n                        '<option ' + (o.status === 'Delivered' ? 'selected' : '') + '>Delivered</option>' +\n                        '<option ' + (o.status === 'Cancelled' ? 'selected' : '') + '>Cancelled</option>' +\n                        '</select>'",
+    "getOrderActions(o)"
+)
+print("  ✅ Updated order actions")
+
+# Add helper functions before showToast
+old_toast = '''    function showToast(msg, type) {'''
+
+new_helpers = '''    // ===========================
+    // ORDER ACTION BUTTONS
+    // ===========================
+    function getOrderActions(o) {
+        if (o.status === "Delivered") {
+            return '<span style="color:#43a047;font-weight:800;font-size:13px;">✅ Completed</span>';
+        }
+        if (o.status === "Cancelled") {
+            return '<span style="color:#e53935;font-weight:800;font-size:13px;">❌ Cancelled</span>';
+        }
+        if (o.status === "Awaiting Delivery") {
+            return '<span style="color:#1976d2;font-weight:800;font-size:13px;">📦 Awaiting Customer</span>';
+        }
+        if (o.status === "Pending") {
+            return '<button class="btn btn-success btn-sm" onclick="updateStatus(' + o.id + ',\\'Confirmed\\')">✅ Confirm</button> ' +
+                   '<button class="btn btn-danger btn-sm" onclick="updateStatus(' + o.id + ',\\'Cancelled\\')">❌ Cancel</button>';
+        }
+        if (o.status === "Confirmed") {
+            return '<button class="btn btn-primary btn-sm" onclick="updateStatus(' + o.id + ',\\'Delivered\\')">📦 Send</button>';
+        }
+        return '';
+    }
+
+    // ===========================
+    // NOTIFICATIONS
+    // ===========================
+    function toggleNotifications() {
+        var dd = document.getElementById("notif-dropdown");
+        if (dd.style.display === "none") {
+            dd.style.display = "block";
+            loadNotifications();
+        } else {
+            dd.style.display = "none";
+        }
+    }
+
+    function loadNotifications() {
+        fetch("/api/notifications/admin")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var count = document.getElementById("notif-count");
+                if (data.unread_count > 0) {
+                    count.textContent    = data.unread_count;
+                    count.style.display  = "flex";
+                } else {
+                    count.style.display  = "none";
+                }
+
+                var list = document.getElementById("notif-list");
+                if (!data.notifications || data.notifications.length === 0) {
+                    list.innerHTML = '<div style="text-align:center;padding:30px;color:#aaa;font-weight:700;">No notifications</div>';
+                    return;
+                }
+
+                list.innerHTML = data.notifications.map(function(n) {
+                    return '<div onclick="markNotifRead(' + n.id + ')" style="' +
+                        'padding:14px 15px;border-bottom:2px solid #fce4ec;cursor:pointer;' +
+                        'background:' + (n.is_read ? 'white' : '#fff0f3') + ';' +
+                        'transition:all 0.2s;border-radius:10px;margin-bottom:5px;' +
+                        '">' +
+                        '<div style="font-weight:800;color:#c2185b;font-size:14px;margin-bottom:4px;">' +
+                        (n.is_read ? '' : '🔴 ') + n.title +
+                        '</div>' +
+                        '<div style="font-size:13px;color:#666;font-weight:600;">' + n.message + '</div>' +
+                        '<div style="font-size:11px;color:#aaa;margin-top:5px;font-weight:700;">' + n.created_at + '</div>' +
+                        '</div>';
+                }).join("");
+            })
+            .catch(function(e) { console.error("Notif error:", e); });
+    }
+
+    function markNotifRead(id) {
+        fetch("/api/notifications/read/" + id, { method: "POST" })
+            .then(function() { loadNotifications(); });
+    }
+
+    function markAllRead() {
+        fetch("/api/notifications/read-all", { method: "POST" })
+            .then(function() { loadNotifications(); showToast("All marked as read!", "success"); });
+    }
+
+    // Check notifications every 30 seconds
+    setInterval(function() {
+        fetch("/api/notifications/admin")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var count = document.getElementById("notif-count");
+                if (data.unread_count > 0) {
+                    count.textContent   = data.unread_count;
+                    count.style.display = "flex";
+                } else {
+                    count.style.display = "none";
+                }
+            })
+            .catch(function() {});
+    }, 30000);
+
+    // Close notification dropdown when clicking outside
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest("[onclick*=\\'toggleNotifications\\']") &&
+            !e.target.closest("#notif-dropdown")) {
+            document.getElementById("notif-dropdown").style.display = "none";
+        }
+    });
+
+    function showToast(msg, type) {'''
+
+admin = admin.replace(old_toast, new_helpers)
+print("  ✅ Added notification functions to admin")
+
+# Add Awaiting Delivery status badge
+old_badges = '''        .status-badge.cancelled { background:#ffebee; color:#e53935; }'''
+new_badges = '''        .status-badge.cancelled { background:#ffebee; color:#e53935; }
+        .status-badge.awaiting { background:#e3f2fd; color:#1976d2; }'''
+admin = admin.replace(old_badges, new_badges)
+
+# Fix status badge class for Awaiting Delivery
+admin = admin.replace(
+    "o.status.toLowerCase()",
+    "(o.status === 'Awaiting Delivery' ? 'awaiting' : o.status.toLowerCase())"
 )
 
-# Add clean order modal
-clean_modal = '''    <!-- ORDER MODAL -->
-    <div class="modal-overlay" id="orderModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 id="order-modal-title">📋 Delivery Details</h2>
-                <button class="modal-close" onclick="closeOrderModal()">✕</button>
-            </div>
-            <div class="modal-body">
+with open('templates/admin.html', 'w', encoding='utf-8') as f:
+    f.write(admin)
 
-                <div class="order-summary">
-                    <h3>🛒 Your Order</h3>
-                    <div id="order-summary-items"></div>
-                    <div class="order-summary-total">
-                        <span>Total</span>
-                        <span id="order-summary-total">GH&#8373; 0.00</span>
-                    </div>
+print("  ✅ admin.html saved!")
+print("")
+
+# ==============================
+# UPDATE index.html - Add user notifications + delivery confirmation
+# ==============================
+print("  Updating index.html...")
+
+with open('templates/index.html', 'r', encoding='utf-8') as f:
+    index = f.read()
+
+# Add notification bell to user dropdown
+old_user_menu = '''                menu.innerHTML  =
+                '<div class="dropdown-header">\\u{1f451} ' + currentUser.fullname + '</div>' +
+                '<div class="dropdown-item" onclick="openMyOrders()">📦 My Orders</div>' +
+                '<div class="dropdown-item" onclick="userLogout()">🚪 Logout</div>';'''
+
+new_user_menu = '''                menu.innerHTML  =
+                '<div class="dropdown-header">\\u{1f451} ' + currentUser.fullname + '</div>' +
+                '<div class="dropdown-item" onclick="openUserNotifications()">🔔 Notifications <span id="user-notif-badge" style="background:#e53935;color:white;border-radius:50%;padding:2px 8px;font-size:11px;margin-left:5px;display:none;">0</span></div>' +
+                '<div class="dropdown-item" onclick="openMyOrders()">📦 My Orders</div>' +
+                '<div class="dropdown-item" onclick="userLogout()">🚪 Logout</div>';
+            
+            // Check notifications
+            checkUserNotifications();'''
+
+index = index.replace(old_user_menu, new_user_menu)
+print("  ✅ Added notification to user menu")
+
+# Add notification modal before toast div
+old_toast_div = '''<!-- ===== TOAST ===== -->'''
+new_notif_modal = '''<!-- ===== USER NOTIFICATIONS MODAL ===== -->
+<div class="modal-overlay" id="userNotifModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>🔔 Notifications</h2>
+            <button class="modal-close" onclick="document.getElementById('userNotifModal').classList.remove('show')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="user-notif-list" style="max-height:400px;overflow-y:auto;">
+                <div class="empty-state">
+                    <div class="empty-icon">🔔</div>
+                    <p>No notifications</p>
                 </div>
-
-                <!-- STEP 1 DELIVERY -->
-                <div id="step-delivery">
-                    <div class="form-group">
-                        <label>👤 Full Name</label>
-                        <input type="text" id="cust-name" placeholder="Your full name" />
-                    </div>
-                    <div class="form-group">
-                        <label>📱 Phone Number</label>
-                        <input type="tel" id="cust-phone" placeholder="Your phone" />
-                    </div>
-                    <div class="form-group">
-                        <label>📍 Delivery Address</label>
-                        <textarea id="cust-address" placeholder="Your address"></textarea>
-                    </div>
-                    <button class="modal-btn" onclick="goToPayment()">
-                        💳 Next: Make Payment
-                    </button>
-                </div>
-
-                <!-- STEP 2 PAYMENT -->
-                <div id="step-payment" style="display:none">
-                    <div style="background:linear-gradient(135deg,#fff8e1,#fff3cd);border:3px solid #f9a825;border-radius:18px;padding:20px;margin-bottom:20px;text-align:center;">
-                        <div style="font-size:35px;margin-bottom:8px;">📱</div>
-                        <h3 style="font-family:'Fredoka One',cursive;color:#f57f17;font-size:17px;margin-bottom:15px;">Send MTN Mobile Money To:</h3>
-                        <div style="background:white;border-radius:12px;padding:12px;margin-bottom:10px;border:2px solid #fce4ec;">
-                            <div style="font-size:22px;font-weight:800;color:#e91e63;font-family:'Fredoka One',cursive;">0550618807</div>
-                            <div style="color:#888;font-size:13px;font-weight:700;">👤 Sandra Nkrumah</div>
-                        </div>
-                        <div style="background:white;border-radius:12px;padding:12px;margin-bottom:15px;border:2px solid #fce4ec;">
-                            <div style="font-size:22px;font-weight:800;color:#e91e63;font-family:'Fredoka One',cursive;">0540882629</div>
-                            <div style="color:#888;font-size:13px;font-weight:700;">👤 Milicent Nkrumah</div>
-                        </div>
-                        <div id="amount-display" style="background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border-radius:12px;padding:12px 20px;font-family:'Fredoka One',cursive;font-size:20px;">
-                            Amount: GH&#8373; 0.00
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>📱 Which number did you pay to? *</label>
-                        <select id="momo-number" style="width:100%;padding:14px 16px;border:3px solid #fce4ec;border-radius:14px;font-size:14px;font-weight:600;outline:none;font-family:'Nunito',sans-serif;background:#fffbfc;cursor:pointer;">
-                            <option value="">-- Select number --</option>
-                            <option value="0550618807 - Sandra Nkrumah">0550618807 - Sandra Nkrumah</option>
-                            <option value="0540882629 - Milicent Nkrumah">0540882629 - Milicent Nkrumah</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>🔢 Transaction ID *</label>
-                        <input type="text" id="transaction-id" placeholder="e.g. 1234567890" />
-                        <small style="color:#aaa;font-size:12px;font-weight:700;display:block;margin-top:5px;">
-                            Find this in your MoMo SMS after payment
-                        </small>
-                    </div>
-
-                    <button class="modal-btn green" id="place-order-btn" onclick="submitOrder()">
-                        ✅ I Have Paid - Place Order
-                    </button>
-
-                    <button onclick="backToDelivery()" style="width:100%;padding:13px;background:none;border:3px solid #fce4ec;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;color:#aaa;margin-top:10px;font-family:'Nunito';">
-                        ← Back
-                    </button>
-                </div>
-
             </div>
         </div>
     </div>
+</div>
 
-    <!-- SUCCESS MODAL -->'''
+<!-- ===== TOAST ===== -->'''
 
-index_content = index_content.replace('<!-- SUCCESS MODAL -->', clean_modal)
+index = index.replace(old_toast_div, new_notif_modal)
+print("  ✅ Added user notification modal")
 
-# Add clean JS functions before closing script tag
-clean_js = '''
-        // ===========================
-        // CHECKOUT FUNCTIONS
-        // ===========================
-        function openCheckout() {
-            if (cart.length === 0) {
-                showToast('Cart is empty!', 'error');
-                return;
-            }
-            if (!currentUser) {
-                showToast('Please login first!', 'error');
-                closeCart();
-                openAuthModal('login');
-                return;
-            }
-            const tp = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-            document.getElementById('order-summary-items').innerHTML = cart.map(i =>
-                '<div class="order-summary-item"><span>' + i.name + ' x' + i.quantity + '</span><span>GH&#8373; ' + (i.price * i.quantity).toFixed(2) + '</span></div>'
-            ).join('');
-            document.getElementById('order-summary-total').textContent = 'GH\u20b5 ' + tp.toFixed(2);
-            document.getElementById('amount-display').textContent      = 'Amount: GH\u20b5 ' + tp.toFixed(2);
-            document.getElementById('cust-name').value    = currentUser.fullname || '';
-            document.getElementById('cust-phone').value   = currentUser.phone    || '';
-            document.getElementById('cust-address').value = currentUser.address  || '';
-            document.getElementById('step-delivery').style.display = 'block';
-            document.getElementById('step-payment').style.display  = 'none';
-            document.getElementById('order-modal-title').textContent = 'Delivery Details';
-            closeCart();
-            document.getElementById('orderModal').classList.add('show');
-        }
+# Update My Orders to show delivery confirmation button
+old_my_orders_display = '''                    list.innerHTML = orders.map(function(o) {
+                        var statusClass = o.status.toLowerCase();
+                        return '<div class="my-order-card">' +
+                            '<div class="my-order-header">' +
+                            '<h4>Order #' + o.id + '</h4>' +
+                            '<span class="status-badge ' + statusClass + '">' + o.status + '</span>' +
+                            '</div>' +
+                            '<div class="my-order-items">' + formatItems(o.items) + '</div>' +
+                            '<div class="my-order-footer">' +
+                            '<span style="color:#aaa;font-size:13px">' + o.date_ordered + '</span>' +
+                            '<span class="my-order-price">GH&#8373; ' + o.total_price.toFixed(2) + '</span>' +
+                            '</div>' +
+                            '</div>';
+                    }).join('');'''
 
-        function closeOrderModal() {
-            document.getElementById('orderModal').classList.remove('show');
-        }
+new_my_orders_display = '''                    list.innerHTML = orders.map(function(o) {
+                        var statusClass = o.status === 'Awaiting Delivery' ? 'awaiting' : o.status.toLowerCase();
+                        var confirmBtn  = '';
+                        if (o.status === 'Awaiting Delivery') {
+                            confirmBtn = '<button onclick="confirmDelivery(' + o.id + ')" style="' +
+                                'width:100%;padding:10px;margin-top:10px;' +
+                                'background:linear-gradient(135deg,#43a047,#66bb6a);' +
+                                'color:white;border:none;border-radius:12px;' +
+                                'font-weight:800;cursor:pointer;font-family:Nunito;font-size:14px;' +
+                                '">\\u2705 Confirm I Received My Order</button>';
+                        }
+                        return '<div class="my-order-card">' +
+                            '<div class="my-order-header">' +
+                            '<h4>Order #' + o.id + '</h4>' +
+                            '<span class="status-badge ' + statusClass + '">' + o.status + '</span>' +
+                            '</div>' +
+                            '<div class="my-order-items">' + formatItems(o.items) + '</div>' +
+                            '<div class="my-order-footer">' +
+                            '<span style="color:#aaa;font-size:13px">' + o.date_ordered + '</span>' +
+                            '<span class="my-order-price">GH&#8373; ' + o.total_price.toFixed(2) + '</span>' +
+                            '</div>' +
+                            confirmBtn +
+                            '</div>';
+                    }).join('');'''
 
-        function goToPayment() {
-            var name    = document.getElementById('cust-name').value.trim();
-            var phone   = document.getElementById('cust-phone').value.trim();
-            var address = document.getElementById('cust-address').value.trim();
-            if (!name)    { showToast('Please enter your name!',    'error'); return; }
-            if (!phone)   { showToast('Please enter your phone!',   'error'); return; }
-            if (!address) { showToast('Please enter your address!', 'error'); return; }
-            document.getElementById('step-delivery').style.display = 'none';
-            document.getElementById('step-payment').style.display  = 'block';
-            document.getElementById('order-modal-title').textContent = 'Make Payment';
-        }
+index = index.replace(old_my_orders_display, new_my_orders_display)
+print("  ✅ Added delivery confirmation button")
 
-        function backToDelivery() {
-            document.getElementById('step-delivery').style.display = 'block';
-            document.getElementById('step-payment').style.display  = 'none';
-            document.getElementById('order-modal-title').textContent = 'Delivery Details';
-        }
-
-        async function submitOrder() {
-            var momoNumber    = document.getElementById('momo-number').value.trim();
-            var transactionId = document.getElementById('transaction-id').value.trim();
-
-            if (!momoNumber)    { showToast('Please select which number you paid to!', 'error'); return; }
-            if (!transactionId) { showToast('Please enter your Transaction ID!',       'error'); return; }
-
-            var btn = document.getElementById('place-order-btn');
-            btn.textContent = 'Placing Order...';
-            btn.disabled    = true;
-
-            var tp = cart.reduce(function(s, i) { return s + (i.price * i.quantity); }, 0);
-
-            var orderData = {
-                customer_name:    document.getElementById('cust-name').value.trim(),
-                customer_phone:   document.getElementById('cust-phone').value.trim(),
-                customer_address: document.getElementById('cust-address').value.trim(),
-                items:            cart.map(function(i) {
-                    return { id: i.id, name: i.name, price: i.price, quantity: i.quantity };
-                }),
-                total_price:    tp,
-                transaction_id: transactionId,
-                momo_number:    momoNumber
-            };
-
-            try {
-                var response = await fetch('/api/orders/place', {
-                    method:  'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify(orderData)
-                });
-                var data = await response.json();
-
-                if (data.success) {
-                    closeOrderModal();
-                    document.getElementById('success-order-id').textContent = 'Order #' + data.order_id;
-                    document.getElementById('successModal').classList.add('show');
-                    cart = [];
-                    updateCartUI();
-                    document.getElementById('momo-number').value    = '';
-                    document.getElementById('transaction-id').value = '';
-                } else if (data.need_login) {
-                    showToast('Please login first!', 'error');
-                    closeOrderModal();
-                    openAuthModal('login');
-                } else {
-                    showToast(data.message || 'Error placing order!', 'error');
-                }
-            } catch (err) {
-                console.error('Order error:', err);
-                showToast('Something went wrong! Try again.', 'error');
-            }
-
-            btn.textContent = 'I Have Paid - Place Order';
-            btn.disabled    = false;
-        }
-
-'''
-
-# Insert before closing script tag
-index_content = index_content.replace(
-    "        document.getElementById('authModal').addEventListener",
-    clean_js + "        document.getElementById('authModal').addEventListener"
+# Add Awaiting Delivery status badge
+index = index.replace(
+    '.status-badge.cancelled { background:#ffebee; color:#e53935; }',
+    '.status-badge.cancelled { background:#ffebee; color:#e53935; }\n        .status-badge.awaiting { background:#e3f2fd; color:#1976d2; }'
 )
 
-with open('templates/index.html', 'w', encoding='utf-8') as f:
-    f.write(index_content)
+# Add notification functions before closing script
+old_close_modals = '''    // ===========================
+    // CLOSE MODALS ON OVERLAY
+    // ==========================='''
 
-print("  ✅ index.html written!")
+new_notif_functions = '''    // ===========================
+    // USER NOTIFICATIONS
+    // ===========================
+    function checkUserNotifications() {
+        if (!currentUser) return;
+        fetch('/api/notifications/user')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var badge = document.getElementById('user-notif-badge');
+                if (badge && data.unread_count > 0) {
+                    badge.textContent   = data.unread_count;
+                    badge.style.display = 'inline';
+                } else if (badge) {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(function() {});
+    }
+
+    // Check every 30 seconds
+    setInterval(function() {
+        if (currentUser) checkUserNotifications();
+    }, 30000);
+
+    function openUserNotifications() {
+        document.getElementById('dropdown-menu').classList.remove('show');
+        fetch('/api/notifications/user')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var list = document.getElementById('user-notif-list');
+                if (!data.notifications || data.notifications.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🔔</div><p>No notifications yet</p></div>';
+                } else {
+                    list.innerHTML = data.notifications.map(function(n) {
+                        return '<div style="' +
+                            'padding:15px;border-bottom:2px solid #fce4ec;' +
+                            'background:' + (n.is_read ? 'white' : '#fff0f3') + ';' +
+                            'border-radius:12px;margin-bottom:8px;' +
+                            '">' +
+                            '<div style="font-weight:800;color:#c2185b;font-size:14px;margin-bottom:5px;">' +
+                            (n.is_read ? '' : '🔴 ') + n.title +
+                            '</div>' +
+                            '<div style="font-size:13px;color:#666;font-weight:600;">' + n.message + '</div>' +
+                            '<div style="font-size:11px;color:#aaa;margin-top:6px;font-weight:700;">' + n.created_at + '</div>' +
+                            '</div>';
+                    }).join('');
+                }
+                document.getElementById('userNotifModal').classList.add('show');
+
+                // Mark all as read
+                fetch('/api/notifications/read-all', { method: 'POST' })
+                    .then(function() { checkUserNotifications(); });
+            })
+            .catch(function() {
+                showToast('Error loading notifications!', 'error');
+            });
+    }
+
+    function confirmDelivery(orderId) {
+        if (!confirm('Confirm you received your order?')) return;
+        fetch('/api/orders/confirm-delivery/' + orderId, { method: 'POST' })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.success) {
+                    showToast('Delivery confirmed! Thank you!', 'success');
+                    openMyOrders();
+                } else {
+                    showToast(d.message || 'Error!', 'error');
+                }
+            })
+            .catch(function() { showToast('Error!', 'error'); });
+    }
+
+    // ===========================
+    // CLOSE MODALS ON OVERLAY
+    // ==========================='''
+
+index = index.replace(old_close_modals, new_notif_functions)
+
+# Add userNotifModal close handler
+index = index.replace(
+    "document.getElementById('myOrdersModal').addEventListener('click', function(e) {\n        if (e.target === this) document.getElementById('myOrdersModal').classList.remove('show');\n    });",
+    "document.getElementById('myOrdersModal').addEventListener('click', function(e) {\n        if (e.target === this) document.getElementById('myOrdersModal').classList.remove('show');\n    });\n    document.getElementById('userNotifModal').addEventListener('click', function(e) {\n        if (e.target === this) document.getElementById('userNotifModal').classList.remove('show');\n    });"
+)
+
+print("  ✅ Added user notification functions")
+
+with open('templates/index.html', 'w', encoding='utf-8') as f:
+    f.write(index)
+
+print("  ✅ index.html saved!")
+print("")
 
 # ==============================
 # PUSH TO GITHUB
 # ==============================
-print("")
 print("  Pushing to GitHub...")
 os.system('git add .')
-os.system('git commit -m "Complete fix - checkout and order flow"')
+os.system('git commit -m "Added notifications + order flow enforcement"')
 os.system('git push')
 
 print("")
 print("  ========================================")
 print("  ALL DONE!")
+print("")
+print("  New Features:")
+print("  🔔 Admin gets notification when order placed")
+print("  🔔 Customer gets notification on status change")
+print("  📋 Order Flow Enforced:")
+print("     Pending → Confirm or Cancel")
+print("     Confirmed → Mark as Sent")
+print("     Sent → Customer confirms delivery")
+print("     Delivered ← Cannot be changed")
+print("     Cancelled ← Cannot be changed")
+print("")
 print("  Render updates in 2-3 minutes!")
 print("  ========================================")
 print("")

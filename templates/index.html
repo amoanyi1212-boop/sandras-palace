@@ -318,6 +318,7 @@
         .status-badge.confirmed { background:#e3f2fd; color:#1976d2; }
         .status-badge.delivered { background:#e8f5e9; color:#43a047; }
         .status-badge.cancelled { background:#ffebee; color:#e53935; }
+        .status-badge.awaiting { background:#e3f2fd; color:#1976d2; }
 
         /* ===== SUCCESS MODAL ===== */
         .success-content { text-align:center; padding:50px 30px; }
@@ -677,6 +678,24 @@
     </div>
 </div>
 
+<!-- ===== USER NOTIFICATIONS MODAL ===== -->
+<div class="modal-overlay" id="userNotifModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>🔔 Notifications</h2>
+            <button class="modal-close" onclick="document.getElementById('userNotifModal').classList.remove('show')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="user-notif-list" style="max-height:400px;overflow-y:auto;">
+                <div class="empty-state">
+                    <div class="empty-icon">🔔</div>
+                    <p>No notifications</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ===== TOAST ===== -->
 <div class="toast" id="toast"></div>
 
@@ -874,7 +893,16 @@
                         '</div>';
                 } else {
                     list.innerHTML = orders.map(function(o) {
-                        var statusClass = o.status.toLowerCase();
+                        var statusClass = o.status === 'Awaiting Delivery' ? 'awaiting' : o.status.toLowerCase();
+                        var confirmBtn  = '';
+                        if (o.status === 'Awaiting Delivery') {
+                            confirmBtn = '<button onclick="confirmDelivery(' + o.id + ')" style="' +
+                                'width:100%;padding:10px;margin-top:10px;' +
+                                'background:linear-gradient(135deg,#43a047,#66bb6a);' +
+                                'color:white;border:none;border-radius:12px;' +
+                                'font-weight:800;cursor:pointer;font-family:Nunito;font-size:14px;' +
+                                '">\u2705 Confirm I Received My Order</button>';
+                        }
                         return '<div class="my-order-card">' +
                             '<div class="my-order-header">' +
                             '<h4>Order #' + o.id + '</h4>' +
@@ -885,6 +913,7 @@
                             '<span style="color:#aaa;font-size:13px">' + o.date_ordered + '</span>' +
                             '<span class="my-order-price">GH&#8373; ' + o.total_price.toFixed(2) + '</span>' +
                             '</div>' +
+                            confirmBtn +
                             '</div>';
                     }).join('');
                 }
@@ -1218,6 +1247,79 @@
     }
 
     // ===========================
+    // USER NOTIFICATIONS
+    // ===========================
+    function checkUserNotifications() {
+        if (!currentUser) return;
+        fetch('/api/notifications/user')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var badge = document.getElementById('user-notif-badge');
+                if (badge && data.unread_count > 0) {
+                    badge.textContent   = data.unread_count;
+                    badge.style.display = 'inline';
+                } else if (badge) {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(function() {});
+    }
+
+    // Check every 30 seconds
+    setInterval(function() {
+        if (currentUser) checkUserNotifications();
+    }, 30000);
+
+    function openUserNotifications() {
+        document.getElementById('dropdown-menu').classList.remove('show');
+        fetch('/api/notifications/user')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var list = document.getElementById('user-notif-list');
+                if (!data.notifications || data.notifications.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🔔</div><p>No notifications yet</p></div>';
+                } else {
+                    list.innerHTML = data.notifications.map(function(n) {
+                        return '<div style="' +
+                            'padding:15px;border-bottom:2px solid #fce4ec;' +
+                            'background:' + (n.is_read ? 'white' : '#fff0f3') + ';' +
+                            'border-radius:12px;margin-bottom:8px;' +
+                            '">' +
+                            '<div style="font-weight:800;color:#c2185b;font-size:14px;margin-bottom:5px;">' +
+                            (n.is_read ? '' : '🔴 ') + n.title +
+                            '</div>' +
+                            '<div style="font-size:13px;color:#666;font-weight:600;">' + n.message + '</div>' +
+                            '<div style="font-size:11px;color:#aaa;margin-top:6px;font-weight:700;">' + n.created_at + '</div>' +
+                            '</div>';
+                    }).join('');
+                }
+                document.getElementById('userNotifModal').classList.add('show');
+
+                // Mark all as read
+                fetch('/api/notifications/read-all', { method: 'POST' })
+                    .then(function() { checkUserNotifications(); });
+            })
+            .catch(function() {
+                showToast('Error loading notifications!', 'error');
+            });
+    }
+
+    function confirmDelivery(orderId) {
+        if (!confirm('Confirm you received your order?')) return;
+        fetch('/api/orders/confirm-delivery/' + orderId, { method: 'POST' })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.success) {
+                    showToast('Delivery confirmed! Thank you!', 'success');
+                    openMyOrders();
+                } else {
+                    showToast(d.message || 'Error!', 'error');
+                }
+            })
+            .catch(function() { showToast('Error!', 'error'); });
+    }
+
+    // ===========================
     // CLOSE MODALS ON OVERLAY
     // ===========================
     document.getElementById('orderModal').addEventListener('click', function(e) {
@@ -1231,6 +1333,9 @@
     });
     document.getElementById('myOrdersModal').addEventListener('click', function(e) {
         if (e.target === this) document.getElementById('myOrdersModal').classList.remove('show');
+    });
+    document.getElementById('userNotifModal').addEventListener('click', function(e) {
+        if (e.target === this) document.getElementById('userNotifModal').classList.remove('show');
     });
 
 </script>

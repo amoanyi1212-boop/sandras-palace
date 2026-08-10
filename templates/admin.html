@@ -172,6 +172,7 @@
         .status-badge.confirmed { background:#e3f2fd; color:#1976d2; }
         .status-badge.delivered { background:#e8f5e9; color:#43a047; }
         .status-badge.cancelled { background:#ffebee; color:#e53935; }
+        .status-badge.awaiting { background:#e3f2fd; color:#1976d2; }
 
         .trans-badge {
             background:#e3f2fd; color:#1976d2; padding:5px 12px;
@@ -278,6 +279,54 @@
         <div>
             <h1 id="page-title">📊 Dashboard</h1>
             <p id="page-subtitle">Welcome back, Sandra! 👑</p>
+        </div>
+        <div style="position:relative;">
+            <button onclick="toggleNotifications()" style="
+                background:linear-gradient(135deg,#e91e63,#ff6f00);
+                border:none; border-radius:15px; padding:12px 20px;
+                color:white; font-size:18px; cursor:pointer;
+                font-weight:800; font-family:'Nunito';
+                position:relative;
+            ">
+                🔔
+                <span id="notif-count" style="
+                    position:absolute; top:-5px; right:-5px;
+                    background:#e53935; color:white;
+                    width:22px; height:22px; border-radius:50%;
+                    font-size:11px; display:none;
+                    align-items:center; justify-content:center;
+                    font-weight:800;
+                ">0</span>
+            </button>
+
+            <!-- Notification Dropdown -->
+            <div id="notif-dropdown" style="
+                display:none; position:absolute; right:0; top:55px;
+                background:white; border-radius:20px; width:350px;
+                max-height:450px; overflow-y:auto;
+                box-shadow:0 10px 40px rgba(0,0,0,0.15);
+                border:3px solid #fce4ec; z-index:500;
+            ">
+                <div style="
+                    padding:18px 20px; background:#fff0f3;
+                    border-radius:17px 17px 0 0;
+                    display:flex; justify-content:space-between;
+                    align-items:center;
+                ">
+                    <span style="font-family:'Fredoka One',cursive;color:#c2185b;font-size:16px;">
+                        🔔 Notifications
+                    </span>
+                    <button onclick="markAllRead()" style="
+                        background:none; border:none; color:#e91e63;
+                        font-size:13px; font-weight:800; cursor:pointer;
+                    ">Mark all read</button>
+                </div>
+                <div id="notif-list" style="padding:10px;">
+                    <div style="text-align:center;padding:30px;color:#aaa;font-weight:700;">
+                        No notifications
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -683,7 +732,7 @@
                         '<td>' + o.customer_name + '</td>' +
                         '<td style="font-family:\'Fredoka One\',cursive;color:#e91e63;">GH&#8373; ' + o.total_price.toFixed(2) + '</td>' +
                         '<td><span class="trans-badge" onclick="copyTransID(\'' + (o.transaction_id || '') + '\')">' + (o.transaction_id || 'N/A') + '</span></td>' +
-                        '<td><span class="status-badge ' + o.status.toLowerCase() + '">' + o.status + '</span></td>' +
+                        '<td><span class="status-badge ' + (o.status === 'Awaiting Delivery' ? 'awaiting' : o.status.toLowerCase()) + '">' + o.status + '</span></td>' +
                         '</tr>';
                 }).join('');
             }
@@ -901,15 +950,10 @@
                         (o.transaction_id || 'N/A') +
                         '</span>' +
                         '</td>' +
-                        '<td><span class="status-badge ' + o.status.toLowerCase() + '">' + o.status + '</span></td>' +
+                        '<td><span class="status-badge ' + (o.status === 'Awaiting Delivery' ? 'awaiting' : o.status.toLowerCase()) + '">' + o.status + '</span></td>' +
                         '<td style="font-size:12px;white-space:nowrap;">' + o.date_ordered + '</td>' +
                         '<td>' +
-                        '<select class="status-select" onchange="updateStatus(' + o.id + ', this.value)">' +
-                        '<option ' + (o.status === 'Pending'   ? 'selected' : '') + '>Pending</option>' +
-                        '<option ' + (o.status === 'Confirmed' ? 'selected' : '') + '>Confirmed</option>' +
-                        '<option ' + (o.status === 'Delivered' ? 'selected' : '') + '>Delivered</option>' +
-                        '<option ' + (o.status === 'Cancelled' ? 'selected' : '') + '>Cancelled</option>' +
-                        '</select>' +
+                        getOrderActions(o) +
                         '</td>' +
                         '</tr>';
                 }).join('');
@@ -1006,6 +1050,111 @@
     // ===========================
     // TOAST
     // ===========================
+    // ===========================
+    // ORDER ACTION BUTTONS
+    // ===========================
+    function getOrderActions(o) {
+        if (o.status === "Delivered") {
+            return '<span style="color:#43a047;font-weight:800;font-size:13px;">✅ Completed</span>';
+        }
+        if (o.status === "Cancelled") {
+            return '<span style="color:#e53935;font-weight:800;font-size:13px;">❌ Cancelled</span>';
+        }
+        if (o.status === "Awaiting Delivery") {
+            return '<span style="color:#1976d2;font-weight:800;font-size:13px;">📦 Awaiting Customer</span>';
+        }
+        if (o.status === "Pending") {
+            return '<button class="btn btn-success btn-sm" onclick="updateStatus(' + o.id + ',\'Confirmed\')">✅ Confirm</button> ' +
+                   '<button class="btn btn-danger btn-sm" onclick="updateStatus(' + o.id + ',\'Cancelled\')">❌ Cancel</button>';
+        }
+        if (o.status === "Confirmed") {
+            return '<button class="btn btn-primary btn-sm" onclick="updateStatus(' + o.id + ',\'Delivered\')">📦 Send</button>';
+        }
+        return '';
+    }
+
+    // ===========================
+    // NOTIFICATIONS
+    // ===========================
+    function toggleNotifications() {
+        var dd = document.getElementById("notif-dropdown");
+        if (dd.style.display === "none") {
+            dd.style.display = "block";
+            loadNotifications();
+        } else {
+            dd.style.display = "none";
+        }
+    }
+
+    function loadNotifications() {
+        fetch("/api/notifications/admin")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var count = document.getElementById("notif-count");
+                if (data.unread_count > 0) {
+                    count.textContent    = data.unread_count;
+                    count.style.display  = "flex";
+                } else {
+                    count.style.display  = "none";
+                }
+
+                var list = document.getElementById("notif-list");
+                if (!data.notifications || data.notifications.length === 0) {
+                    list.innerHTML = '<div style="text-align:center;padding:30px;color:#aaa;font-weight:700;">No notifications</div>';
+                    return;
+                }
+
+                list.innerHTML = data.notifications.map(function(n) {
+                    return '<div onclick="markNotifRead(' + n.id + ')" style="' +
+                        'padding:14px 15px;border-bottom:2px solid #fce4ec;cursor:pointer;' +
+                        'background:' + (n.is_read ? 'white' : '#fff0f3') + ';' +
+                        'transition:all 0.2s;border-radius:10px;margin-bottom:5px;' +
+                        '">' +
+                        '<div style="font-weight:800;color:#c2185b;font-size:14px;margin-bottom:4px;">' +
+                        (n.is_read ? '' : '🔴 ') + n.title +
+                        '</div>' +
+                        '<div style="font-size:13px;color:#666;font-weight:600;">' + n.message + '</div>' +
+                        '<div style="font-size:11px;color:#aaa;margin-top:5px;font-weight:700;">' + n.created_at + '</div>' +
+                        '</div>';
+                }).join("");
+            })
+            .catch(function(e) { console.error("Notif error:", e); });
+    }
+
+    function markNotifRead(id) {
+        fetch("/api/notifications/read/" + id, { method: "POST" })
+            .then(function() { loadNotifications(); });
+    }
+
+    function markAllRead() {
+        fetch("/api/notifications/read-all", { method: "POST" })
+            .then(function() { loadNotifications(); showToast("All marked as read!", "success"); });
+    }
+
+    // Check notifications every 30 seconds
+    setInterval(function() {
+        fetch("/api/notifications/admin")
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var count = document.getElementById("notif-count");
+                if (data.unread_count > 0) {
+                    count.textContent   = data.unread_count;
+                    count.style.display = "flex";
+                } else {
+                    count.style.display = "none";
+                }
+            })
+            .catch(function() {});
+    }, 30000);
+
+    // Close notification dropdown when clicking outside
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest("[onclick*=\'toggleNotifications\']") &&
+            !e.target.closest("#notif-dropdown")) {
+            document.getElementById("notif-dropdown").style.display = "none";
+        }
+    });
+
     function showToast(msg, type) {
         var t = document.getElementById('toast');
         t.textContent = msg;

@@ -105,6 +105,17 @@ class Order(db.Model):
 # ==============================
 # ADMIN
 # ==============================
+class Notification(db.Model):
+    __tablename__ = "notifications"
+    id         = db.Column(db.Integer,     primary_key=True)
+    user_id    = db.Column(db.Integer,     default=0)
+    for_admin  = db.Column(db.Boolean,     default=False)
+    title      = db.Column(db.String(200), nullable=False)
+    message    = db.Column(db.String(500), nullable=False)
+    is_read    = db.Column(db.Boolean,     default=False)
+    order_id   = db.Column(db.Integer,     default=0)
+    created_at = db.Column(db.DateTime,    default=datetime.utcnow)
+
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "sandra")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "SandrasPalace2024")
 
@@ -173,6 +184,24 @@ def create_tables():
                         ("transaction_id", "VARCHAR(100) DEFAULT ''"),
                         ("momo_number",    "VARCHAR(100) DEFAULT ''"),
                     ]
+
+                    # Create notifications table
+                    try:
+                        conn.execute(db.text("""
+                            CREATE TABLE IF NOT EXISTS notifications (
+                                id SERIAL PRIMARY KEY,
+                                user_id INTEGER DEFAULT 0,
+                                for_admin BOOLEAN DEFAULT FALSE,
+                                title VARCHAR(200) NOT NULL,
+                                message VARCHAR(500) NOT NULL,
+                                is_read BOOLEAN DEFAULT FALSE,
+                                order_id INTEGER DEFAULT 0,
+                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                            )
+                        """))
+                        conn.commit()
+                    except Exception:
+                        pass
                     for col, defn in columns:
                         try:
                             conn.execute(db.text(
@@ -510,6 +539,20 @@ def place_order():
         db.session.add(new_order)
         db.session.commit()
 
+        # Create notification for admin
+        try:
+            admin_notif = Notification(
+                user_id   = 0,
+                for_admin = True,
+                title     = "New Order #" + str(new_order.id),
+                message   = user.fullname + " placed an order for GH" + chr(8373) + " " + str(new_order.total_price) + ". Transaction ID: " + data.get("transaction_id", "N/A"),
+                order_id  = new_order.id
+            )
+            db.session.add(admin_notif)
+            db.session.commit()
+        except Exception as e:
+            print("Notification error:", e)
+
         return jsonify({
             "success":  True,
             "message":  "Order placed!",
@@ -577,12 +620,56 @@ def update_order_status(order_id):
         data   = request.get_json()
         status = data.get("status", order.status)
 
-        if status not in ["Pending", "Confirmed", "Delivered", "Cancelled"]:
+        if status not in ["Pending", "Confirmed", "Delivered", "Cancelled", "Awaiting Delivery"]:
             return jsonify({"success": False, "message": "Invalid status!"}), 400
 
-        order.status = status
+        # Enforce order flow
+        current = order.status
+
+        # Cannot change from Delivered or Cancelled
+        if current in ["Delivered", "Cancelled"]:
+            return jsonify({"success": False, "message": "Cannot change " + current + " orders!"}), 400
+
+        # Pending can only go to Confirmed or Cancelled
+        if current == "Pending" and status not in ["Confirmed", "Cancelled"]:
+            return jsonify({"success": False, "message": "Pending orders can only be Confirmed or Cancelled!"}), 400
+
+        # Confirmed can only go to Delivered
+        if current == "Confirmed" and status != "Delivered":
+            return jsonify({"success": False, "message": "Confirmed orders can only be marked as Delivered!"}), 400
+
+        # If marking as Delivered, set to Awaiting Confirmation
+        if status == "Delivered":
+            order.status = "Awaiting Delivery"
+        else:
+            order.status = status
+
         db.session.commit()
-        return jsonify({"success": True, "message": "Status updated to " + status})
+
+        # Create notification for customer
+        try:
+            status_messages = {
+                "Confirmed": "Your order #" + str(order.id) + " has been confirmed! We are preparing it now.",
+                "Awaiting Delivery": "Your order #" + str(order.id) + " is on its way! Please confirm when you receive it.",
+                "Cancelled": "Your order #" + str(order.id) + " has been cancelled. Contact us for more info."
+            }
+            
+            actual_status = "Awaiting Delivery" if status == "Delivered" else status
+            
+            if actual_status in status_messages:
+                user_notif = Notification(
+                    user_id   = order.user_id,
+                    for_admin = False,
+                    title     = "Order #" + str(order.id) + " - " + actual_status,
+                    message   = status_messages[actual_status],
+                    order_id  = order.id
+                )
+                db.session.add(user_notif)
+                db.session.commit()
+        except Exception as e:
+            print("Notification error:", e)
+
+        return jsonify({"success": True, "message": "Status updated!"})
 
     except Exception as e:
         db.session.rollback()
@@ -605,6 +692,114 @@ def get_users():
         } for u in users])
     except Exception as e:
         return jsonify([])
+
+# ==============================
+# NOTIFICATION ROUTES
+# ==============================
+
+@app.route("/api/notifications/admin", methods=["GET"])
+def admin_notifications():
+    if not session.get("admin_logged_in"):
+        return jsonify({"success": False}), 401
+    try:
+        notifs = Notification.query.filter_by(for_admin=True).order_by(Notification.created_at.desc()).limit(50).all()
+        unread = Notification.query.filter_by(for_admin=True, is_read=False).count()
+        return jsonify({
+            "notifications": [{
+                "id":         n.id,
+                "title":      n.title,
+                "message":    n.message,
+                "is_read":    n.is_read,
+                "order_id":   n.order_id,
+                "created_at": n.created_at.strftime("%Y-%m-%d %H:%M")
+            } for n in notifs],
+            "unread_count": unread
+        })
+    except Exception as e:
+        print("Admin notif error:", e)
+        return jsonify({"notifications": [], "unread_count": 0})
+
+@app.route("/api/notifications/user", methods=["GET"])
+def user_notifications():
+    if not session.get("user_id"):
+        return jsonify({"success": False}), 401
+    try:
+        notifs = Notification.query.filter_by(
+            user_id=session["user_id"], for_admin=False
+        ).order_by(Notification.created_at.desc()).limit(50).all()
+        unread = Notification.query.filter_by(
+            user_id=session["user_id"], for_admin=False, is_read=False
+        ).count()
+        return jsonify({
+            "notifications": [{
+                "id":         n.id,
+                "title":      n.title,
+                "message":    n.message,
+                "is_read":    n.is_read,
+                "order_id":   n.order_id,
+                "created_at": n.created_at.strftime("%Y-%m-%d %H:%M")
+            } for n in notifs],
+            "unread_count": unread
+        })
+    except Exception as e:
+        print("User notif error:", e)
+        return jsonify({"notifications": [], "unread_count": 0})
+
+@app.route("/api/notifications/read/<int:notif_id>", methods=["POST"])
+def mark_read(notif_id):
+    try:
+        notif = Notification.query.get(notif_id)
+        if notif:
+            notif.is_read = True
+            db.session.commit()
+        return jsonify({"success": True})
+    except Exception:
+        return jsonify({"success": False})
+
+@app.route("/api/notifications/read-all", methods=["POST"])
+def mark_all_read():
+    try:
+        if session.get("admin_logged_in"):
+            Notification.query.filter_by(for_admin=True, is_read=False).update({"is_read": True})
+        elif session.get("user_id"):
+            Notification.query.filter_by(user_id=session["user_id"], is_read=False).update({"is_read": True})
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception:
+        return jsonify({"success": False})
+
+@app.route("/api/orders/confirm-delivery/<int:order_id>", methods=["POST"])
+def confirm_delivery(order_id):
+    if not session.get("user_id"):
+        return jsonify({"success": False, "message": "Not logged in"}), 401
+    try:
+        order = Order.query.get_or_404(order_id)
+        if order.user_id != session["user_id"]:
+            return jsonify({"success": False, "message": "Not your order!"}), 403
+        if order.status != "Awaiting Delivery":
+            return jsonify({"success": False, "message": "Order not awaiting delivery!"}), 400
+
+        order.status = "Delivered"
+        db.session.commit()
+
+        # Notify admin
+        try:
+            admin_notif = Notification(
+                user_id   = 0,
+                for_admin = True,
+                title     = "Delivery Confirmed - Order #" + str(order.id),
+                message   = order.customer_name + " confirmed receiving order #" + str(order.id),
+                order_id  = order.id
+            )
+            db.session.add(admin_notif)
+            db.session.commit()
+        except Exception:
+            pass
+
+        return jsonify({"success": True, "message": "Delivery confirmed! Thank you!"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
 
 # ==============================
 # RUN
