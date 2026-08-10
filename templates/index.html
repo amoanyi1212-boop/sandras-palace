@@ -716,6 +716,11 @@
         loadItems();
         checkAuth();
         registerServiceWorker();
+
+        // Start checking notifications after 3 seconds
+        setTimeout(function() {
+            if (currentUser) checkUserNotifications();
+        }, 3000);
     };
 
     function registerServiceWorker() {
@@ -822,6 +827,8 @@
                 closeAuthModal();
                 showToast('Welcome back ' + d.user.fullname + '!', 'success');
                 document.getElementById('loginForm').reset();
+                // Check notifications immediately
+                setTimeout(checkUserNotifications, 1000);
             } else {
                 err.textContent = d.message;
                 err.classList.add('show');
@@ -855,6 +862,8 @@
                 closeAuthModal();
                 showToast('Welcome to Esirifuahs Palace!', 'success');
                 document.getElementById('registerForm').reset();
+                // Check notifications immediately
+                setTimeout(checkUserNotifications, 1000);
             } else {
                 err.textContent = d.message;
                 err.classList.add('show');
@@ -1249,6 +1258,8 @@
     // ===========================
     // USER NOTIFICATIONS
     // ===========================
+    var lastNotifCount = 0;
+
     function checkUserNotifications() {
         if (!currentUser) return;
         fetch('/api/notifications/user')
@@ -1258,17 +1269,74 @@
                 if (badge && data.unread_count > 0) {
                     badge.textContent   = data.unread_count;
                     badge.style.display = 'inline';
+
+                    // Show toast if new notification arrived
+                    if (data.unread_count > lastNotifCount && lastNotifCount >= 0) {
+                        // Get latest notification
+                        if (data.notifications && data.notifications.length > 0) {
+                            var latest = data.notifications[0];
+                            if (!latest.is_read) {
+                                showNotificationPopup(latest.title, latest.message);
+                            }
+                        }
+                    }
+                    lastNotifCount = data.unread_count;
+
                 } else if (badge) {
                     badge.style.display = 'none';
+                    lastNotifCount = 0;
                 }
             })
             .catch(function() {});
     }
 
-    // Check every 30 seconds
+    function showNotificationPopup(title, message) {
+        // Remove old popup if exists
+        var oldPopup = document.getElementById("notif-popup");
+        if (oldPopup) oldPopup.remove();
+
+        var popup = document.createElement("div");
+        popup.id = "notif-popup";
+        popup.style.cssText = "position:fixed;top:20px;right:20px;background:white;" +
+            "border-radius:20px;padding:20px 25px;box-shadow:0 10px 40px rgba(233,30,99,0.3);" +
+            "border:3px solid #fce4ec;z-index:10000;max-width:350px;animation:popIn 0.3s ease;" +
+            "cursor:pointer;";
+        popup.onclick = function() {
+            popup.remove();
+            openUserNotifications();
+        };
+
+        popup.innerHTML =
+            '<div style="display:flex;align-items:center;gap:12px;">' +
+            '<div style="font-size:30px;">🔔</div>' +
+            '<div>' +
+            '<div style="font-family:\'Fredoka One\',cursive;color:#c2185b;font-size:14px;">' + title + '</div>' +
+            '<div style="font-size:13px;color:#666;font-weight:600;margin-top:3px;">' + message + '</div>' +
+            '</div>' +
+            '<button onclick="event.stopPropagation();this.parentElement.parentElement.remove();" style="' +
+            'background:#ffebee;border:none;color:#e53935;width:25px;height:25px;' +
+            'border-radius:50%;cursor:pointer;font-size:14px;font-weight:800;' +
+            'display:flex;align-items:center;justify-content:center;flex-shrink:0;' +
+            '">x</button>' +
+            '</div>';
+
+        document.body.appendChild(popup);
+
+        // Auto remove after 8 seconds
+        setTimeout(function() {
+            if (document.getElementById("notif-popup")) {
+                popup.style.opacity = "0";
+                popup.style.transform = "translateX(100px)";
+                popup.style.transition = "all 0.3s ease";
+                setTimeout(function() { popup.remove(); }, 300);
+            }
+        }, 8000);
+    }
+
+    // Check every 10 seconds
     setInterval(function() {
         if (currentUser) checkUserNotifications();
-    }, 30000);
+    }, 10000);
 
     function openUserNotifications() {
         document.getElementById('dropdown-menu').classList.remove('show');

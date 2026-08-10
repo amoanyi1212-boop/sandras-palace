@@ -1000,8 +1000,13 @@
         })
         .then(function(r) { return r.json(); })
         .then(function(d) {
-            if (d.success) showToast('✅ ' + d.message, 'success');
-            else showToast('❌ ' + d.message, 'error');
+            if (d.success) {
+                showToast('✅ ' + d.message, 'success');
+                // Reload orders to show updated status
+                loadOrders();
+            } else {
+                showToast('❌ ' + d.message, 'error');
+            }
         })
         .catch(function() { showToast('❌ Error!', 'error'); });
     }
@@ -1086,6 +1091,8 @@
         }
     }
 
+    var lastAdminNotifCount = 0;
+
     function loadNotifications() {
         fetch("/api/notifications/admin")
             .then(function(r) { return r.json(); })
@@ -1094,8 +1101,21 @@
                 if (data.unread_count > 0) {
                     count.textContent    = data.unread_count;
                     count.style.display  = "flex";
+
+                    // Show popup if new notification
+                    if (data.unread_count > lastAdminNotifCount && lastAdminNotifCount >= 0) {
+                        if (data.notifications && data.notifications.length > 0) {
+                            var latest = data.notifications[0];
+                            if (!latest.is_read) {
+                                showAdminNotifPopup(latest.title, latest.message);
+                            }
+                        }
+                    }
+                    lastAdminNotifCount = data.unread_count;
+
                 } else {
                     count.style.display  = "none";
+                    lastAdminNotifCount = 0;
                 }
 
                 var list = document.getElementById("notif-list");
@@ -1133,6 +1153,8 @@
 
     // Check notifications every 30 seconds
     setInterval(function() {
+        loadNotifications();
+        // Also refresh
         fetch("/api/notifications/admin")
             .then(function(r) { return r.json(); })
             .then(function(data) {
@@ -1145,7 +1167,7 @@
                 }
             })
             .catch(function() {});
-    }, 30000);
+    }, 10000);
 
     // Close notification dropdown when clicking outside
     document.addEventListener("click", function(e) {
@@ -1154,6 +1176,55 @@
             document.getElementById("notif-dropdown").style.display = "none";
         }
     });
+
+    function showAdminNotifPopup(title, message) {
+        var oldPopup = document.getElementById("admin-notif-popup");
+        if (oldPopup) oldPopup.remove();
+
+        var popup = document.createElement("div");
+        popup.id = "admin-notif-popup";
+        popup.style.cssText = "position:fixed;top:20px;right:20px;background:white;" +
+            "border-radius:20px;padding:20px 25px;box-shadow:0 10px 40px rgba(233,30,99,0.3);" +
+            "border:3px solid #fce4ec;z-index:10000;max-width:380px;animation:popIn 0.3s ease;" +
+            "cursor:pointer;";
+        popup.onclick = function() {
+            popup.remove();
+            toggleNotifications();
+        };
+
+        popup.innerHTML =
+            '<div style="display:flex;align-items:center;gap:12px;">' +
+            '<div style="font-size:35px;">🔔</div>' +
+            '<div>' +
+            '<div style="font-family:\'Fredoka One\',cursive;color:#c2185b;font-size:15px;">' + title + '</div>' +
+            '<div style="font-size:13px;color:#666;font-weight:600;margin-top:4px;">' + message + '</div>' +
+            '</div>' +
+            '<button onclick="event.stopPropagation();this.parentElement.parentElement.remove();" style="' +
+            'background:#ffebee;border:none;color:#e53935;width:28px;height:28px;' +
+            'border-radius:50%;cursor:pointer;font-size:16px;font-weight:800;' +
+            'display:flex;align-items:center;justify-content:center;flex-shrink:0;' +
+            '">x</button>' +
+            '</div>';
+
+        document.body.appendChild(popup);
+
+        // Play sound effect (browser notification sound)
+        try {
+            var audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH+Jj4+Hd2Zia3R+houRi4J1Z2Rre4GKj42IeW5maHJ+h46QjoV6b2hqdn+IjpCLg3ZtaW13gIiOj4qCdm5rbniCiI6PioF2bmtueYKJjpCKgnZua255gomOkIqBdm5rbniCiY6QioJ2bmtueYKJjo+Jf3Vuam14gImOj4qCdm5rbniCiI6PioJ2bmtueIKIjo+KgnZua254goiOj4qCdm5r");
+            audio.volume = 0.3;
+            audio.play().catch(function(){});
+        } catch(e) {}
+
+        // Auto remove after 10 seconds
+        setTimeout(function() {
+            if (document.getElementById("admin-notif-popup")) {
+                popup.style.opacity = "0";
+                popup.style.transform = "translateX(100px)";
+                popup.style.transition = "all 0.3s ease";
+                setTimeout(function() { popup.remove(); }, 300);
+            }
+        }, 10000);
+    }
 
     function showToast(msg, type) {
         var t = document.getElementById('toast');
