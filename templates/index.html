@@ -262,18 +262,162 @@
         </div>
     </div>
 
-    <!-- ORDER MODAL -->
+        <!-- ORDER MODAL -->
     <div class="modal-overlay" id="orderModal">
         <div class="modal">
-            <div class="modal-header"><h2>📋 Complete Your Order</h2><button class="modal-close" onclick="closeOrderModal()">✕</button></div>
+            <div class="modal-header">
+                <h2 id="order-modal-title">📋 Delivery Details</h2>
+                <button class="modal-close" onclick="closeOrderModal()">✕</button>
+            </div>
             <div class="modal-body">
-                <div class="order-summary"><h3>🛒 Order Summary</h3><div id="order-summary-items"></div><div class="order-summary-total"><span>Total</span><span id="order-summary-total">GH₵ 0.00</span></div></div>
-                <form id="orderForm">
-                    <div class="form-group"><label>👤 Full Name</label><input type="text" id="cust-name" required /></div>
-                    <div class="form-group"><label>📱 Phone</label><input type="tel" id="cust-phone" required /></div>
-                    <div class="form-group"><label>📍 Delivery Address</label><textarea id="cust-address" required></textarea></div>
-                    <button type="submit" class="modal-btn green">🚀 Place Order</button>
-                </form>
+
+                <!-- ORDER SUMMARY -->
+                <div class="order-summary">
+                    <h3>🛒 Your Order</h3>
+                    <div id="order-summary-items"></div>
+                    <div class="order-summary-total">
+                        <span>Total</span>
+                        <span id="order-summary-total">GH₵ 0.00</span>
+                    </div>
+                </div>
+
+                <!-- STEP 1: DELIVERY -->
+                <div id="step-delivery">
+                    <div class="form-group">
+                        <label>👤 Full Name</label>
+                        <input type="text" id="cust-name" placeholder="Your full name" />
+                    </div>
+                    <div class="form-group">
+                        <label>📱 Phone Number</label>
+                        <input type="tel" id="cust-phone" placeholder="Your phone number" />
+                    </div>
+                    <div class="form-group">
+                        <label>📍 Delivery Address</label>
+                        <textarea id="cust-address" placeholder="Your delivery address"></textarea>
+                    </div>
+                    <button class="modal-btn" onclick="goToPayment()">
+                        💳 Next: Make Payment
+                    </button>
+                </div>
+
+                <!-- STEP 2: PAYMENT -->
+                <div id="step-payment" style="display:none">
+
+                    <!-- MoMo Box -->
+                    <div style="
+                        background:linear-gradient(135deg,#fff8e1,#fff3cd);
+                        border:3px solid #f9a825;
+                        border-radius:18px;
+                        padding:20px;
+                        margin-bottom:20px;
+                        text-align:center;
+                    ">
+                        <div style="font-size:35px;margin-bottom:8px;">📱</div>
+                        <h3 style="
+                            font-family:'Fredoka One',cursive;
+                            color:#f57f17;
+                            font-size:17px;
+                            margin-bottom:15px;
+                        ">
+                            Send MTN Mobile Money To:
+                        </h3>
+
+                        <!-- Account 1 -->
+                        <div style="
+                            background:white;border-radius:12px;
+                            padding:12px 15px;margin-bottom:10px;
+                            border:2px solid #fce4ec;
+                        ">
+                            <div style="
+                                font-size:20px;font-weight:800;
+                                color:#e91e63;font-family:'Fredoka One',cursive;
+                            ">0550618807</div>
+                            <div style="color:#888;font-size:13px;font-weight:700;margin-top:3px;">
+                                👤 Sandra Nkrumah
+                            </div>
+                        </div>
+
+                        <!-- Account 2 -->
+                        <div style="
+                            background:white;border-radius:12px;
+                            padding:12px 15px;margin-bottom:15px;
+                            border:2px solid #fce4ec;
+                        ">
+                            <div style="
+                                font-size:20px;font-weight:800;
+                                color:#e91e63;font-family:'Fredoka One',cursive;
+                            ">0540882629</div>
+                            <div style="color:#888;font-size:13px;font-weight:700;margin-top:3px;">
+                                👤 Milicent Nkrumah
+                            </div>
+                        </div>
+
+                        <!-- Amount -->
+                        <div id="amount-display" style="
+                            background:linear-gradient(135deg,#e91e63,#ff6f00);
+                            color:white;border-radius:12px;
+                            padding:12px 20px;
+                            font-family:'Fredoka One',cursive;
+                            font-size:20px;
+                        ">
+                            Amount: GH₵ 0.00
+                        </div>
+                    </div>
+
+                    <!-- Transaction Form -->
+                    <div class="form-group">
+                        <label>📱 Which number did you pay to? *</label>
+                        <select id="momo-number" style="
+                            width:100%;padding:14px 16px;
+                            border:3px solid #fce4ec;border-radius:14px;
+                            font-size:14px;font-weight:600;outline:none;
+                            font-family:'Nunito',sans-serif;background:#fffbfc;
+                            cursor:pointer;
+                        ">
+                            <option value="">-- Select number --</option>
+                            <option value="0550618807 - Sandra Nkrumah">
+                                0550618807 - Sandra Nkrumah
+                            </option>
+                            <option value="0540882629 - Milicent Nkrumah">
+                                0540882629 - Milicent Nkrumah
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🔢 Transaction ID *</label>
+                        <input
+                            type="text"
+                            id="transaction-id"
+                            placeholder="e.g. 1234567890"
+                        />
+                        <small style="color:#aaa;font-size:12px;font-weight:700;display:block;margin-top:5px;">
+                            📩 Find this in your MoMo SMS after payment
+                        </small>
+                    </div>
+
+                    <!-- Buttons -->
+                    <button
+                        class="modal-btn green"
+                        onclick="submitOrder()"
+                        id="place-order-btn"
+                    >
+                        ✅ I Have Paid - Place Order
+                    </button>
+
+                    <button
+                        onclick="backToDelivery()"
+                        style="
+                            width:100%;padding:13px;background:none;
+                            border:3px solid #fce4ec;border-radius:16px;
+                            font-size:15px;font-weight:800;cursor:pointer;
+                            color:#aaa;margin-top:10px;font-family:'Nunito';
+                        "
+                    >
+                        ← Back to Delivery Details
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
@@ -534,92 +678,9 @@
         function closeCart() { document.getElementById('cart-sidebar').classList.remove('open'); document.getElementById('cart-overlay').classList.remove('show'); }
 
         // === CHECKOUT ===
-        function openCheckout() {
-            if (cart.length === 0) { showToast('❌ Cart is empty!', 'error'); return; }
-            if (!currentUser) { showToast('❌ Please login first!', 'error'); closeCart(); openAuthModal('login'); return; }
 
-            const sd = document.getElementById('order-summary-items');
-            const tp = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-            sd.innerHTML = cart.map(i => `<div class="order-summary-item"><span>${i.name} x${i.quantity}</span><span>GH₵ ${(i.price * i.quantity).toFixed(2)}</span></div>`).join('');
-            document.getElementById('order-summary-total').textContent = 'GH₵ ' + tp.toFixed(2);
+        // CHECKOUT FUNCTIONS
 
-            document.getElementById('cust-name').value = currentUser.fullname;
-            document.getElementById('cust-phone').value = currentUser.phone;
-            document.getElementById('cust-address').value = currentUser.address;
-
-            closeCart();
-            document.getElementById('orderModal').classList.add('show');
-        }
-        function closeOrderModal() { document.getElementById('orderModal').classList.remove('show'); }
-
-        document.getElementById('orderForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const transactionId = document.getElementById('transaction-id').value.trim();
-            const momoNumber    = document.getElementById('momo-number').value;
-
-            if (!transactionId) {
-                showToast('❌ Please enter your Transaction ID!', 'error');
-                return;
-            }
-
-            if (!momoNumber) {
-                showToast('❌ Please select which number you paid to!', 'error');
-                return;
-            }
-
-            const tp = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-
-            try {
-                const r = await fetch('/api/orders/place', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        customer_name:    document.getElementById('cust-name').value,
-                        customer_phone:   document.getElementById('cust-phone').value,
-                        customer_address: document.getElementById('cust-address').value,
-                        items:            cart.map(i => ({
-                            id:       i.id,
-                            name:     i.name,
-                            price:    i.price,
-                            quantity: i.quantity
-                        })),
-                        total_price:    tp,
-                        transaction_id: transactionId,
-                        momo_number:    momoNumber
-                    })
-                });
-
-                const d = await r.json();
-
-                if (d.success) {
-                    closeOrderModal();
-                    document.getElementById('success-order-id').textContent = 'Order #' + d.order_id;
-                    document.getElementById('successModal').classList.add('show');
-                    cart = [];
-                    updateCartUI();
-                    this.reset();
-                }
-                else if (d.need_login) {
-                    showToast('❌ Please login first!', 'error');
-                    closeOrderModal();
-                    openAuthModal('login');
-                }
-                else {
-                    showToast('❌ ' + d.message, 'error');
-                }
-            } catch (ex) {
-                showToast('❌ Something went wrong!', 'error');
-            }
-        });
-
-        function closeSuccessModal() { document.getElementById('successModal').classList.remove('show'); }
-
-        function showToast(m, t) { const x = document.getElementById('toast'); x.textContent = m; x.className = 'toast ' + t + ' show'; setTimeout(() => x.classList.remove('show'), 3000); }
-
-        document.getElementById('authModal').addEventListener('click', function(e) { if (e.target === this) closeAuthModal(); });
-        document.getElementById('orderModal').addEventListener('click', function(e) { if (e.target === this) closeOrderModal(); });
-        document.getElementById('successModal').addEventListener('click', function(e) { if (e.target === this) closeSuccessModal(); });
         document.getElementById('myOrdersModal').addEventListener('click', function(e) { if (e.target === this) closeMyOrdersModal(); });
     </script>
 </body>
