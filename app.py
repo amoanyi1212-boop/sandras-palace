@@ -4,6 +4,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import logging
+from urllib.parse import urlparse
 
 app = Flask(__name__)
 app.secret_key = "sandras_palace_secret_key_2024"
@@ -17,7 +18,14 @@ log.setLevel(logging.ERROR)
 # ==============================
 # DATABASE SETUP
 # ==============================
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///store.db'
+# Use Supabase in production, SQLite locally
+DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///store.db')
+
+# Fix for SQLAlchemy compatibility
+if DATABASE_URL.startswith('postgres://'):
+    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -528,12 +536,14 @@ def update_order_status(order_id):
         return jsonify({'success': False, 'message': str(e)}), 500
 
 # ==============================
-# RUN
+# RUN APP
 # ==============================
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
 
+# Create tables always (important for Render)
+with app.app_context():
+    db.create_all()
+
+if __name__ == '__main__':
     print("")
     print("  👑✨ Sandra's Palace is LIVE! ✨👑")
     print("  ══════════════════════════════════")
