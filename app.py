@@ -207,6 +207,44 @@ def create_tables():
     try:
         with app.app_context():
             db.create_all()
+
+            # Add missing columns if they dont exist
+            # This handles existing databases
+            try:
+                with db.engine.connect() as conn:
+                    # Check and add payment_status
+                    try:
+                        conn.execute(db.text(
+                            "ALTER TABLE orders ADD COLUMN payment_status VARCHAR(50) DEFAULT 'Paid'"
+                        ))
+                        conn.commit()
+                        print("✅ Added payment_status column")
+                    except Exception:
+                        pass
+
+                    # Check and add transaction_id
+                    try:
+                        conn.execute(db.text(
+                            "ALTER TABLE orders ADD COLUMN transaction_id VARCHAR(100) DEFAULT ''"
+                        ))
+                        conn.commit()
+                        print("✅ Added transaction_id column")
+                    except Exception:
+                        pass
+
+                    # Check and add momo_number
+                    try:
+                        conn.execute(db.text(
+                            "ALTER TABLE orders ADD COLUMN momo_number VARCHAR(20) DEFAULT ''"
+                        ))
+                        conn.commit()
+                        print("✅ Added momo_number column")
+                    except Exception:
+                        pass
+
+            except Exception as col_err:
+                print(f"Column check: {col_err}")
+
             print("✅ Database tables ready!")
     except Exception as e:
         print(f"⚠️ Database connection warning: {e}")
