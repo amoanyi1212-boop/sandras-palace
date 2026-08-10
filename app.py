@@ -52,7 +52,11 @@ CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME", "").strip()
 CLOUD_KEY  = os.environ.get("CLOUDINARY_API_KEY", "").strip()
 CLOUD_SEC  = os.environ.get("CLOUDINARY_API_SECRET", "").strip()
 
-cloudinary.config(cloud_name=CLOUD_NAME, api_key=CLOUD_KEY, api_secret=CLOUD_SEC)
+cloudinary.config(
+    cloud_name = CLOUD_NAME,
+    api_key    = CLOUD_KEY,
+    api_secret = CLOUD_SEC
+)
 
 # ==============================
 # MODELS
@@ -77,7 +81,8 @@ class Item(db.Model):
     price       = db.Column(db.Float, nullable=False)
     category    = db.Column(db.String(50))
     in_stock    = db.Column(db.Boolean, default=True)
-    image_url   = db.Column(db.String(500), default="https://via.placeholder.com/400x400?text=No+Image")
+    image_url   = db.Column(db.String(500),
+                  default="https://via.placeholder.com/400x400?text=No+Image")
     date_added  = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Order(db.Model):
@@ -118,7 +123,8 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "SandrasPalace2024")
 # ==============================
 
 def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg", "gif", "webp"}
+    return "." in filename and \
+           filename.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg", "gif", "webp"}
 
 def upload_image(image):
     default = "https://via.placeholder.com/400x400?text=No+Image"
@@ -128,7 +134,11 @@ def upload_image(image):
     if CLOUD_NAME and CLOUD_KEY and CLOUD_SEC:
         try:
             image.stream.seek(0)
-            result = cloudinary.uploader.upload(image.stream, folder="esirifuahs_palace", resource_type="image")
+            result = cloudinary.uploader.upload(
+                image.stream,
+                folder="esirifuahs_palace",
+                resource_type="image"
+            )
             if result and result.get("secure_url"):
                 return result["secure_url"]
         except Exception as e:
@@ -152,8 +162,11 @@ def send_notification(user_id, for_admin, title, message, order_id=0):
     """Create a notification in the database"""
     try:
         notif = Notification(
-            user_id=user_id, for_admin=for_admin,
-            title=title, message=message, order_id=order_id
+            user_id   = user_id,
+            for_admin = for_admin,
+            title     = title,
+            message   = message,
+            order_id  = order_id
         )
         db.session.add(notif)
         db.session.commit()
@@ -164,56 +177,49 @@ def send_notification(user_id, for_admin, title, message, order_id=0):
         return False
 
 def check_expired_deliveries():
-    """Auto-confirm deliveries after 14 days"""
+    """Auto-confirm deliveries after 14 days - SAFE VERSION"""
     try:
         two_weeks_ago = datetime.utcnow() - timedelta(days=14)
 
-        # Use raw SQL to avoid column not found error
-        result = db.engine.execute(
-            "SELECT id FROM orders WHERE status = 'Awaiting Delivery'"
-        ) if False else None
+        with db.engine.connect() as conn:
+            # Check if delivered_at column exists first
+            try:
+                rows = conn.execute(db.text(
+                    "SELECT id, user_id, customer_name FROM orders "
+                    "WHERE status = 'Awaiting Delivery' "
+                    "AND delivered_at IS NOT NULL "
+                    "AND delivered_at <= :d"
+                ), {"d": two_weeks_ago}).fetchall()
 
-        # Safe query using text
-        try:
-            expired = db.session.execute(db.text(
-                "SELECT id, user_id, customer_name FROM orders "
-                "WHERE status = 'Awaiting Delivery' "
-                "AND delivered_at IS NOT NULL "
-                "AND delivered_at <= :two_weeks_ago"
-            ), {"two_weeks_ago": two_weeks_ago}).fetchall()
+                for row in rows:
+                    conn.execute(db.text(
+                        "UPDATE orders SET status = 'Delivered' WHERE id = :id"
+                    ), {"id": row[0]})
+                    conn.commit()
 
-            for row in expired:
-                db.session.execute(db.text(
-                    "UPDATE orders SET status = 'Delivered' WHERE id = :id"
-                ), {"id": row[0]})
+                    send_notification(
+                        row[1], False,
+                        "Order #" + str(row[0]) + " Auto-Confirmed",
+                        "Your order was auto-confirmed after 14 days.",
+                        row[0]
+                    )
+                    send_notification(
+                        0, True,
+                        "Auto-Confirmed Order #" + str(row[0]),
+                        str(row[2]) + " order auto-confirmed after 14 days.",
+                        row[0]
+                    )
 
-                send_notification(
-                    row[1], False,
-                    "Order #" + str(row[0]) + " Auto-Confirmed",
-                    "Your order has been automatically confirmed after 14 days.",
-                    row[0]
-                )
-                send_notification(
-                    0, True,
-                    "Auto-Confirmed - Order #" + str(row[0]),
-                    row[2] + "'s order was auto-confirmed after 14 days.",
-                    row[0]
-                )
+                if rows:
+                    print("Auto-confirmed", len(rows), "orders")
 
-            if expired:
-                db.session.commit()
-                print("Auto-confirmed", len(expired), "deliveries")
-
-        except Exception as inner_e:
-            # Column might not exist yet - skip silently
-            if "delivered_at" in str(inner_e):
+            except Exception as e:
+                # Silently ignore if column doesnt exist yet
                 pass
-            else:
-                print("Auto-confirm inner error:", inner_e)
 
     except Exception as e:
-        print("Auto-confirm error:", e)
-        db.session.rollback()
+        # Never crash the app
+        pass
 
 # ==============================
 # CREATE TABLES
@@ -225,16 +231,20 @@ def create_tables():
 
             try:
                 with db.engine.connect() as conn:
-                    cols = [
-                        ("payment_status", "VARCHAR(50) DEFAULT 'Paid'"),
+
+                    # Add missing columns to orders table
+                    for col, defn in [
+                        ("payment_status", "VARCHAR(50)  DEFAULT 'Paid'"),
                         ("transaction_id", "VARCHAR(100) DEFAULT ''"),
-                        ("momo_number", "VARCHAR(100) DEFAULT ''"),
-                        ("delivered_at", "TIMESTAMP NULL"),
-                    ]
-                    for col, defn in cols:
+                        ("momo_number",    "VARCHAR(100) DEFAULT ''"),
+                        ("delivered_at",   "TIMESTAMP"),
+                    ]:
                         try:
-                            conn.execute(db.text("ALTER TABLE orders ADD COLUMN " + col + " " + defn))
+                            conn.execute(db.text(
+                                "ALTER TABLE orders ADD COLUMN " + col + " " + defn
+                            ))
                             conn.commit()
+                            print("Added column:", col)
                         except Exception:
                             pass
 
@@ -253,13 +263,15 @@ def create_tables():
                             )
                         """))
                         conn.commit()
+                        print("Notifications table ready!")
                     except Exception:
                         pass
 
             except Exception as e:
-                print("Column setup:", e)
+                print("Column setup info:", e)
 
             print("Database ready!")
+
     except Exception as e:
         print("DB warning:", e)
         print("App will start anyway...")
@@ -272,7 +284,6 @@ create_tables()
 
 @app.route("/")
 def index():
-    # Check expired deliveries on each page load
     check_expired_deliveries()
     return render_template("index.html")
 
@@ -289,7 +300,8 @@ def admin_login():
         data = request.get_json()
         if not data:
             return jsonify({"success": False, "message": "Invalid"}), 400
-        if data.get("username") == ADMIN_USERNAME and data.get("password") == ADMIN_PASSWORD:
+        if (data.get("username") == ADMIN_USERNAME and
+                data.get("password") == ADMIN_PASSWORD):
             session["admin_logged_in"] = True
             return jsonify({"success": True})
         return jsonify({"success": False, "message": "Wrong credentials"})
@@ -301,7 +313,7 @@ def admin_logout():
     return redirect(url_for("admin_login"))
 
 # ==============================
-# AUTH
+# USER AUTH
 # ==============================
 
 @app.route("/api/auth/register", methods=["POST"])
@@ -309,9 +321,9 @@ def register():
     try:
         data = request.get_json()
         fn   = data.get("fullname", "").strip()
-        em   = data.get("email", "").strip().lower()
-        ph   = data.get("phone", "").strip()
-        addr = data.get("address", "").strip()
+        em   = data.get("email",    "").strip().lower()
+        ph   = data.get("phone",    "").strip()
+        addr = data.get("address",  "").strip()
         pw   = data.get("password", "")
 
         if not all([fn, em, ph, addr, pw]):
@@ -321,21 +333,31 @@ def register():
         if User.query.filter_by(email=em).first():
             return jsonify({"success": False, "message": "Email already registered!"})
 
-        user = User(fullname=fn, email=em, phone=ph, address=addr, password=generate_password_hash(pw))
+        user = User(
+            fullname = fn, email    = em,
+            phone    = ph, address  = addr,
+            password = generate_password_hash(pw)
+        )
         db.session.add(user)
         db.session.commit()
 
-        session["user_id"] = user.id
-        session["user_name"] = user.fullname
+        session["user_id"]    = user.id
+        session["user_name"]  = user.fullname
         session["user_email"] = user.email
 
-        # Notify admin
-        send_notification(0, True, "New User Registered",
+        send_notification(0, True,
+            "New User Registered",
             fn + " (" + em + ") just created an account!", 0)
 
-        return jsonify({"success": True, "message": "Welcome!",
-            "user": {"id": user.id, "fullname": user.fullname, "email": user.email,
-                     "phone": user.phone, "address": user.address}})
+        return jsonify({
+            "success": True,
+            "message": "Welcome!",
+            "user": {
+                "id": user.id, "fullname": user.fullname,
+                "email": user.email, "phone": user.phone,
+                "address": user.address
+            }
+        })
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
@@ -344,27 +366,33 @@ def register():
 def user_login():
     try:
         data = request.get_json()
-        em   = data.get("email", "").strip().lower()
+        em   = data.get("email",    "").strip().lower()
         pw   = data.get("password", "")
 
         user = User.query.filter_by(email=em).first()
         if not user or not check_password_hash(user.password, pw):
             return jsonify({"success": False, "message": "Invalid credentials!"})
 
-        session["user_id"] = user.id
-        session["user_name"] = user.fullname
+        session["user_id"]    = user.id
+        session["user_name"]  = user.fullname
         session["user_email"] = user.email
 
-        return jsonify({"success": True, "message": "Welcome back!",
-            "user": {"id": user.id, "fullname": user.fullname, "email": user.email,
-                     "phone": user.phone, "address": user.address}})
+        return jsonify({
+            "success": True,
+            "message": "Welcome back!",
+            "user": {
+                "id": user.id, "fullname": user.fullname,
+                "email": user.email, "phone": user.phone,
+                "address": user.address
+            }
+        })
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route("/api/auth/logout", methods=["POST"])
 def user_logout():
-    session.pop("user_id", None)
-    session.pop("user_name", None)
+    session.pop("user_id",    None)
+    session.pop("user_name",  None)
     session.pop("user_email", None)
     return jsonify({"success": True})
 
@@ -373,9 +401,14 @@ def check_auth():
     if session.get("user_id"):
         user = User.query.get(session["user_id"])
         if user:
-            return jsonify({"logged_in": True,
-                "user": {"id": user.id, "fullname": user.fullname, "email": user.email,
-                         "phone": user.phone, "address": user.address}})
+            return jsonify({
+                "logged_in": True,
+                "user": {
+                    "id": user.id, "fullname": user.fullname,
+                    "email": user.email, "phone": user.phone,
+                    "address": user.address
+                }
+            })
     return jsonify({"logged_in": False})
 
 @app.route("/api/auth/update", methods=["POST"])
@@ -387,14 +420,22 @@ def update_profile():
         user = User.query.get(session["user_id"])
         if not user:
             return jsonify({"success": False}), 404
+
         user.fullname = data.get("fullname", user.fullname)
-        user.phone = data.get("phone", user.phone)
-        user.address = data.get("address", user.address)
+        user.phone    = data.get("phone",    user.phone)
+        user.address  = data.get("address",  user.address)
         db.session.commit()
         session["user_name"] = user.fullname
-        return jsonify({"success": True, "message": "Updated!",
-            "user": {"id": user.id, "fullname": user.fullname, "email": user.email,
-                     "phone": user.phone, "address": user.address}})
+
+        return jsonify({
+            "success": True,
+            "message": "Updated!",
+            "user": {
+                "id": user.id, "fullname": user.fullname,
+                "email": user.email, "phone": user.phone,
+                "address": user.address
+            }
+        })
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
@@ -408,11 +449,16 @@ def get_items():
     try:
         items = Item.query.all()
         return jsonify([{
-            "id": i.id, "name": i.name, "description": i.description,
-            "price": i.price, "category": i.category, "in_stock": i.in_stock,
-            "image_url": i.image_url, "date_added": i.date_added.strftime("%Y-%m-%d")
+            "id":          i.id,
+            "name":        i.name,
+            "description": i.description,
+            "price":       i.price,
+            "category":    i.category,
+            "in_stock":    i.in_stock,
+            "image_url":   i.image_url,
+            "date_added":  i.date_added.strftime("%Y-%m-%d")
         } for i in items])
-    except Exception as e:
+    except Exception:
         return jsonify([])
 
 @app.route("/api/items/add", methods=["POST"])
@@ -420,15 +466,21 @@ def add_item():
     if not session.get("admin_logged_in"):
         return jsonify({"success": False}), 401
     try:
-        data = request.form
+        data  = request.form
         image = request.files.get("image")
-        url = "https://via.placeholder.com/400x400?text=No+Image"
+        url   = "https://via.placeholder.com/400x400?text=No+Image"
+
         if image and image.filename != "":
             url = upload_image(image)
 
-        new = Item(name=data.get("name"), description=data.get("description", ""),
-            price=float(data.get("price")), category=data.get("category", "General"),
-            in_stock=data.get("in_stock", "true") == "true", image_url=url)
+        new = Item(
+            name        = data.get("name"),
+            description = data.get("description", ""),
+            price       = float(data.get("price")),
+            category    = data.get("category", "General"),
+            in_stock    = data.get("in_stock", "true") == "true",
+            image_url   = url
+        )
         db.session.add(new)
         db.session.commit()
         return jsonify({"success": True, "message": "Item added!"})
@@ -441,16 +493,19 @@ def update_item(item_id):
     if not session.get("admin_logged_in"):
         return jsonify({"success": False}), 401
     try:
-        item = Item.query.get_or_404(item_id)
-        data = request.form
+        item  = Item.query.get_or_404(item_id)
+        data  = request.form
         image = request.files.get("image")
+
         if image and image.filename != "":
             item.image_url = upload_image(image)
-        item.name = data.get("name", item.name)
+
+        item.name        = data.get("name",        item.name)
         item.description = data.get("description", item.description)
-        item.price = float(data.get("price", item.price))
-        item.category = data.get("category", item.category)
-        item.in_stock = data.get("in_stock", "true") == "true"
+        item.price       = float(data.get("price", item.price))
+        item.category    = data.get("category",    item.category)
+        item.in_stock    = data.get("in_stock", "true") == "true"
+
         db.session.commit()
         return jsonify({"success": True, "message": "Updated!"})
     except Exception as e:
@@ -496,7 +551,11 @@ def toggle_stock(item_id):
 @app.route("/api/orders/place", methods=["POST"])
 def place_order():
     if not session.get("user_id"):
-        return jsonify({"success": False, "message": "Login first!", "need_login": True}), 401
+        return jsonify({
+            "success": False,
+            "message": "Login first!",
+            "need_login": True
+        }), 401
     try:
         data = request.get_json()
         if not data or not data.get("items"):
@@ -507,33 +566,37 @@ def place_order():
             return jsonify({"success": False, "message": "User not found!"}), 404
 
         order = Order(
-            user_id=user.id,
-            customer_name=data.get("customer_name", user.fullname),
-            customer_phone=data.get("customer_phone", user.phone),
-            customer_address=data.get("customer_address", user.address),
-            items=str(data.get("items")),
-            total_price=float(data.get("total_price")),
-            status="Pending", payment_status="Paid",
-            transaction_id=data.get("transaction_id", ""),
-            momo_number=data.get("momo_number", "")
+            user_id          = user.id,
+            customer_name    = data.get("customer_name",    user.fullname),
+            customer_phone   = data.get("customer_phone",   user.phone),
+            customer_address = data.get("customer_address", user.address),
+            items            = str(data.get("items")),
+            total_price      = float(data.get("total_price")),
+            status           = "Pending",
+            payment_status   = "Paid",
+            transaction_id   = data.get("transaction_id", ""),
+            momo_number      = data.get("momo_number",    "")
         )
         db.session.add(order)
         db.session.commit()
 
-        # Notify admin
         send_notification(0, True,
             "New Order #" + str(order.id),
             user.fullname + " placed order for GH" + chr(8373) + " " +
-            str(order.total_price) + ". Trans: " + data.get("transaction_id", "N/A"),
+            str(order.total_price) + ". Trans: " +
+            data.get("transaction_id", "N/A"),
             order.id)
 
-        # Notify user
         send_notification(user.id, False,
             "Order #" + str(order.id) + " Received",
-            "Your order has been received! We will confirm it shortly.",
+            "Your order has been received! We will confirm shortly.",
             order.id)
 
-        return jsonify({"success": True, "message": "Order placed!", "order_id": order.id})
+        return jsonify({
+            "success":  True,
+            "message":  "Order placed!",
+            "order_id": order.id
+        })
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
@@ -543,15 +606,21 @@ def my_orders():
     if not session.get("user_id"):
         return jsonify([])
     try:
-        orders = Order.query.filter_by(user_id=session["user_id"]).order_by(Order.date_ordered.desc()).all()
+        orders = Order.query.filter_by(
+            user_id=session["user_id"]
+        ).order_by(Order.date_ordered.desc()).all()
+
         return jsonify([{
-            "id": o.id, "items": o.items, "total_price": o.total_price,
-            "status": o.status, "payment_status": o.payment_status or "Paid",
+            "id":           o.id,
+            "items":        o.items,
+            "total_price":  o.total_price,
+            "status":       o.status,
+            "payment_status": o.payment_status or "Paid",
             "transaction_id": o.transaction_id or "",
             "date_ordered": o.date_ordered.strftime("%Y-%m-%d %H:%M"),
             "delivered_at": o.delivered_at.strftime("%Y-%m-%d %H:%M") if o.delivered_at else ""
         } for o in orders])
-    except Exception as e:
+    except Exception:
         return jsonify([])
 
 @app.route("/api/orders", methods=["GET"])
@@ -561,17 +630,21 @@ def get_orders():
     try:
         orders = Order.query.order_by(Order.date_ordered.desc()).all()
         return jsonify([{
-            "id": o.id, "customer_name": o.customer_name,
-            "customer_phone": o.customer_phone, "customer_address": o.customer_address,
-            "items": o.items, "total_price": o.total_price, "status": o.status,
-            "payment_status": o.payment_status or "Paid",
-            "transaction_id": o.transaction_id or "",
-            "momo_number": o.momo_number or "",
-            "date_ordered": o.date_ordered.strftime("%Y-%m-%d %H:%M"),
-            "delivered_at": o.delivered_at.strftime("%Y-%m-%d %H:%M") if o.delivered_at else "",
-            "user_id": o.user_id
+            "id":               o.id,
+            "customer_name":    o.customer_name,
+            "customer_phone":   o.customer_phone,
+            "customer_address": o.customer_address,
+            "items":            o.items,
+            "total_price":      o.total_price,
+            "status":           o.status,
+            "payment_status":   o.payment_status or "Paid",
+            "transaction_id":   o.transaction_id or "",
+            "momo_number":      o.momo_number    or "",
+            "date_ordered":     o.date_ordered.strftime("%Y-%m-%d %H:%M"),
+            "delivered_at":     o.delivered_at.strftime("%Y-%m-%d %H:%M") if o.delivered_at else "",
+            "user_id":          o.user_id
         } for o in orders])
-    except Exception as e:
+    except Exception:
         return jsonify([])
 
 @app.route("/api/orders/status/<int:order_id>", methods=["POST"])
@@ -579,51 +652,73 @@ def update_order_status(order_id):
     if not session.get("admin_logged_in"):
         return jsonify({"success": False}), 401
     try:
-        order = Order.query.get_or_404(order_id)
-        data = request.get_json()
-        status = data.get("status", order.status)
+        order   = Order.query.get_or_404(order_id)
+        data    = request.get_json()
+        status  = data.get("status", order.status)
         current = order.status
 
-        # Cannot change completed orders
+        # Cannot change completed/cancelled orders
         if current in ["Delivered", "Cancelled"]:
-            return jsonify({"success": False, "message": "Cannot change " + current + " orders!"}), 400
+            return jsonify({
+                "success": False,
+                "message": "Cannot change " + current + " orders!"
+            }), 400
 
-        # Enforce flow
-        if current == "Pending" and status not in ["Confirmed", "Cancelled"]:
-            return jsonify({"success": False, "message": "Can only Confirm or Cancel!"}), 400
+        # Cannot change disputed without admin action
+        if current == "Disputed":
+            return jsonify({
+                "success": False,
+                "message": "This order is disputed!"
+            }), 400
 
-        if current == "Confirmed" and status != "Delivered":
-            return jsonify({"success": False, "message": "Can only mark as Delivered!"}), 400
-
+        # Cannot change while awaiting customer delivery confirmation
         if current == "Awaiting Delivery":
-            return jsonify({"success": False, "message": "Waiting for customer to confirm!"}), 400
+            return jsonify({
+                "success": False,
+                "message": "Waiting for customer to confirm delivery!"
+            }), 400
 
-        # If delivered, set to Awaiting Delivery
+        # Enforce flow: Pending -> Confirmed or Cancelled only
+        if current == "Pending" and status not in ["Confirmed", "Cancelled"]:
+            return jsonify({
+                "success": False,
+                "message": "Pending orders can only be Confirmed or Cancelled!"
+            }), 400
+
+        # Enforce flow: Confirmed -> Delivered only
+        if current == "Confirmed" and status != "Delivered":
+            return jsonify({
+                "success": False,
+                "message": "Confirmed orders can only be marked as Delivered!"
+            }), 400
+
+        # Handle each status change
         if status == "Delivered":
-            order.status = "Awaiting Delivery"
+            order.status      = "Awaiting Delivery"
             order.delivered_at = datetime.utcnow()
-
             send_notification(order.user_id, False,
-                "Order #" + str(order.id) + " - Delivered!",
-                "Your order has been delivered! Please confirm you received it. Auto-confirms in 14 days.",
+                "Order #" + str(order.id) + " On The Way!",
+                "Your order has been sent! Please confirm you received it. "
+                "It will auto-confirm in 14 days if no action taken.",
                 order.id)
+
         elif status == "Confirmed":
             order.status = "Confirmed"
-
             send_notification(order.user_id, False,
                 "Order #" + str(order.id) + " Confirmed!",
-                "Your order has been confirmed and is being prepared!",
+                "Great news! Your order has been confirmed and is being prepared.",
                 order.id)
+
         elif status == "Cancelled":
             order.status = "Cancelled"
-
             send_notification(order.user_id, False,
                 "Order #" + str(order.id) + " Cancelled",
-                "Your order has been cancelled. Contact us for more info.",
+                "Your order has been cancelled. Please contact us for more info.",
                 order.id)
 
         db.session.commit()
         return jsonify({"success": True, "message": "Status updated!"})
+
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
@@ -634,6 +729,7 @@ def confirm_delivery(order_id):
         return jsonify({"success": False}), 401
     try:
         order = Order.query.get_or_404(order_id)
+
         if order.user_id != session["user_id"]:
             return jsonify({"success": False, "message": "Not your order!"}), 403
         if order.status != "Awaiting Delivery":
@@ -643,13 +739,13 @@ def confirm_delivery(order_id):
         db.session.commit()
 
         send_notification(0, True,
-            "Delivery Confirmed - #" + str(order.id),
+            "Delivery Confirmed - Order #" + str(order.id),
             order.customer_name + " confirmed receiving order #" + str(order.id),
             order.id)
 
         send_notification(order.user_id, False,
             "Order #" + str(order.id) + " Complete!",
-            "Thank you for confirming your delivery! Enjoy your purchase!",
+            "Thank you for confirming! Enjoy your purchase!",
             order.id)
 
         return jsonify({"success": True, "message": "Delivery confirmed! Thank you!"})
@@ -663,12 +759,13 @@ def dispute_order(order_id):
         return jsonify({"success": False}), 401
     try:
         order = Order.query.get_or_404(order_id)
+
         if order.user_id != session["user_id"]:
             return jsonify({"success": False, "message": "Not your order!"}), 403
         if order.status != "Awaiting Delivery":
             return jsonify({"success": False, "message": "Cannot dispute this order!"}), 400
 
-        data = request.get_json()
+        data   = request.get_json()
         reason = data.get("reason", "No reason given")
 
         order.status = "Disputed"
@@ -676,7 +773,8 @@ def dispute_order(order_id):
 
         send_notification(0, True,
             "DISPUTE - Order #" + str(order.id),
-            order.customer_name + " disputed order #" + str(order.id) + ". Reason: " + reason,
+            order.customer_name + " disputed order #" + str(order.id) +
+            ". Reason: " + reason,
             order.id)
 
         send_notification(order.user_id, False,
@@ -698,17 +796,26 @@ def admin_notifications():
     if not session.get("admin_logged_in"):
         return jsonify({"notifications": [], "unread_count": 0})
     try:
-        notifs = Notification.query.filter_by(for_admin=True).order_by(Notification.created_at.desc()).limit(50).all()
-        unread = Notification.query.filter_by(for_admin=True, is_read=False).count()
+        notifs = Notification.query.filter_by(
+            for_admin=True
+        ).order_by(Notification.created_at.desc()).limit(50).all()
+
+        unread = Notification.query.filter_by(
+            for_admin=True, is_read=False
+        ).count()
+
         return jsonify({
             "notifications": [{
-                "id": n.id, "title": n.title, "message": n.message,
-                "is_read": n.is_read, "order_id": n.order_id,
+                "id":         n.id,
+                "title":      n.title,
+                "message":    n.message,
+                "is_read":    n.is_read,
+                "order_id":   n.order_id,
                 "created_at": n.created_at.strftime("%Y-%m-%d %H:%M")
             } for n in notifs],
             "unread_count": unread
         })
-    except Exception as e:
+    except Exception:
         return jsonify({"notifications": [], "unread_count": 0})
 
 @app.route("/api/notifications/user", methods=["GET"])
@@ -719,18 +826,23 @@ def user_notifications():
         notifs = Notification.query.filter_by(
             user_id=session["user_id"], for_admin=False
         ).order_by(Notification.created_at.desc()).limit(50).all()
+
         unread = Notification.query.filter_by(
             user_id=session["user_id"], for_admin=False, is_read=False
         ).count()
+
         return jsonify({
             "notifications": [{
-                "id": n.id, "title": n.title, "message": n.message,
-                "is_read": n.is_read, "order_id": n.order_id,
+                "id":         n.id,
+                "title":      n.title,
+                "message":    n.message,
+                "is_read":    n.is_read,
+                "order_id":   n.order_id,
                 "created_at": n.created_at.strftime("%Y-%m-%d %H:%M")
             } for n in notifs],
             "unread_count": unread
         })
-    except Exception as e:
+    except Exception:
         return jsonify({"notifications": [], "unread_count": 0})
 
 @app.route("/api/notifications/read/<int:notif_id>", methods=["POST"])
@@ -748,9 +860,13 @@ def mark_read(notif_id):
 def mark_all_read():
     try:
         if session.get("admin_logged_in"):
-            Notification.query.filter_by(for_admin=True, is_read=False).update({"is_read": True})
+            Notification.query.filter_by(
+                for_admin=True, is_read=False
+            ).update({"is_read": True})
         elif session.get("user_id"):
-            Notification.query.filter_by(user_id=session["user_id"], is_read=False).update({"is_read": True})
+            Notification.query.filter_by(
+                user_id=session["user_id"], is_read=False
+            ).update({"is_read": True})
         db.session.commit()
         return jsonify({"success": True})
     except Exception:
@@ -763,9 +879,12 @@ def get_users():
     try:
         users = User.query.all()
         return jsonify([{
-            "id": u.id, "fullname": u.fullname, "email": u.email,
-            "phone": u.phone, "address": u.address,
-            "created_at": u.created_at.strftime("%Y-%m-%d %H:%M"),
+            "id":          u.id,
+            "fullname":    u.fullname,
+            "email":       u.email,
+            "phone":       u.phone,
+            "address":     u.address,
+            "created_at":  u.created_at.strftime("%Y-%m-%d %H:%M"),
             "order_count": len(u.orders)
         } for u in users])
     except Exception:
@@ -775,7 +894,9 @@ def get_users():
 # RUN
 # ==============================
 if __name__ == "__main__":
-    print("Esirifuahs Palace is LIVE!")
-    print("Store → http://localhost:5000")
-    print("Admin → http://localhost:5000/admin")
+    print("")
+    print("  Esirifuahs Palace is LIVE!")
+    print("  Store → http://localhost:5000")
+    print("  Admin → http://localhost:5000/admin")
+    print("")
     app.run(debug=False, host="0.0.0.0", port=5000)
