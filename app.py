@@ -17,7 +17,7 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 # ==============================
-# DATABASE SETUP (Supabase)
+# DATABASE SETUP
 # ==============================
 DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///store.db')
 
@@ -27,6 +27,15 @@ if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 300,
+    'connect_args': {
+        'sslmode': 'require',
+        'connect_timeout': 10
+    } if DATABASE_URL.startswith('postgresql') else {}
+}
+
 db = SQLAlchemy(app)
 
 # ==============================
@@ -50,6 +59,7 @@ cloudinary.config(
 # ==============================
 
 class User(db.Model):
+    __tablename__ = 'users'
     id         = db.Column(db.Integer, primary_key=True)
     fullname   = db.Column(db.String(100), nullable=False)
     email      = db.Column(db.String(120), unique=True, nullable=False)
@@ -60,6 +70,7 @@ class User(db.Model):
     orders     = db.relationship('Order', backref='user', lazy=True)
 
 class Item(db.Model):
+    __tablename__ = 'items'
     id          = db.Column(db.Integer, primary_key=True)
     name        = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500))
@@ -71,8 +82,9 @@ class Item(db.Model):
     date_added  = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Order(db.Model):
+    __tablename__ = 'orders'
     id               = db.Column(db.Integer, primary_key=True)
-    user_id          = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id          = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     customer_name    = db.Column(db.String(100), nullable=False)
     customer_phone   = db.Column(db.String(20),  nullable=False)
     customer_address = db.Column(db.String(300), nullable=False)
@@ -84,8 +96,8 @@ class Order(db.Model):
 # ==============================
 # ADMIN CREDENTIALS
 # ==============================
-ADMIN_USERNAME = "sandra"
-ADMIN_PASSWORD = "SandrasPalace2024!"
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'sandra')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'SandrasPalace2024')
 
 # ==============================
 # HELPER FUNCTIONS
@@ -96,29 +108,23 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED
 
 def upload_image(image):
-    """
-    Upload image to Cloudinary if configured,
-    otherwise save locally
-    """
+    """Upload image to Cloudinary or save locally"""
     try:
         cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
         if cloud_name:
-            # Upload to Cloudinary
-            result    = cloudinary.uploader.upload(
+            result = cloudinary.uploader.upload(
                 image,
                 folder    = "sandras_palace",
                 overwrite = True
             )
             return result['secure_url']
         else:
-            # Save locally (development)
             filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{image.filename}"
             filepath = os.path.join(UPLOAD_FOLDER, filename)
             image.save(filepath)
             return f"static/uploads/{filename}"
     except Exception as e:
         print(f"Image upload error: {e}")
-        # Fall back to local save
         try:
             filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{image.filename}"
             filepath = os.path.join(UPLOAD_FOLDER, filename)
@@ -128,10 +134,18 @@ def upload_image(image):
             return 'https://via.placeholder.com/400x400?text=No+Image'
 
 # ==============================
-# CREATE TABLES
+# CREATE TABLES SAFELY
 # ==============================
-with app.app_context():
-    db.create_all()
+def create_tables():
+    try:
+        with app.app_context():
+            db.create_all()
+            print("✅ Database tables ready!")
+    except Exception as e:
+        print(f"⚠️ Database connection warning: {e}")
+        print("⚠️ App will start anyway...")
+
+create_tables()
 
 # ==============================
 # PAGE ROUTES
@@ -193,7 +207,6 @@ def register():
         address  = data.get('address', '').strip()
         password = data.get('password', '')
 
-        # Validate all fields
         if not fullname or not email or not phone or not address or not password:
             return jsonify({
                 'success': False,
@@ -206,7 +219,6 @@ def register():
                 'message': 'Password must be at least 6 characters!'
             })
 
-        # Check if email already exists
         existing = User.query.filter_by(email=email).first()
         if existing:
             return jsonify({
@@ -214,7 +226,6 @@ def register():
                 'message': 'Email already registered! Please login.'
             })
 
-        # Create new user
         new_user = User(
             fullname = fullname,
             email    = email,
@@ -226,7 +237,6 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        # Auto login after register
         session['user_id']    = new_user.id
         session['user_name']  = new_user.fullname
         session['user_email'] = new_user.email
@@ -272,7 +282,6 @@ def user_login():
                 'message': 'Invalid email or password!'
             })
 
-        # Set session
         session['user_id']    = user.id
         session['user_name']  = user.fullname
         session['user_email'] = user.email
@@ -372,7 +381,7 @@ def get_items():
         } for item in items])
     except Exception as e:
         print(f"Get items error: {e}")
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify([])
 
 @app.route('/api/items/add', methods=['POST'])
 def add_item():
@@ -384,11 +393,9 @@ def add_item():
         image     = request.files.get('image')
         image_url = 'https://via.placeholder.com/400x400?text=No+Image'
 
-        # Upload image
         if image and image.filename != '' and allowed_file(image.filename):
             image_url = upload_image(image)
 
-        # Validate required fields
         if not data.get('name') or not data.get('price'):
             return jsonify({
                 'success': False,
@@ -427,11 +434,9 @@ def update_item(item_id):
         data  = request.form
         image = request.files.get('image')
 
-        # Upload new image if provided
         if image and image.filename != '' and allowed_file(image.filename):
             item.image_url = upload_image(image)
 
-        # Update fields
         item.name        = data.get('name',        item.name)
         item.description = data.get('description', item.description)
         item.price       = float(data.get('price', item.price))
@@ -458,7 +463,6 @@ def delete_item(item_id):
     try:
         item = Item.query.get_or_404(item_id)
 
-        # Delete local image if exists
         if item.image_url and item.image_url.startswith('static/uploads/'):
             if os.path.exists(item.image_url):
                 os.remove(item.image_url)
@@ -565,16 +569,16 @@ def my_orders():
         ).order_by(Order.date_ordered.desc()).all()
 
         return jsonify([{
-            'id':          o.id,
-            'items':       o.items,
-            'total_price': o.total_price,
-            'status':      o.status,
+            'id':           o.id,
+            'items':        o.items,
+            'total_price':  o.total_price,
+            'status':       o.status,
             'date_ordered': o.date_ordered.strftime('%Y-%m-%d %H:%M')
         } for o in orders])
 
     except Exception as e:
         print(f"My orders error: {e}")
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify([])
 
 @app.route('/api/orders', methods=['GET'])
 def get_orders():
@@ -597,7 +601,7 @@ def get_orders():
 
     except Exception as e:
         print(f"Get orders error: {e}")
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify([])
 
 @app.route('/api/orders/status/<int:order_id>', methods=['POST'])
 def update_order_status(order_id):
@@ -648,7 +652,7 @@ def get_users():
 
     except Exception as e:
         print(f"Get users error: {e}")
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify([])
 
 # ==============================
 # RUN APP
@@ -660,8 +664,7 @@ if __name__ == '__main__':
     print("  🏪 Store    → http://localhost:5000")
     print("  🔧 Admin    → http://localhost:5000/admin")
     print("  👤 Username → sandra")
-    print("  🔑 Password → SandrasPalace2024!")
+    print("  🔑 Password → SandrasPalace2024")
     print("  ══════════════════════════════════")
     print("")
-
     app.run(debug=False, host='0.0.0.0', port=5000)
