@@ -1,4 +1,18 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+import os
+import re
+
+print("")
+print("  ========================================")
+print("  Complete Fix - All Files")
+print("  ========================================")
+print("")
+
+# ==============================
+# WRITE COMPLETE app.py
+# ==============================
+print("  Writing clean app.py...")
+
+app_content = '''from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -119,7 +133,7 @@ def upload_image(image):
     try:
         image.stream.seek(0)
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        fname = f"{datetime.now().strftime(\'%Y%m%d%H%M%S\')}_{secure_filename(image.filename)}"
+        fname = f"{datetime.now().strftime(\\'%Y%m%d%H%M%S\\')}_{secure_filename(image.filename)}"
         fpath = os.path.join(UPLOAD_FOLDER, fname)
         image.save(fpath)
         if os.path.exists(fpath) and os.path.getsize(fpath) > 0:
@@ -137,9 +151,9 @@ def create_tables():
             try:
                 with db.engine.connect() as conn:
                     for col, defn in [
-                        ("payment_status", "VARCHAR(50) DEFAULT \'Paid\'"),
-                        ("transaction_id", "VARCHAR(100) DEFAULT \'\'"),
-                        ("momo_number",    "VARCHAR(100) DEFAULT \'\'"  ),
+                        ("payment_status", "VARCHAR(50) DEFAULT \\'Paid\\'"),
+                        ("transaction_id", "VARCHAR(100) DEFAULT \\'\\'"),
+                        ("momo_number",    "VARCHAR(100) DEFAULT \\'\\'"  ),
                     ]:
                         try:
                             conn.execute(db.text(f"ALTER TABLE orders ADD COLUMN {col} {defn}"))
@@ -348,7 +362,7 @@ def toggle_stock(item_id):
         item.in_stock = not item.in_stock
         db.session.commit()
         return jsonify({"success": True, "in_stock": item.in_stock,
-            "message": f"Item marked as {\'In Stock\' if item.in_stock else \'Out of Stock\'}"})
+            "message": f"Item marked as {\\'In Stock\\' if item.in_stock else \\'Out of Stock\\'}"})
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
@@ -457,10 +471,273 @@ def get_users():
 
 if __name__ == "__main__":
     print("")
-    print("  Esirifuah\'s Palace is LIVE!")
+    print("  Esirifuah\\'s Palace is LIVE!")
     print("  Store → http://localhost:5000")
     print("  Admin → http://localhost:5000/admin")
     print("  User  → sandra")
     print("  Pass  → SandrasPalace2024")
     print("")
     app.run(debug=False, host="0.0.0.0", port=5000)
+'''
+
+with open('app.py', 'w', encoding='utf-8') as f:
+    f.write(app_content)
+print("  ✅ app.py written!")
+
+# ==============================
+# WRITE COMPLETE index.html
+# ==============================
+print("  Writing clean index.html...")
+
+index_content = open('templates/index.html', 'r', encoding='utf-8').read()
+
+# Remove ALL old checkout/order related JS functions
+patterns_to_remove = [
+    r'function openCheckout\(\).*?(?=function \w|\Z)',
+    r'function closeOrderModal\(\).*?(?=function \w|\Z)',
+    r'function goToPayment\(\).*?(?=function \w|\Z)',
+    r'function backToDelivery\(\).*?(?=function \w|\Z)',
+    r'function submitOrder\(\).*?(?=function \w|\Z)',
+    r'document\.getElementById\(\'orderForm\'\)\.addEventListener.*?(?=function \w|document\.getElementById\(\'auth|\Z)',
+]
+
+for pattern in patterns_to_remove:
+    index_content = re.sub(pattern, '', index_content, flags=re.DOTALL)
+
+# Remove old order modal
+index_content = re.sub(
+    r'<!-- ORDER MODAL -->.*?<!-- SUCCESS MODAL -->',
+    '<!-- SUCCESS MODAL -->',
+    index_content,
+    flags=re.DOTALL
+)
+
+# Add clean order modal
+clean_modal = '''    <!-- ORDER MODAL -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="order-modal-title">📋 Delivery Details</h2>
+                <button class="modal-close" onclick="closeOrderModal()">✕</button>
+            </div>
+            <div class="modal-body">
+
+                <div class="order-summary">
+                    <h3>🛒 Your Order</h3>
+                    <div id="order-summary-items"></div>
+                    <div class="order-summary-total">
+                        <span>Total</span>
+                        <span id="order-summary-total">GH&#8373; 0.00</span>
+                    </div>
+                </div>
+
+                <!-- STEP 1 DELIVERY -->
+                <div id="step-delivery">
+                    <div class="form-group">
+                        <label>👤 Full Name</label>
+                        <input type="text" id="cust-name" placeholder="Your full name" />
+                    </div>
+                    <div class="form-group">
+                        <label>📱 Phone Number</label>
+                        <input type="tel" id="cust-phone" placeholder="Your phone" />
+                    </div>
+                    <div class="form-group">
+                        <label>📍 Delivery Address</label>
+                        <textarea id="cust-address" placeholder="Your address"></textarea>
+                    </div>
+                    <button class="modal-btn" onclick="goToPayment()">
+                        💳 Next: Make Payment
+                    </button>
+                </div>
+
+                <!-- STEP 2 PAYMENT -->
+                <div id="step-payment" style="display:none">
+                    <div style="background:linear-gradient(135deg,#fff8e1,#fff3cd);border:3px solid #f9a825;border-radius:18px;padding:20px;margin-bottom:20px;text-align:center;">
+                        <div style="font-size:35px;margin-bottom:8px;">📱</div>
+                        <h3 style="font-family:'Fredoka One',cursive;color:#f57f17;font-size:17px;margin-bottom:15px;">Send MTN Mobile Money To:</h3>
+                        <div style="background:white;border-radius:12px;padding:12px;margin-bottom:10px;border:2px solid #fce4ec;">
+                            <div style="font-size:22px;font-weight:800;color:#e91e63;font-family:'Fredoka One',cursive;">0550618807</div>
+                            <div style="color:#888;font-size:13px;font-weight:700;">👤 Sandra Nkrumah</div>
+                        </div>
+                        <div style="background:white;border-radius:12px;padding:12px;margin-bottom:15px;border:2px solid #fce4ec;">
+                            <div style="font-size:22px;font-weight:800;color:#e91e63;font-family:'Fredoka One',cursive;">0540882629</div>
+                            <div style="color:#888;font-size:13px;font-weight:700;">👤 Milicent Nkrumah</div>
+                        </div>
+                        <div id="amount-display" style="background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border-radius:12px;padding:12px 20px;font-family:'Fredoka One',cursive;font-size:20px;">
+                            Amount: GH&#8373; 0.00
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📱 Which number did you pay to? *</label>
+                        <select id="momo-number" style="width:100%;padding:14px 16px;border:3px solid #fce4ec;border-radius:14px;font-size:14px;font-weight:600;outline:none;font-family:'Nunito',sans-serif;background:#fffbfc;cursor:pointer;">
+                            <option value="">-- Select number --</option>
+                            <option value="0550618807 - Sandra Nkrumah">0550618807 - Sandra Nkrumah</option>
+                            <option value="0540882629 - Milicent Nkrumah">0540882629 - Milicent Nkrumah</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🔢 Transaction ID *</label>
+                        <input type="text" id="transaction-id" placeholder="e.g. 1234567890" />
+                        <small style="color:#aaa;font-size:12px;font-weight:700;display:block;margin-top:5px;">
+                            Find this in your MoMo SMS after payment
+                        </small>
+                    </div>
+
+                    <button class="modal-btn green" id="place-order-btn" onclick="submitOrder()">
+                        ✅ I Have Paid - Place Order
+                    </button>
+
+                    <button onclick="backToDelivery()" style="width:100%;padding:13px;background:none;border:3px solid #fce4ec;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;color:#aaa;margin-top:10px;font-family:'Nunito';">
+                        ← Back
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- SUCCESS MODAL -->'''
+
+index_content = index_content.replace('<!-- SUCCESS MODAL -->', clean_modal)
+
+# Add clean JS functions before closing script tag
+clean_js = '''
+        // ===========================
+        // CHECKOUT FUNCTIONS
+        // ===========================
+        function openCheckout() {
+            if (cart.length === 0) {
+                showToast('Cart is empty!', 'error');
+                return;
+            }
+            if (!currentUser) {
+                showToast('Please login first!', 'error');
+                closeCart();
+                openAuthModal('login');
+                return;
+            }
+            const tp = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+            document.getElementById('order-summary-items').innerHTML = cart.map(i =>
+                '<div class="order-summary-item"><span>' + i.name + ' x' + i.quantity + '</span><span>GH&#8373; ' + (i.price * i.quantity).toFixed(2) + '</span></div>'
+            ).join('');
+            document.getElementById('order-summary-total').textContent = 'GH\u20b5 ' + tp.toFixed(2);
+            document.getElementById('amount-display').textContent      = 'Amount: GH\u20b5 ' + tp.toFixed(2);
+            document.getElementById('cust-name').value    = currentUser.fullname || '';
+            document.getElementById('cust-phone').value   = currentUser.phone    || '';
+            document.getElementById('cust-address').value = currentUser.address  || '';
+            document.getElementById('step-delivery').style.display = 'block';
+            document.getElementById('step-payment').style.display  = 'none';
+            document.getElementById('order-modal-title').textContent = 'Delivery Details';
+            closeCart();
+            document.getElementById('orderModal').classList.add('show');
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.remove('show');
+        }
+
+        function goToPayment() {
+            var name    = document.getElementById('cust-name').value.trim();
+            var phone   = document.getElementById('cust-phone').value.trim();
+            var address = document.getElementById('cust-address').value.trim();
+            if (!name)    { showToast('Please enter your name!',    'error'); return; }
+            if (!phone)   { showToast('Please enter your phone!',   'error'); return; }
+            if (!address) { showToast('Please enter your address!', 'error'); return; }
+            document.getElementById('step-delivery').style.display = 'none';
+            document.getElementById('step-payment').style.display  = 'block';
+            document.getElementById('order-modal-title').textContent = 'Make Payment';
+        }
+
+        function backToDelivery() {
+            document.getElementById('step-delivery').style.display = 'block';
+            document.getElementById('step-payment').style.display  = 'none';
+            document.getElementById('order-modal-title').textContent = 'Delivery Details';
+        }
+
+        async function submitOrder() {
+            var momoNumber    = document.getElementById('momo-number').value.trim();
+            var transactionId = document.getElementById('transaction-id').value.trim();
+
+            if (!momoNumber)    { showToast('Please select which number you paid to!', 'error'); return; }
+            if (!transactionId) { showToast('Please enter your Transaction ID!',       'error'); return; }
+
+            var btn = document.getElementById('place-order-btn');
+            btn.textContent = 'Placing Order...';
+            btn.disabled    = true;
+
+            var tp = cart.reduce(function(s, i) { return s + (i.price * i.quantity); }, 0);
+
+            var orderData = {
+                customer_name:    document.getElementById('cust-name').value.trim(),
+                customer_phone:   document.getElementById('cust-phone').value.trim(),
+                customer_address: document.getElementById('cust-address').value.trim(),
+                items:            cart.map(function(i) {
+                    return { id: i.id, name: i.name, price: i.price, quantity: i.quantity };
+                }),
+                total_price:    tp,
+                transaction_id: transactionId,
+                momo_number:    momoNumber
+            };
+
+            try {
+                var response = await fetch('/api/orders/place', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify(orderData)
+                });
+                var data = await response.json();
+
+                if (data.success) {
+                    closeOrderModal();
+                    document.getElementById('success-order-id').textContent = 'Order #' + data.order_id;
+                    document.getElementById('successModal').classList.add('show');
+                    cart = [];
+                    updateCartUI();
+                    document.getElementById('momo-number').value    = '';
+                    document.getElementById('transaction-id').value = '';
+                } else if (data.need_login) {
+                    showToast('Please login first!', 'error');
+                    closeOrderModal();
+                    openAuthModal('login');
+                } else {
+                    showToast(data.message || 'Error placing order!', 'error');
+                }
+            } catch (err) {
+                console.error('Order error:', err);
+                showToast('Something went wrong! Try again.', 'error');
+            }
+
+            btn.textContent = 'I Have Paid - Place Order';
+            btn.disabled    = false;
+        }
+
+'''
+
+# Insert before closing script tag
+index_content = index_content.replace(
+    "        document.getElementById('authModal').addEventListener",
+    clean_js + "        document.getElementById('authModal').addEventListener"
+)
+
+with open('templates/index.html', 'w', encoding='utf-8') as f:
+    f.write(index_content)
+
+print("  ✅ index.html written!")
+
+# ==============================
+# PUSH TO GITHUB
+# ==============================
+print("")
+print("  Pushing to GitHub...")
+os.system('git add .')
+os.system('git commit -m "Complete fix - checkout and order flow"')
+os.system('git push')
+
+print("")
+print("  ========================================")
+print("  ALL DONE!")
+print("  Render updates in 2-3 minutes!")
+print("  ========================================")
+print("")

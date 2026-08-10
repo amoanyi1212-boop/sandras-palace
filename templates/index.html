@@ -262,7 +262,7 @@
         </div>
     </div>
 
-        <!-- ORDER MODAL -->
+            <!-- ORDER MODAL -->
     <div class="modal-overlay" id="orderModal">
         <div class="modal">
             <div class="modal-header">
@@ -271,17 +271,16 @@
             </div>
             <div class="modal-body">
 
-                <!-- ORDER SUMMARY -->
                 <div class="order-summary">
                     <h3>🛒 Your Order</h3>
                     <div id="order-summary-items"></div>
                     <div class="order-summary-total">
                         <span>Total</span>
-                        <span id="order-summary-total">GH₵ 0.00</span>
+                        <span id="order-summary-total">GH&#8373; 0.00</span>
                     </div>
                 </div>
 
-                <!-- STEP 1: DELIVERY -->
+                <!-- STEP 1 DELIVERY -->
                 <div id="step-delivery">
                     <div class="form-group">
                         <label>👤 Full Name</label>
@@ -289,132 +288,58 @@
                     </div>
                     <div class="form-group">
                         <label>📱 Phone Number</label>
-                        <input type="tel" id="cust-phone" placeholder="Your phone number" />
+                        <input type="tel" id="cust-phone" placeholder="Your phone" />
                     </div>
                     <div class="form-group">
                         <label>📍 Delivery Address</label>
-                        <textarea id="cust-address" placeholder="Your delivery address"></textarea>
+                        <textarea id="cust-address" placeholder="Your address"></textarea>
                     </div>
                     <button class="modal-btn" onclick="goToPayment()">
                         💳 Next: Make Payment
                     </button>
                 </div>
 
-                <!-- STEP 2: PAYMENT -->
+                <!-- STEP 2 PAYMENT -->
                 <div id="step-payment" style="display:none">
-
-                    <!-- MoMo Box -->
-                    <div style="
-                        background:linear-gradient(135deg,#fff8e1,#fff3cd);
-                        border:3px solid #f9a825;
-                        border-radius:18px;
-                        padding:20px;
-                        margin-bottom:20px;
-                        text-align:center;
-                    ">
+                    <div style="background:linear-gradient(135deg,#fff8e1,#fff3cd);border:3px solid #f9a825;border-radius:18px;padding:20px;margin-bottom:20px;text-align:center;">
                         <div style="font-size:35px;margin-bottom:8px;">📱</div>
-                        <h3 style="
-                            font-family:'Fredoka One',cursive;
-                            color:#f57f17;
-                            font-size:17px;
-                            margin-bottom:15px;
-                        ">
-                            Send MTN Mobile Money To:
-                        </h3>
-
-                        <!-- Account 1 -->
-                        <div style="
-                            background:white;border-radius:12px;
-                            padding:12px 15px;margin-bottom:10px;
-                            border:2px solid #fce4ec;
-                        ">
-                            <div style="
-                                font-size:20px;font-weight:800;
-                                color:#e91e63;font-family:'Fredoka One',cursive;
-                            ">0550618807</div>
-                            <div style="color:#888;font-size:13px;font-weight:700;margin-top:3px;">
-                                👤 Sandra Nkrumah
-                            </div>
+                        <h3 style="font-family:'Fredoka One',cursive;color:#f57f17;font-size:17px;margin-bottom:15px;">Send MTN Mobile Money To:</h3>
+                        <div style="background:white;border-radius:12px;padding:12px;margin-bottom:10px;border:2px solid #fce4ec;">
+                            <div style="font-size:22px;font-weight:800;color:#e91e63;font-family:'Fredoka One',cursive;">0550618807</div>
+                            <div style="color:#888;font-size:13px;font-weight:700;">👤 Sandra Nkrumah</div>
                         </div>
-
-                        <!-- Account 2 -->
-                        <div style="
-                            background:white;border-radius:12px;
-                            padding:12px 15px;margin-bottom:15px;
-                            border:2px solid #fce4ec;
-                        ">
-                            <div style="
-                                font-size:20px;font-weight:800;
-                                color:#e91e63;font-family:'Fredoka One',cursive;
-                            ">0540882629</div>
-                            <div style="color:#888;font-size:13px;font-weight:700;margin-top:3px;">
-                                👤 Milicent Nkrumah
-                            </div>
+                        <div style="background:white;border-radius:12px;padding:12px;margin-bottom:15px;border:2px solid #fce4ec;">
+                            <div style="font-size:22px;font-weight:800;color:#e91e63;font-family:'Fredoka One',cursive;">0540882629</div>
+                            <div style="color:#888;font-size:13px;font-weight:700;">👤 Milicent Nkrumah</div>
                         </div>
-
-                        <!-- Amount -->
-                        <div id="amount-display" style="
-                            background:linear-gradient(135deg,#e91e63,#ff6f00);
-                            color:white;border-radius:12px;
-                            padding:12px 20px;
-                            font-family:'Fredoka One',cursive;
-                            font-size:20px;
-                        ">
-                            Amount: GH₵ 0.00
+                        <div id="amount-display" style="background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border-radius:12px;padding:12px 20px;font-family:'Fredoka One',cursive;font-size:20px;">
+                            Amount: GH&#8373; 0.00
                         </div>
                     </div>
 
-                    <!-- Transaction Form -->
                     <div class="form-group">
                         <label>📱 Which number did you pay to? *</label>
-                        <select id="momo-number" style="
-                            width:100%;padding:14px 16px;
-                            border:3px solid #fce4ec;border-radius:14px;
-                            font-size:14px;font-weight:600;outline:none;
-                            font-family:'Nunito',sans-serif;background:#fffbfc;
-                            cursor:pointer;
-                        ">
+                        <select id="momo-number" style="width:100%;padding:14px 16px;border:3px solid #fce4ec;border-radius:14px;font-size:14px;font-weight:600;outline:none;font-family:'Nunito',sans-serif;background:#fffbfc;cursor:pointer;">
                             <option value="">-- Select number --</option>
-                            <option value="0550618807 - Sandra Nkrumah">
-                                0550618807 - Sandra Nkrumah
-                            </option>
-                            <option value="0540882629 - Milicent Nkrumah">
-                                0540882629 - Milicent Nkrumah
-                            </option>
+                            <option value="0550618807 - Sandra Nkrumah">0550618807 - Sandra Nkrumah</option>
+                            <option value="0540882629 - Milicent Nkrumah">0540882629 - Milicent Nkrumah</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label>🔢 Transaction ID *</label>
-                        <input
-                            type="text"
-                            id="transaction-id"
-                            placeholder="e.g. 1234567890"
-                        />
+                        <input type="text" id="transaction-id" placeholder="e.g. 1234567890" />
                         <small style="color:#aaa;font-size:12px;font-weight:700;display:block;margin-top:5px;">
-                            📩 Find this in your MoMo SMS after payment
+                            Find this in your MoMo SMS after payment
                         </small>
                     </div>
 
-                    <!-- Buttons -->
-                    <button
-                        class="modal-btn green"
-                        onclick="submitOrder()"
-                        id="place-order-btn"
-                    >
+                    <button class="modal-btn green" id="place-order-btn" onclick="submitOrder()">
                         ✅ I Have Paid - Place Order
                     </button>
 
-                    <button
-                        onclick="backToDelivery()"
-                        style="
-                            width:100%;padding:13px;background:none;
-                            border:3px solid #fce4ec;border-radius:16px;
-                            font-size:15px;font-weight:800;cursor:pointer;
-                            color:#aaa;margin-top:10px;font-family:'Nunito';
-                        "
-                    >
-                        ← Back to Delivery Details
+                    <button onclick="backToDelivery()" style="width:100%;padding:13px;background:none;border:3px solid #fce4ec;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;color:#aaa;margin-top:10px;font-family:'Nunito';">
+                        ← Back
                     </button>
                 </div>
 
