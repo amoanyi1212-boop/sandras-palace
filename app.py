@@ -659,7 +659,7 @@ def get_users():
 # ==============================
 if __name__ == '__main__':
     print("")
-    print("  👑✨ Sandra's Palace is LIVE! ✨👑")
+    print("  👑✨ Esirifuah's Palace is LIVE! ✨👑")
     print("  ══════════════════════════════════")
     print("  🏪 Store    → http://localhost:5000")
     print("  🔧 Admin    → http://localhost:5000/admin")
