@@ -28,18 +28,18 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 if DATABASE_URL.startswith("postgresql"):
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_pre_ping": True,
-        "pool_recycle": 300,
-        "pool_timeout": 10,
-        "pool_size": 5,
-        "connect_args": {
-            "sslmode": "require",
+        "pool_recycle":  300,
+        "pool_timeout":  10,
+        "pool_size":     5,
+        "connect_args":  {
+            "sslmode":         "require",
             "connect_timeout": 10
         }
     }
 else:
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_pre_ping": True,
-        "pool_recycle": 300
+        "pool_recycle":  300
     }
 
 db = SQLAlchemy(app)
@@ -70,7 +70,7 @@ cloudinary.config(
 
 class User(db.Model):
     __tablename__ = "users"
-    id         = db.Column(db.Integer, primary_key=True)
+    id         = db.Column(db.Integer,     primary_key=True)
     fullname   = db.Column(db.String(100), nullable=False)
     email      = db.Column(db.String(120), unique=True, nullable=False)
     phone      = db.Column(db.String(20),  nullable=False)
@@ -81,14 +81,14 @@ class User(db.Model):
 
 class Item(db.Model):
     __tablename__ = "items"
-    id          = db.Column(db.Integer,  primary_key=True)
+    id          = db.Column(db.Integer,     primary_key=True)
     name        = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500))
-    price       = db.Column(db.Float,    nullable=False)
+    price       = db.Column(db.Float,       nullable=False)
     category    = db.Column(db.String(50))
-    in_stock    = db.Column(db.Boolean,  default=True)
+    in_stock    = db.Column(db.Boolean,     default=True)
     image_url   = db.Column(db.String(500), default="/static/noimg.png")
-    date_added  = db.Column(db.DateTime, default=datetime.utcnow)
+    date_added  = db.Column(db.DateTime,    default=datetime.utcnow)
 
 class Order(db.Model):
     __tablename__ = "orders"
@@ -141,8 +141,8 @@ def upload_image(image):
             image.stream.seek(0)
             result = cloudinary.uploader.upload(
                 image.stream,
-                folder="esirifuahs_palace",
-                resource_type="image"
+                folder        = "esirifuahs_palace",
+                resource_type = "image"
             )
             if result and result.get("secure_url"):
                 return result["secure_url"]
@@ -164,8 +164,11 @@ def upload_image(image):
 def send_notification(user_id, for_admin, title, message, order_id=0):
     try:
         notif = Notification(
-            user_id=user_id, for_admin=for_admin,
-            title=title, message=message, order_id=order_id
+            user_id   = user_id,
+            for_admin = for_admin,
+            title     = title,
+            message   = message,
+            order_id  = order_id
         )
         db.session.add(notif)
         db.session.commit()
@@ -193,10 +196,12 @@ def check_expired_deliveries():
                     conn.commit()
                     send_notification(row[1], False,
                         "Order #" + str(row[0]) + " Auto-Confirmed",
-                        "Your order was auto-confirmed after 14 days.", row[0])
+                        "Your order was auto-confirmed after 14 days.",
+                        row[0])
                     send_notification(0, True,
                         "Auto-Confirmed Order #" + str(row[0]),
-                        str(row[2]) + " order auto-confirmed.", row[0])
+                        str(row[2]) + " order auto-confirmed.",
+                        row[0])
             except Exception:
                 pass
     except Exception:
@@ -209,40 +214,66 @@ def create_tables():
     try:
         with app.app_context():
             db.create_all()
+
+            # ==============================
+            # ADD MISSING COLUMNS SAFELY
+            # Using IF NOT EXISTS to avoid errors
+            # ==============================
             try:
                 with db.engine.connect() as conn:
+
+                    # Orders table columns
                     for col, defn in [
                         ("payment_status", "VARCHAR(50)  DEFAULT 'Paid'"),
                         ("transaction_id", "VARCHAR(100) DEFAULT ''"),
                         ("momo_number",    "VARCHAR(100) DEFAULT ''"),
-                        ("delivered_at",   "TIMESTAMP"),
+                        ("delivered_at",   "TIMESTAMP NULL"),
                     ]:
                         try:
+                            # PostgreSQL supports IF NOT EXISTS
                             conn.execute(db.text(
-                                "ALTER TABLE orders ADD COLUMN " + col + " " + defn
+                                "ALTER TABLE orders "
+                                "ADD COLUMN IF NOT EXISTS "
+                                + col + " " + defn
                             ))
                             conn.commit()
-                        except Exception:
-                            pass
+                            print("Column ready:", col)
+                        except Exception as ce:
+                            # SQLite fallback
+                            try:
+                                conn.execute(db.text(
+                                    "ALTER TABLE orders "
+                                    "ADD COLUMN " + col + " " + defn
+                                ))
+                                conn.commit()
+                                print("Column added:", col)
+                            except Exception:
+                                pass
+
+                    # Notifications table
                     try:
                         conn.execute(db.text("""
                             CREATE TABLE IF NOT EXISTS notifications (
-                                id SERIAL PRIMARY KEY,
-                                user_id INTEGER DEFAULT 0,
-                                for_admin BOOLEAN DEFAULT FALSE,
-                                title VARCHAR(200) NOT NULL,
-                                message VARCHAR(500) NOT NULL,
-                                is_read BOOLEAN DEFAULT FALSE,
-                                order_id INTEGER DEFAULT 0,
+                                id         SERIAL PRIMARY KEY,
+                                user_id    INTEGER   DEFAULT 0,
+                                for_admin  BOOLEAN   DEFAULT FALSE,
+                                title      VARCHAR(200) NOT NULL,
+                                message    VARCHAR(500) NOT NULL,
+                                is_read    BOOLEAN   DEFAULT FALSE,
+                                order_id   INTEGER   DEFAULT 0,
                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                             )
                         """))
                         conn.commit()
-                    except Exception:
-                        pass
+                        print("Notifications table ready!")
+                    except Exception as ne:
+                        print("Notifications table:", ne)
+
             except Exception as e:
-                print("Column setup:", e)
+                print("Column setup error:", e)
+
             print("Database ready!")
+
     except Exception as e:
         print("DB warning:", e)
         print("App will start anyway...")
@@ -446,9 +477,9 @@ def get_items():
             "name":        i.name,
             "description": i.description or "",
             "price":       i.price,
-            "category":    i.category or "General",
+            "category":    i.category    or "General",
             "in_stock":    i.in_stock,
-            "image_url":   i.image_url or "/static/noimg.png",
+            "image_url":   i.image_url   or "/static/noimg.png",
             "date_added":  i.date_added.strftime("%Y-%m-%d") if i.date_added else ""
         } for i in items])
     except Exception as e:
@@ -542,49 +573,68 @@ def toggle_stock(item_id):
 def place_order():
     if not session.get("user_id"):
         return jsonify({
-            "success": False,
-            "message": "Login first!",
+            "success":    False,
+            "message":    "Login first!",
             "need_login": True
         }), 401
     try:
         data = request.get_json()
         if not data or not data.get("items"):
             return jsonify({"success": False, "message": "No items!"}), 400
+
         user = User.query.get(session["user_id"])
         if not user:
             return jsonify({"success": False, "message": "User not found!"}), 404
-        order = Order(
-            user_id          = user.id,
-            customer_name    = data.get("customer_name",    user.fullname),
-            customer_phone   = data.get("customer_phone",   user.phone),
-            customer_address = data.get("customer_address", user.address),
-            items            = str(data.get("items")),
-            total_price      = float(data.get("total_price")),
-            status           = "Pending",
-            payment_status   = "Paid",
-            transaction_id   = data.get("transaction_id", ""),
-            momo_number      = data.get("momo_number",    "")
-        )
-        db.session.add(order)
-        db.session.commit()
+
+        # Use raw SQL to avoid column issues
+        with db.engine.connect() as conn:
+            result = conn.execute(db.text("""
+                INSERT INTO orders
+                    (user_id, customer_name, customer_phone, customer_address,
+                     items, total_price, status, payment_status,
+                     transaction_id, momo_number, date_ordered)
+                VALUES
+                    (:user_id, :customer_name, :customer_phone, :customer_address,
+                     :items, :total_price, :status, :payment_status,
+                     :transaction_id, :momo_number, :date_ordered)
+                RETURNING id
+            """), {
+                "user_id":          user.id,
+                "customer_name":    data.get("customer_name",    user.fullname),
+                "customer_phone":   data.get("customer_phone",   user.phone),
+                "customer_address": data.get("customer_address", user.address),
+                "items":            str(data.get("items")),
+                "total_price":      float(data.get("total_price")),
+                "status":           "Pending",
+                "payment_status":   "Paid",
+                "transaction_id":   data.get("transaction_id", ""),
+                "momo_number":      data.get("momo_number",    ""),
+                "date_ordered":     datetime.utcnow()
+            })
+            conn.commit()
+            order_id = result.fetchone()[0]
+
         send_notification(0, True,
-            "New Order #" + str(order.id),
+            "New Order #" + str(order_id),
             user.fullname + " placed order GH" + chr(8373) +
-            " " + str(order.total_price) +
+            " " + str(data.get("total_price")) +
             ". Trans: " + data.get("transaction_id", "N/A"),
-            order.id)
+            order_id)
+
         send_notification(user.id, False,
-            "Order #" + str(order.id) + " Received",
+            "Order #" + str(order_id) + " Received",
             "Your order has been received! We will confirm shortly.",
-            order.id)
+            order_id)
+
         return jsonify({
             "success":  True,
             "message":  "Order placed!",
-            "order_id": order.id
+            "order_id": order_id
         })
+
     except Exception as e:
-        db.session.rollback()
         print("Place order error:", e)
+        traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route("/api/orders/my", methods=["GET"])
@@ -592,20 +642,33 @@ def my_orders():
     if not session.get("user_id"):
         return jsonify([])
     try:
-        orders = Order.query.filter_by(
-            user_id=session["user_id"]
-        ).order_by(Order.date_ordered.desc()).all()
-        return jsonify([{
-            "id":             o.id,
-            "items":          o.items,
-            "total_price":    o.total_price,
-            "status":         o.status,
-            "payment_status": o.payment_status or "Paid",
-            "transaction_id": o.transaction_id or "",
-            "date_ordered":   o.date_ordered.strftime("%Y-%m-%d %H:%M"),
-            "delivered_at":   o.delivered_at.strftime("%Y-%m-%d %H:%M")
-                              if o.delivered_at else ""
-        } for o in orders])
+        with db.engine.connect() as conn:
+            rows = conn.execute(db.text("""
+                SELECT id, items, total_price, status,
+                       payment_status, transaction_id,
+                       date_ordered, delivered_at
+                FROM orders
+                WHERE user_id = :uid
+                ORDER BY date_ordered DESC
+            """), {"uid": session["user_id"]}).fetchall()
+
+        result = []
+        for o in rows:
+            try:
+                result.append({
+                    "id":             o[0],
+                    "items":          o[1],
+                    "total_price":    float(o[2]),
+                    "status":         o[3] or "Pending",
+                    "payment_status": o[4] or "Paid",
+                    "transaction_id": o[5] or "",
+                    "date_ordered":   str(o[6])[:16] if o[6] else "",
+                    "delivered_at":   str(o[7])[:16] if o[7] else ""
+                })
+            except Exception:
+                continue
+
+        return jsonify(result)
     except Exception as e:
         print("My orders error:", e)
         return jsonify([])
@@ -615,25 +678,42 @@ def get_orders():
     if not session.get("admin_logged_in"):
         return jsonify([])
     try:
-        orders = Order.query.order_by(Order.date_ordered.desc()).all()
-        return jsonify([{
-            "id":               o.id,
-            "customer_name":    o.customer_name,
-            "customer_phone":   o.customer_phone,
-            "customer_address": o.customer_address,
-            "items":            o.items,
-            "total_price":      o.total_price,
-            "status":           o.status,
-            "payment_status":   o.payment_status or "Paid",
-            "transaction_id":   o.transaction_id or "",
-            "momo_number":      o.momo_number    or "",
-            "date_ordered":     o.date_ordered.strftime("%Y-%m-%d %H:%M"),
-            "delivered_at":     o.delivered_at.strftime("%Y-%m-%d %H:%M")
-                                if o.delivered_at else "",
-            "user_id":          o.user_id
-        } for o in orders])
+        with db.engine.connect() as conn:
+            rows = conn.execute(db.text("""
+                SELECT id, customer_name, customer_phone, customer_address,
+                       items, total_price, status, payment_status,
+                       transaction_id, momo_number, date_ordered,
+                       delivered_at, user_id
+                FROM orders
+                ORDER BY date_ordered DESC
+            """)).fetchall()
+
+        result = []
+        for o in rows:
+            try:
+                result.append({
+                    "id":               o[0],
+                    "customer_name":    o[1]  or "",
+                    "customer_phone":   o[2]  or "",
+                    "customer_address": o[3]  or "",
+                    "items":            o[4]  or "",
+                    "total_price":      float(o[5]) if o[5] else 0,
+                    "status":           o[6]  or "Pending",
+                    "payment_status":   o[7]  or "Paid",
+                    "transaction_id":   o[8]  or "",
+                    "momo_number":      o[9]  or "",
+                    "date_ordered":     str(o[10])[:16] if o[10] else "",
+                    "delivered_at":     str(o[11])[:16] if o[11] else "",
+                    "user_id":          o[12] or 0
+                })
+            except Exception as oe:
+                print("Order row error:", oe)
+                continue
+
+        return jsonify(result)
     except Exception as e:
         print("Get orders error:", e)
+        traceback.print_exc()
         return jsonify([])
 
 @app.route("/api/orders/status/<int:order_id>", methods=["POST"])
@@ -663,30 +743,33 @@ def update_order_status(order_id):
                 "message": "Can only mark as Delivered!"}), 400
 
         if status == "Delivered":
-            order.status       = "Awaiting Delivery"
-            order.delivered_at = datetime.utcnow()
+            with db.engine.connect() as conn:
+                conn.execute(db.text(
+                    "UPDATE orders SET status = 'Awaiting Delivery', "
+                    "delivered_at = :dt WHERE id = :id"
+                ), {"dt": datetime.utcnow(), "id": order_id})
+                conn.commit()
             send_notification(order.user_id, False,
-                "Order #" + str(order.id) + " On The Way!",
+                "Order #" + str(order_id) + " On The Way!",
                 "Your order is on its way! Please confirm when received. "
-                "Auto-confirms in 14 days.",
-                order.id)
+                "Auto-confirms in 14 days.", order_id)
         elif status == "Confirmed":
             order.status = "Confirmed"
+            db.session.commit()
             send_notification(order.user_id, False,
-                "Order #" + str(order.id) + " Confirmed!",
-                "Your order is confirmed and being prepared!",
-                order.id)
+                "Order #" + str(order_id) + " Confirmed!",
+                "Your order is confirmed and being prepared!", order_id)
         elif status == "Cancelled":
             order.status = "Cancelled"
+            db.session.commit()
             send_notification(order.user_id, False,
-                "Order #" + str(order.id) + " Cancelled",
-                "Your order was cancelled. Contact us for info.",
-                order.id)
+                "Order #" + str(order_id) + " Cancelled",
+                "Your order was cancelled. Contact us for info.", order_id)
 
-        db.session.commit()
         return jsonify({"success": True, "message": "Status updated!"})
     except Exception as e:
         db.session.rollback()
+        print("Update status error:", e)
         return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route("/api/orders/confirm-delivery/<int:order_id>", methods=["POST"])
@@ -703,13 +786,12 @@ def confirm_delivery(order_id):
         order.status = "Delivered"
         db.session.commit()
         send_notification(0, True,
-            "Delivery Confirmed - #" + str(order.id),
-            order.customer_name + " confirmed order #" + str(order.id),
-            order.id)
+            "Delivery Confirmed - #" + str(order_id),
+            order.customer_name + " confirmed order #" + str(order_id),
+            order_id)
         send_notification(order.user_id, False,
-            "Order #" + str(order.id) + " Complete!",
-            "Thank you for confirming! Enjoy your purchase!",
-            order.id)
+            "Order #" + str(order_id) + " Complete!",
+            "Thank you for confirming! Enjoy your purchase!", order_id)
         return jsonify({"success": True, "message": "Confirmed! Thank you!"})
     except Exception as e:
         db.session.rollback()
@@ -731,13 +813,12 @@ def dispute_order(order_id):
         order.status = "Disputed"
         db.session.commit()
         send_notification(0, True,
-            "DISPUTE - Order #" + str(order.id),
+            "DISPUTE - Order #" + str(order_id),
             order.customer_name + " disputed. Reason: " + reason,
-            order.id)
+            order_id)
         send_notification(order.user_id, False,
-            "Dispute Filed - #" + str(order.id),
-            "Dispute filed! We will contact you in 24 hours.",
-            order.id)
+            "Dispute Filed - #" + str(order_id),
+            "Dispute filed! We will contact you in 24 hours.", order_id)
         return jsonify({"success": True,
             "message": "Dispute filed! We will contact you."})
     except Exception as e:
@@ -833,19 +914,17 @@ def get_users():
     if not session.get("admin_logged_in"):
         return jsonify([])
     try:
-        # Use raw SQL to avoid any ORM issues
         with db.engine.connect() as conn:
             rows = conn.execute(db.text(
                 "SELECT id, fullname, email, phone, address, created_at "
                 "FROM users ORDER BY id DESC"
             )).fetchall()
 
-        print("Users found in DB:", len(rows))
-
+        print("Users in DB:", len(rows))
         result = []
+
         for row in rows:
             try:
-                # Count orders for this user
                 with db.engine.connect() as conn2:
                     order_count = conn2.execute(db.text(
                         "SELECT COUNT(*) FROM orders WHERE user_id = :uid"
@@ -861,7 +940,7 @@ def get_users():
                     "order_count": order_count or 0
                 })
             except Exception as ue:
-                print("Error processing user", row[0], ":", ue)
+                print("User error:", ue)
                 continue
 
         print("Returning", len(result), "users")
@@ -873,14 +952,13 @@ def get_users():
         return jsonify([])
 
 # ==============================
-# DEBUG
+# DEBUG ROUTES
 # ==============================
 
 @app.route("/api/debug/users")
 def debug_users():
-    """Check users directly from DB"""
     if not session.get("admin_logged_in"):
-        return jsonify({"error": "Not logged in - go to /admin first"})
+        return jsonify({"error": "Login to admin first!"})
     try:
         with db.engine.connect() as conn:
             rows = conn.execute(db.text(
@@ -888,16 +966,16 @@ def debug_users():
             )).fetchall()
             return jsonify({
                 "total_users": len(rows),
-                "users": [{"id": r[0], "name": r[1], "email": r[2]} for r in rows]
+                "users": [{"id": r[0], "name": r[1], "email": r[2]}
+                          for r in rows]
             })
     except Exception as e:
         return jsonify({"error": str(e)})
 
 @app.route("/api/debug/orders")
 def debug_orders():
-    """Check orders directly from DB"""
     if not session.get("admin_logged_in"):
-        return jsonify({"error": "Not logged in"})
+        return jsonify({"error": "Login to admin first!"})
     try:
         with db.engine.connect() as conn:
             rows = conn.execute(db.text(
@@ -905,7 +983,27 @@ def debug_orders():
             )).fetchall()
             return jsonify({
                 "total_orders": len(rows),
-                "orders": [{"id": r[0], "name": r[1], "status": r[2], "total": float(r[3])} for r in rows]
+                "orders": [{"id": r[0], "name": r[1],
+                            "status": r[2], "total": float(r[3])}
+                           for r in rows]
+            })
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+@app.route("/api/debug/columns")
+def debug_columns():
+    if not session.get("admin_logged_in"):
+        return jsonify({"error": "Login to admin first!"})
+    try:
+        with db.engine.connect() as conn:
+            rows = conn.execute(db.text(
+                "SELECT column_name, data_type "
+                "FROM information_schema.columns "
+                "WHERE table_name = 'orders' "
+                "ORDER BY ordinal_position"
+            )).fetchall()
+            return jsonify({
+                "orders_columns": [{"name": r[0], "type": r[1]} for r in rows]
             })
     except Exception as e:
         return jsonify({"error": str(e)})
