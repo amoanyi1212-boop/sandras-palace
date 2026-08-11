@@ -8,95 +8,47 @@
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Nunito',sans-serif}
         body{background:#fff5f7;color:#333}
-
-        .sidebar{
-            position:fixed;left:0;top:0;width:270px;height:100vh;
-            background:linear-gradient(180deg,#e91e63,#c2185b,#880e4f);
-            padding:30px 20px;z-index:100;overflow-y:auto;border-radius:0 30px 30px 0;
-        }
+        .sidebar{position:fixed;left:0;top:0;width:270px;height:100vh;background:linear-gradient(180deg,#e91e63,#c2185b,#880e4f);padding:30px 20px;z-index:100;overflow-y:auto;border-radius:0 30px 30px 0}
         .sidebar-logo{text-align:center;margin-bottom:40px;padding-bottom:25px;border-bottom:2px solid rgba(255,255,255,0.2)}
         .sidebar-logo .icon{font-size:50px;animation:bounce 2s ease infinite}
         @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
         .sidebar-logo h2{font-family:'Fredoka One',cursive;color:white;font-size:22px;margin-top:10px}
         .sidebar-logo p{color:rgba(255,255,255,0.6);font-size:12px;font-weight:700}
-
         .nav-menu{list-style:none}
         .nav-menu li{margin-bottom:8px}
-        .nav-menu li a{
-            display:flex;align-items:center;gap:12px;padding:14px 18px;
-            color:rgba(255,255,255,0.8);text-decoration:none;border-radius:15px;
-            font-size:15px;font-weight:700;transition:all 0.3s;cursor:pointer;
-        }
+        .nav-menu li a{display:flex;align-items:center;gap:12px;padding:14px 18px;color:rgba(255,255,255,0.8);text-decoration:none;border-radius:15px;font-size:15px;font-weight:700;transition:all 0.3s;cursor:pointer}
         .nav-menu li a:hover,.nav-menu li a.active{background:rgba(255,255,255,0.2);color:white;transform:translateX(5px)}
-
-        .logout-btn{
-            display:flex;align-items:center;gap:12px;padding:14px 18px;
-            color:#ffcdd2!important;border-radius:15px;font-size:15px;font-weight:700;
-            margin-top:25px;cursor:pointer;background:none;border:none;width:100%;
-        }
+        .logout-btn{display:flex;align-items:center;gap:12px;padding:14px 18px;color:#ffcdd2!important;border-radius:15px;font-size:15px;font-weight:700;margin-top:25px;cursor:pointer;background:none;border:none;width:100%}
         .logout-btn:hover{background:rgba(255,255,255,0.15)!important}
-
         .main-content{margin-left:270px;padding:30px;min-height:100vh}
-
         .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
         .topbar h1{font-family:'Fredoka One',cursive;font-size:28px;color:#c2185b}
         .topbar p{color:#aaa;font-size:14px;font-weight:700}
-
-        .notif-btn{
-            background:linear-gradient(135deg,#e91e63,#ff6f00);border:none;
-            border-radius:15px;padding:12px 20px;color:white;font-size:18px;
-            cursor:pointer;font-weight:800;position:relative;
-        }
-        .notif-btn:hover{opacity:0.9}
-        .notif-count{
-            position:absolute;top:-5px;right:-5px;background:#e53935;color:white;
-            width:22px;height:22px;border-radius:50%;font-size:11px;
-            display:none;align-items:center;justify-content:center;font-weight:800;
-        }
-        .notif-dropdown{
-            display:none;position:absolute;right:0;top:55px;background:white;
-            border-radius:20px;width:380px;max-height:450px;overflow-y:auto;
-            box-shadow:0 10px 40px rgba(0,0,0,0.15);border:3px solid #fce4ec;z-index:500;
-        }
+        .notif-area{position:relative}
+        .notif-btn{background:linear-gradient(135deg,#e91e63,#ff6f00);border:none;border-radius:15px;padding:12px 20px;color:white;font-size:18px;cursor:pointer;font-weight:800;position:relative}
+        .notif-count{position:absolute;top:-5px;right:-5px;background:#e53935;color:white;width:22px;height:22px;border-radius:50%;font-size:11px;display:none;align-items:center;justify-content:center;font-weight:800}
+        .notif-dropdown{display:none;position:absolute;right:0;top:55px;background:white;border-radius:20px;width:380px;max-height:450px;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.15);border:3px solid #fce4ec;z-index:500}
         .notif-dropdown.show{display:block}
-        .notif-header{
-            padding:18px 20px;background:#fff0f3;border-radius:17px 17px 0 0;
-            display:flex;justify-content:space-between;align-items:center;
-        }
+        .notif-header{padding:18px 20px;background:#fff0f3;border-radius:17px 17px 0 0;display:flex;justify-content:space-between;align-items:center}
         .notif-header span{font-family:'Fredoka One',cursive;color:#c2185b;font-size:16px}
         .notif-header button{background:none;border:none;color:#e91e63;font-size:13px;font-weight:800;cursor:pointer}
-        .notif-item{
-            padding:14px 18px;border-bottom:2px solid #fce4ec;cursor:pointer;transition:all 0.2s;
-        }
+        .notif-item{padding:14px 18px;border-bottom:2px solid #fce4ec;cursor:pointer;transition:all 0.2s}
         .notif-item:hover{background:#fff0f3}
         .notif-item.unread{background:#fff0f3}
-        .notif-item-title{font-weight:800;color:#c2185b;font-size:14px;margin-bottom:4px}
-        .notif-item-msg{font-size:13px;color:#666;font-weight:600}
-        .notif-item-time{font-size:11px;color:#aaa;margin-top:5px;font-weight:700}
-
+        .ni-title{font-weight:800;color:#c2185b;font-size:14px;margin-bottom:4px}
+        .ni-msg{font-size:13px;color:#666;font-weight:600}
+        .ni-time{font-size:11px;color:#aaa;margin-top:5px;font-weight:700}
         .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;margin-bottom:30px}
-        .stat-card{
-            background:white;border-radius:20px;padding:25px;
-            box-shadow:0 4px 20px rgba(233,30,99,0.08);
-            display:flex;align-items:center;gap:15px;
-            transition:all 0.3s;border:2px solid transparent;cursor:pointer;
-        }
+        .stat-card{background:white;border-radius:20px;padding:25px;box-shadow:0 4px 20px rgba(233,30,99,0.08);display:flex;align-items:center;gap:15px;transition:all 0.3s;border:2px solid transparent;cursor:pointer}
         .stat-card:hover{transform:translateY(-5px);border-color:#e91e63}
         .stat-icon{width:60px;height:60px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px}
-        .stat-icon.pink{background:#fce4ec}.stat-icon.green{background:#e8f5e9}
-        .stat-icon.red{background:#ffebee}.stat-icon.yellow{background:#fff8e1}.stat-icon.blue{background:#e3f2fd}
+        .stat-icon.pink{background:#fce4ec}.stat-icon.green{background:#e8f5e9}.stat-icon.red{background:#ffebee}.stat-icon.yellow{background:#fff8e1}.stat-icon.blue{background:#e3f2fd}
         .stat-info h3{font-family:'Fredoka One',cursive;font-size:28px;color:#c2185b}
         .stat-info p{font-size:13px;color:#aaa;font-weight:700}
-
         .section{display:none}.section.active{display:block}
-
-        .card{
-            background:white;border-radius:24px;padding:30px;
-            box-shadow:0 4px 20px rgba(233,30,99,0.08);margin-bottom:25px;border:2px solid #fce4ec;
-        }
+        .card{background:white;border-radius:24px;padding:30px;box-shadow:0 4px 20px rgba(233,30,99,0.08);margin-bottom:25px;border:2px solid #fce4ec}
         .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
         .card-header h2{font-family:'Fredoka One',cursive;font-size:22px;color:#c2185b}
-
         .btn{padding:10px 22px;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;font-family:'Nunito'}
         .btn-primary{background:linear-gradient(135deg,#e91e63,#ff6f00);color:white}
         .btn-primary:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(233,30,99,0.4)}
@@ -105,30 +57,23 @@
         .btn-warning{background:linear-gradient(135deg,#fb8c00,#ffa726);color:white}
         .btn-info{background:linear-gradient(135deg,#1976d2,#42a5f5);color:white}
         .btn-sm{padding:8px 16px;font-size:13px}
-
         .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
         .form-group{margin-bottom:20px}
         .form-group.full-width{grid-column:1/-1}
         .form-group label{display:block;font-size:14px;font-weight:800;color:#555;margin-bottom:8px}
-        .form-group input,.form-group select,.form-group textarea{
-            width:100%;padding:13px 16px;border:3px solid #fce4ec;border-radius:14px;
-            font-size:14px;font-weight:600;outline:none;background:#fffbfc;font-family:'Nunito';
-        }
+        .form-group input,.form-group select,.form-group textarea{width:100%;padding:13px 16px;border:3px solid #fce4ec;border-radius:14px;font-size:14px;font-weight:600;outline:none;background:#fffbfc;font-family:'Nunito'}
         .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#e91e63;background:white}
         .form-group textarea{resize:vertical;min-height:100px}
-
         .image-upload-area{border:3px dashed #fce4ec;border-radius:18px;padding:35px;text-align:center;cursor:pointer;background:#fffbfc}
         .image-upload-area:hover{border-color:#e91e63;background:#fff0f3}
         .image-upload-area .upload-icon{font-size:45px;margin-bottom:10px}
         .image-upload-area p{color:#aaa;font-size:14px;font-weight:700}
         .image-preview{margin-top:15px}
         .image-preview img{max-width:150px;max-height:150px;border-radius:14px;object-fit:cover;border:3px solid #fce4ec}
-
         .search-bar{display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap}
         .search-bar input{flex:1;padding:13px 18px;border:3px solid #fce4ec;border-radius:14px;font-size:14px;font-weight:600;outline:none;font-family:'Nunito';min-width:200px}
         .search-bar input:focus{border-color:#e91e63}
         .search-bar select{padding:13px 18px;border:3px solid #fce4ec;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Nunito'}
-
         .items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px}
         .item-card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 15px rgba(233,30,99,0.08);transition:all 0.3s;border:3px solid transparent}
         .item-card:hover{transform:translateY(-5px);border-color:#e91e63}
@@ -142,13 +87,11 @@
         .stock-badge.in-stock{background:#e8f5e9;color:#43a047}
         .stock-badge.out-stock{background:#ffebee;color:#e53935}
         .item-actions{display:flex;gap:8px;flex-wrap:wrap}
-
         .table-wrapper{overflow-x:auto}
         table{width:100%;border-collapse:collapse;min-width:900px}
         th{background:#fff0f3;padding:14px 12px;text-align:left;font-size:13px;font-weight:800;color:#c2185b;border-bottom:3px solid #fce4ec;white-space:nowrap}
         td{padding:13px 12px;border-bottom:2px solid #fce4ec;font-size:13px;font-weight:600;vertical-align:middle}
         tr:hover td{background:#fffbfc}
-
         .badge{padding:5px 14px;border-radius:25px;font-size:12px;font-weight:800;display:inline-block}
         .badge-pending{background:#fff8e1;color:#f9a825}
         .badge-confirmed{background:#e3f2fd;color:#1976d2}
@@ -156,10 +99,11 @@
         .badge-cancelled{background:#ffebee;color:#e53935}
         .badge-awaiting{background:#e3f2fd;color:#1976d2}
         .badge-disputed{background:#fff3e0;color:#e65100}
+        .badge-refunded{background:#e8f5e9;color:#2e7d32}
+        .badge-rejected{background:#fce4ec;color:#c62828}
         .badge-trans{background:#e3f2fd;color:#1976d2;cursor:pointer}
         .badge-trans:hover{background:#1976d2;color:white}
         .badge-momo{background:#fff8e1;color:#f57f17}
-
         .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
         .modal-overlay.show{display:flex}
         .modal{background:white;border-radius:28px;padding:35px;width:90%;max-width:600px;max-height:90vh;overflow-y:auto;animation:popIn 0.3s ease;border:3px solid #fce4ec}
@@ -168,20 +112,19 @@
         .modal-header h2{font-family:'Fredoka One',cursive;font-size:22px;color:#c2185b}
         .modal-close{background:#ffebee;border:none;font-size:20px;cursor:pointer;color:#e53935;width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center}
         .modal-close:hover{background:#e53935;color:white}
-
         .toast{position:fixed;bottom:30px;right:30px;padding:16px 25px;border-radius:16px;color:white;font-weight:800;font-size:15px;z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.4s;font-family:'Nunito'}
         .toast.show{transform:translateY(0);opacity:1}
         .toast.success{background:linear-gradient(135deg,#43a047,#66bb6a)}
         .toast.error{background:linear-gradient(135deg,#e53935,#ef5350)}
-
         .empty-state{text-align:center;padding:60px 20px;color:#aaa}
         .empty-state .empty-icon{font-size:65px;margin-bottom:15px}
         .empty-state p{font-size:16px;font-weight:700}
-
-        @media(max-width:900px){
-            .sidebar{width:0;overflow:hidden}.main-content{margin-left:0}
-            .stats-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}
-        }
+        .action-option{display:flex;align-items:center;gap:12px;padding:15px;border-radius:14px;cursor:pointer;border:3px solid transparent;transition:all 0.2s;margin-bottom:10px}
+        .action-option:hover{border-color:#e91e63}
+        .action-option input[type=radio]{width:20px;height:20px;cursor:pointer}
+        .action-title{font-weight:800;font-size:15px}
+        .action-desc{font-size:12px;color:#666;font-weight:600}
+        @media(max-width:900px){.sidebar{width:0;overflow:hidden}.main-content{margin-left:0}.stats-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}}
     </style>
 </head>
 <body>
@@ -203,24 +146,16 @@
 </div>
 
 <div class="main-content">
-
     <div class="topbar">
         <div>
             <h1 id="page-title">📊 Dashboard</h1>
             <p id="page-subtitle">Welcome back! 👑</p>
         </div>
-        <div style="position:relative">
-            <button class="notif-btn" onclick="toggleNotifs()">
-                🔔 <span class="notif-count" id="notif-count">0</span>
-            </button>
+        <div class="notif-area">
+            <button class="notif-btn" onclick="toggleNotifs()">🔔 <span class="notif-count" id="notif-count">0</span></button>
             <div class="notif-dropdown" id="notif-dropdown">
-                <div class="notif-header">
-                    <span>🔔 Notifications</span>
-                    <button onclick="markAllRead()">Mark all read</button>
-                </div>
-                <div id="notif-list">
-                    <div class="empty-state" style="padding:30px"><p>No notifications</p></div>
-                </div>
+                <div class="notif-header"><span>🔔 Notifications</span><button onclick="markAllRead()">Mark all read</button></div>
+                <div id="notif-list"><div class="empty-state" style="padding:30px"><p>No notifications</p></div></div>
             </div>
         </div>
     </div>
@@ -234,7 +169,6 @@
             <div class="stat-card" onclick="showSection('orders')"><div class="stat-icon yellow">🛒</div><div class="stat-info"><h3 id="s-orders">0</h3><p>Orders</p></div></div>
             <div class="stat-card" onclick="showSection('users')"><div class="stat-icon blue">👥</div><div class="stat-info"><h3 id="s-users">0</h3><p>Users</p></div></div>
         </div>
-
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:25px">
             <div class="card">
                 <div class="card-header"><h2>📋 Recent Orders</h2><button class="btn btn-primary btn-sm" onclick="showSection('orders')">View All</button></div>
@@ -251,7 +185,6 @@
                 </div>
             </div>
         </div>
-
         <div class="card" id="out-stock-card" style="display:none">
             <div class="card-header"><h2>⚠️ Out of Stock</h2></div>
             <div class="items-grid" id="out-stock-grid"></div>
@@ -299,11 +232,7 @@
             <div class="card-header"><h2>🛒 All Orders</h2><button class="btn btn-primary btn-sm" onclick="loadOrders()">🔄</button></div>
             <div class="table-wrapper">
                 <table>
-                    <thead><tr>
-                        <th>#</th><th>Customer</th><th>Phone</th><th>Address</th>
-                        <th>Items</th><th>Total</th><th>Paid To</th><th>Trans ID</th>
-                        <th>Status</th><th>Date</th><th>Action</th>
-                    </tr></thead>
+                    <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>Address</th><th>Items</th><th>Total</th><th>Paid To</th><th>Trans ID</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
                     <tbody id="orders-body"><tr><td colspan="11"><div class="empty-state"><div class="empty-icon">📭</div><p>No orders</p></div></td></tr></tbody>
                 </table>
             </div>
@@ -322,7 +251,6 @@
             </div>
         </div>
     </div>
-
 </div>
 
 <!-- EDIT MODAL -->
@@ -351,6 +279,47 @@
     </div>
 </div>
 
+<!-- DISPUTE RESOLUTION MODAL -->
+<div class="modal-overlay" id="disputeResModal">
+    <div class="modal">
+        <div class="modal-header"><h2>⚠️ Resolve Dispute</h2><button class="modal-close" onclick="closeDisputeRes()">✕</button></div>
+        <div style="padding:30px">
+            <div style="background:#fff0f3;border-radius:16px;padding:18px;margin-bottom:20px;border:2px solid #fce4ec">
+                <h3 style="font-family:'Fredoka One',cursive;color:#c2185b;font-size:16px;margin-bottom:10px" id="dr-title">Order #0</h3>
+                <p id="dr-customer" style="font-size:14px;font-weight:700;color:#555;margin-bottom:5px">Customer: -</p>
+                <p id="dr-items" style="font-size:13px;color:#888;font-weight:600;margin-bottom:5px">Items: -</p>
+                <p id="dr-total" style="font-family:'Fredoka One',cursive;color:#e91e63;font-size:18px">GH₵ 0</p>
+            </div>
+            <div style="background:#fff3e0;border-radius:16px;padding:18px;margin-bottom:20px;border:2px solid #f9a825">
+                <h3 style="font-family:'Fredoka One',cursive;color:#e65100;font-size:14px;margin-bottom:8px">⚠️ Customer's Reason:</h3>
+                <p id="dr-reason" style="font-size:14px;color:#555;font-weight:600;font-style:italic">"No reason"</p>
+            </div>
+            <div style="margin-bottom:20px">
+                <label style="display:block;font-size:14px;font-weight:800;color:#555;margin-bottom:10px">Choose Action:</label>
+                <div class="action-option" style="background:#e8f5e9" onclick="document.getElementById('dr-r-refund').checked=true;selectDRAction('refund')">
+                    <input type="radio" name="dr-action" id="dr-r-refund" value="refund" />
+                    <div><div class="action-title" style="color:#2e7d32">💰 Approve Refund</div><div class="action-desc">Customer gets money back</div></div>
+                </div>
+                <div class="action-option" style="background:#e3f2fd" onclick="document.getElementById('dr-r-redeliver').checked=true;selectDRAction('redeliver')">
+                    <input type="radio" name="dr-action" id="dr-r-redeliver" value="redeliver" />
+                    <div><div class="action-title" style="color:#1976d2">📦 Redeliver Order</div><div class="action-desc">Send the order again</div></div>
+                </div>
+                <div class="action-option" style="background:#ffebee" onclick="document.getElementById('dr-r-reject').checked=true;selectDRAction('no_refund')">
+                    <input type="radio" name="dr-action" id="dr-r-reject" value="no_refund" />
+                    <div><div class="action-title" style="color:#c62828">❌ Reject Dispute</div><div class="action-desc">No refund after investigation</div></div>
+                </div>
+            </div>
+            <div style="margin-bottom:20px">
+                <label style="display:block;font-size:14px;font-weight:800;color:#555;margin-bottom:8px">💬 Admin Comment:</label>
+                <textarea id="dr-comment" placeholder="Write your comment or reason..." style="width:100%;padding:14px 16px;border:3px solid #fce4ec;border-radius:14px;font-size:14px;font-weight:600;outline:none;font-family:'Nunito';background:#fffbfc;min-height:120px;resize:vertical"></textarea>
+            </div>
+            <input type="hidden" id="dr-order-id" />
+            <input type="hidden" id="dr-action-val" />
+            <button onclick="submitDR()" id="dr-submit" style="width:100%;padding:17px;background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border:none;border-radius:16px;font-size:17px;font-weight:800;cursor:pointer;font-family:'Nunito'">✅ Submit Resolution</button>
+        </div>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -371,6 +340,14 @@ function showSection(s){
     if(s==='dashboard')loadDashboard();if(s==='manage-items')loadItems();if(s==='orders')loadOrders();if(s==='users')loadUsers();
 }
 
+function getStatusClass(s){
+    if(s==='Awaiting Delivery')return'awaiting';
+    if(s==='Disputed')return'disputed';
+    if(s==='Refunded')return'refunded';
+    if(s==='Dispute Rejected')return'rejected';
+    return s.toLowerCase();
+}
+
 function loadDashboard(){
     Promise.all([fetch('/api/items').then(function(r){return r.json()}),fetch('/api/orders').then(function(r){return r.json()}),fetch('/api/users').then(function(r){return r.json()})])
     .then(function(r){
@@ -383,7 +360,7 @@ function loadDashboard(){
 
         var ro=allOrders.slice(0,5),otb=document.getElementById('dash-orders');
         if(ro.length===0)otb.innerHTML='<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📭</div><p>No orders</p></div></td></tr>';
-        else otb.innerHTML=ro.map(function(o){return'<tr><td style="font-weight:800;color:#c2185b">#'+o.id+'</td><td>'+o.customer_name+'</td><td style="font-family:Fredoka One,cursive;color:#e91e63">GH&#8373; '+o.total_price.toFixed(2)+'</td><td><span class="badge badge-trans" onclick="copyTrans(\''+( o.transaction_id||'')+'\')">'+( o.transaction_id||'N/A')+'</span></td><td><span class="badge badge-'+getStatusClass(o.status)+'">'+o.status+'</span></td></tr>'}).join('');
+        else otb.innerHTML=ro.map(function(o){return'<tr><td style="font-weight:800;color:#c2185b">#'+o.id+'</td><td>'+o.customer_name+'</td><td style="font-family:Fredoka One,cursive;color:#e91e63">GH&#8373; '+o.total_price.toFixed(2)+'</td><td><span class="badge badge-trans" onclick="copyTrans(\''+(o.transaction_id||'')+'\')">'+(o.transaction_id||'N/A')+'</span></td><td><span class="badge badge-'+getStatusClass(o.status)+'">'+o.status+'</span></td></tr>'}).join('');
 
         var ru=allUsers.slice(-5).reverse(),utb=document.getElementById('dash-users');
         if(ru.length===0)utb.innerHTML='<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">👥</div><p>No users</p></div></td></tr>';
@@ -394,8 +371,6 @@ function loadDashboard(){
         else oc.style.display='none';
     });
 }
-
-function getStatusClass(s){if(s==='Awaiting Delivery')return'awaiting';if(s==='Disputed')return'disputed';return s.toLowerCase()}
 
 // ADD ITEM
 document.getElementById('addForm').addEventListener('submit',function(e){
@@ -418,7 +393,7 @@ function displayItems(items){
 }
 function filterItems(){
     var s=document.getElementById('search-input').value.toLowerCase(),c=document.getElementById('filter-category').value,st=document.getElementById('filter-stock').value;
-    displayItems(allItems.filter(function(i){return(i.name.toLowerCase().includes(s)||(i.description||'').toLowerCase().includes(s))&&(c==='all'||i.category===c)&&(st==='all'||String(i.in_stock)===st)}));
+    displayItems(allItems.filter(function(i){return(i.name.toLowerCase().indexOf(s)>-1||(i.description||'').toLowerCase().indexOf(s)>-1)&&(c==='all'||i.category===c)&&(st==='all'||String(i.in_stock)===st)}));
 }
 function toggleStock(id){fetch('/api/items/toggle/'+id,{method:'POST'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('✅ '+d.message,'success');loadItems()}else toast('❌ '+d.message,'error')})}
 function deleteItem(id){if(!confirm('Delete?'))return;fetch('/api/items/delete/'+id,{method:'DELETE'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('✅ Deleted','success');loadItems()}else toast('❌ '+d.message,'error')})}
@@ -470,7 +445,9 @@ function getActions(o){
     if(o.status==='Delivered')return'<span style="color:#43a047;font-weight:800;font-size:12px">✅ Complete</span>';
     if(o.status==='Cancelled')return'<span style="color:#e53935;font-weight:800;font-size:12px">❌ Cancelled</span>';
     if(o.status==='Awaiting Delivery')return'<span style="color:#1976d2;font-weight:800;font-size:12px">📦 Awaiting Customer</span>';
-    if(o.status==='Disputed')return'<span style="color:#e65100;font-weight:800;font-size:12px">⚠️ Disputed</span>';
+    if(o.status==='Disputed')return'<button class="btn btn-warning btn-sm" onclick="openDisputeRes('+o.id+')">⚠️ Resolve</button>';
+    if(o.status==='Refunded')return'<span style="color:#2e7d32;font-weight:800;font-size:12px">💰 Refunded</span>';
+    if(o.status==='Dispute Rejected')return'<span style="color:#c62828;font-weight:800;font-size:12px">❌ Rejected</span>';
     if(o.status==='Pending')return'<button class="btn btn-success btn-sm" onclick="updateStatus('+o.id+',\'Confirmed\')">✅ Confirm</button> <button class="btn btn-danger btn-sm" onclick="updateStatus('+o.id+',\'Cancelled\')">❌</button>';
     if(o.status==='Confirmed')return'<button class="btn btn-info btn-sm" onclick="updateStatus('+o.id+',\'Delivered\')">📦 Delivered</button>';
     return'';
@@ -483,6 +460,53 @@ function updateStatus(id,status){
         else toast('❌ '+d.message,'error')});
 }
 
+// DISPUTE RESOLUTION
+function openDisputeRes(orderId){
+    var order=allOrders.find(function(o){return o.id===orderId});
+    if(!order)return;
+    document.getElementById('dr-order-id').value=orderId;
+    document.getElementById('dr-title').textContent='Order #'+orderId;
+    document.getElementById('dr-customer').textContent='Customer: '+order.customer_name+' ('+order.customer_phone+')';
+    document.getElementById('dr-items').textContent='Items: '+fmtItems(order.items);
+    document.getElementById('dr-total').textContent='GH\u20b5 '+order.total_price.toFixed(2);
+    document.getElementById('dr-comment').value='';
+    document.getElementById('dr-action-val').value='';
+    var radios=document.querySelectorAll('input[name="dr-action"]');
+    radios.forEach(function(r){r.checked=false});
+
+    var reason='No reason provided';
+    fetch('/api/notifications/admin').then(function(r){return r.json()}).then(function(data){
+        if(data.notifications){
+            var dn=data.notifications.find(function(n){return n.title.indexOf('DISPUTE')>-1&&n.title.indexOf('#'+orderId)>-1});
+            if(dn){var rs=dn.message.indexOf('Reason: ');if(rs>-1)reason=dn.message.substring(rs+8)}
+        }
+        document.getElementById('dr-reason').textContent='"'+reason+'"';
+    }).catch(function(){document.getElementById('dr-reason').textContent='"'+reason+'"'});
+
+    document.getElementById('disputeResModal').classList.add('show');
+}
+function closeDisputeRes(){document.getElementById('disputeResModal').classList.remove('show')}
+function selectDRAction(action){document.getElementById('dr-action-val').value=action}
+
+function submitDR(){
+    var orderId=document.getElementById('dr-order-id').value;
+    var action=document.getElementById('dr-action-val').value;
+    var comment=document.getElementById('dr-comment').value.trim();
+    if(!action){toast('Select an action!','error');return}
+    if(!comment){toast('Add a comment!','error');return}
+
+    var btn=document.getElementById('dr-submit');
+    btn.textContent='Submitting...';btn.disabled=true;
+
+    fetch('/api/orders/resolve-dispute/'+orderId,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:action,comment:comment})})
+    .then(function(r){return r.json()}).then(function(d){
+        if(d.success){toast('Dispute resolved!','success');closeDisputeRes();loadOrders()}
+        else toast(d.message||'Error!','error');
+    }).catch(function(){toast('Error!','error')})
+    .finally(function(){btn.textContent='✅ Submit Resolution';btn.disabled=false});
+}
+document.getElementById('disputeResModal').addEventListener('click',function(e){if(e.target===this)closeDisputeRes()});
+
 // USERS
 function loadUsers(){
     fetch('/api/users').then(function(r){return r.json()}).then(function(users){
@@ -493,7 +517,7 @@ function loadUsers(){
 }
 
 // NOTIFICATIONS
-function toggleNotifs(){document.getElementById('notif-dropdown').classList.toggle('show');if(document.getElementById('notif-dropdown').classList.contains('show'))loadNotifs()}
+function toggleNotifs(){var dd=document.getElementById('notif-dropdown');if(dd.classList.contains('show')){dd.classList.remove('show')}else{dd.classList.add('show');loadNotifs()}}
 
 function loadNotifs(){
     fetch('/api/notifications/admin').then(function(r){return r.json()}).then(function(data){
@@ -507,13 +531,18 @@ function loadNotifs(){
         var list=document.getElementById('notif-list');
         if(!data.notifications||data.notifications.length===0){list.innerHTML='<div class="empty-state" style="padding:30px"><p>No notifications</p></div>';return}
         list.innerHTML=data.notifications.map(function(n){
-            return'<div class="notif-item'+(n.is_read?'':' unread')+'" onclick="markRead('+n.id+')"><div class="notif-item-title">'+(n.is_read?'':'🔴 ')+n.title+'</div><div class="notif-item-msg">'+n.message+'</div><div class="notif-item-time">'+n.created_at+'</div></div>';
+            return'<div class="notif-item'+(n.is_read?'':' unread')+'" onclick="markNRead('+n.id+',this)"><div class="ni-title">'+(n.is_read?'':'🔴 ')+n.title+'</div><div class="ni-msg">'+n.message+'</div><div class="ni-time">'+n.created_at+'</div></div>';
         }).join('');
     }).catch(function(){});
 }
 
-function markRead(id){fetch('/api/notifications/read/'+id,{method:'POST'}).then(function(){loadNotifs()})}
-function markAllRead(){fetch('/api/notifications/read-all',{method:'POST'}).then(function(){loadNotifs();toast('All read!','success')})}
+function markNRead(id,el){
+    fetch('/api/notifications/read/'+id,{method:'POST'}).then(function(){
+        if(el){el.classList.remove('unread');var t=el.querySelector('.ni-title');if(t)t.innerHTML=t.innerHTML.replace('🔴 ','')}
+        loadNotifs();
+    });
+}
+function markAllRead(){fetch('/api/notifications/read-all',{method:'POST',headers:{'Content-Type':'application/json'}}).then(function(){loadNotifs();toast('All read!','success')})}
 
 function showPopup(title,msg){
     var old=document.getElementById('admin-popup');if(old)old.remove();
@@ -522,7 +551,7 @@ function showPopup(title,msg){
     p.onclick=function(){p.remove();toggleNotifs()};
     p.innerHTML='<div style="display:flex;align-items:center;gap:12px"><div style="font-size:35px">🔔</div><div><div style="font-family:Fredoka One,cursive;color:#c2185b;font-size:15px">'+title+'</div><div style="font-size:13px;color:#666;font-weight:600;margin-top:4px">'+msg+'</div></div><button onclick="event.stopPropagation();this.parentElement.parentElement.remove()" style="background:#ffebee;border:none;color:#e53935;width:28px;height:28px;border-radius:50%;cursor:pointer;font-weight:800;flex-shrink:0">x</button></div>';
     document.body.appendChild(p);
-    setTimeout(function(){if(document.getElementById('admin-popup')){p.style.opacity='0';p.style.transform='translateX(100px)';p.style.transition='all 0.3s';setTimeout(function(){p.remove()},300)}},10000);
+    setTimeout(function(){var el=document.getElementById('admin-popup');if(el){el.style.opacity='0';el.style.transition='all 0.3s';setTimeout(function(){el.remove()},300)}},10000);
 }
 
 document.addEventListener('click',function(e){if(!e.target.closest('.notif-btn')&&!e.target.closest('.notif-dropdown'))document.getElementById('notif-dropdown').classList.remove('show')});
