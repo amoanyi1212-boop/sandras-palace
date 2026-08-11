@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
 import logging
+import traceback
 import cloudinary
 import cloudinary.uploader
 
@@ -75,47 +76,46 @@ class User(db.Model):
     phone      = db.Column(db.String(20),  nullable=False)
     address    = db.Column(db.String(300), nullable=False)
     password   = db.Column(db.String(200), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    orders     = db.relationship("Order", backref="user", lazy=True)
+    created_at = db.Column(db.DateTime,    default=datetime.utcnow)
+    orders     = db.relationship("Order",  backref="user", lazy=True)
 
 class Item(db.Model):
     __tablename__ = "items"
-    id          = db.Column(db.Integer, primary_key=True)
+    id          = db.Column(db.Integer,  primary_key=True)
     name        = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500))
-    price       = db.Column(db.Float, nullable=False)
+    price       = db.Column(db.Float,    nullable=False)
     category    = db.Column(db.String(50))
-    in_stock    = db.Column(db.Boolean, default=True)
-    image_url   = db.Column(db.String(500),
-                  default="/static/noimg.png")
+    in_stock    = db.Column(db.Boolean,  default=True)
+    image_url   = db.Column(db.String(500), default="/static/noimg.png")
     date_added  = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Order(db.Model):
     __tablename__ = "orders"
-    id               = db.Column(db.Integer, primary_key=True)
-    user_id          = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    id               = db.Column(db.Integer,     primary_key=True)
+    user_id          = db.Column(db.Integer,     db.ForeignKey("users.id"), nullable=False)
     customer_name    = db.Column(db.String(100), nullable=False)
     customer_phone   = db.Column(db.String(20),  nullable=False)
     customer_address = db.Column(db.String(300), nullable=False)
-    items            = db.Column(db.Text, nullable=False)
-    total_price      = db.Column(db.Float, nullable=False)
-    status           = db.Column(db.String(50), default="Pending")
-    payment_status   = db.Column(db.String(50), default="Paid")
+    items            = db.Column(db.Text,        nullable=False)
+    total_price      = db.Column(db.Float,       nullable=False)
+    status           = db.Column(db.String(50),  default="Pending")
+    payment_status   = db.Column(db.String(50),  default="Paid")
     transaction_id   = db.Column(db.String(100), default="")
     momo_number      = db.Column(db.String(100), default="")
-    delivered_at     = db.Column(db.DateTime, nullable=True)
-    date_ordered     = db.Column(db.DateTime, default=datetime.utcnow)
+    delivered_at     = db.Column(db.DateTime,    nullable=True)
+    date_ordered     = db.Column(db.DateTime,    default=datetime.utcnow)
 
 class Notification(db.Model):
     __tablename__ = "notifications"
-    id         = db.Column(db.Integer, primary_key=True)
-    user_id    = db.Column(db.Integer, default=0)
-    for_admin  = db.Column(db.Boolean, default=False)
+    id         = db.Column(db.Integer,     primary_key=True)
+    user_id    = db.Column(db.Integer,     default=0)
+    for_admin  = db.Column(db.Boolean,     default=False)
     title      = db.Column(db.String(200), nullable=False)
     message    = db.Column(db.String(500), nullable=False)
-    is_read    = db.Column(db.Boolean, default=False)
-    order_id   = db.Column(db.Integer, default=0)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_read    = db.Column(db.Boolean,     default=False)
+    order_id   = db.Column(db.Integer,     default=0)
+    created_at = db.Column(db.DateTime,    default=datetime.utcnow)
 
 # ==============================
 # ADMIN
@@ -176,7 +176,6 @@ def send_notification(user_id, for_admin, title, message, order_id=0):
         return False
 
 def check_expired_deliveries():
-    """Auto confirm deliveries after 14 days"""
     try:
         two_weeks_ago = datetime.utcnow() - timedelta(days=14)
         with db.engine.connect() as conn:
@@ -220,8 +219,7 @@ def create_tables():
                     ]:
                         try:
                             conn.execute(db.text(
-                                "ALTER TABLE orders ADD COLUMN "
-                                + col + " " + defn
+                                "ALTER TABLE orders ADD COLUMN " + col + " " + defn
                             ))
                             conn.commit()
                         except Exception:
@@ -252,7 +250,7 @@ def create_tables():
 create_tables()
 
 # ==============================
-# ROUTES
+# PAGE ROUTES
 # ==============================
 
 @app.route("/")
@@ -304,29 +302,52 @@ def register():
         ph   = data.get("phone",    "").strip()
         addr = data.get("address",  "").strip()
         pw   = data.get("password", "")
+
         if not all([fn, em, ph, addr, pw]):
             return jsonify({"success": False, "message": "All fields required!"})
         if len(pw) < 6:
             return jsonify({"success": False, "message": "Password min 6 chars!"})
-        if User.query.filter_by(email=em).first():
-            return jsonify({"success": False, "message": "Email already registered!"})
+
+        existing = User.query.filter_by(email=em).first()
+        if existing:
+            return jsonify({
+                "success": False,
+                "message": "Email already registered! Please login instead."
+            })
+
         user = User(
-            fullname=fn, email=em, phone=ph,
-            address=addr, password=generate_password_hash(pw)
+            fullname = fn,
+            email    = em,
+            phone    = ph,
+            address  = addr,
+            password = generate_password_hash(pw)
         )
         db.session.add(user)
         db.session.commit()
+
         session["user_id"]    = user.id
         session["user_name"]  = user.fullname
         session["user_email"] = user.email
-        send_notification(0, True, "New User",
-            fn + " just registered!", 0)
-        return jsonify({"success": True, "message": "Welcome!",
-            "user": {"id": user.id, "fullname": user.fullname,
-                     "email": user.email, "phone": user.phone,
-                     "address": user.address}})
+
+        send_notification(0, True,
+            "New User Registered",
+            fn + " (" + em + ") just created an account!", 0)
+
+        return jsonify({
+            "success": True,
+            "message": "Account created! Welcome!",
+            "user": {
+                "id":       user.id,
+                "fullname": user.fullname,
+                "email":    user.email,
+                "phone":    user.phone,
+                "address":  user.address
+            }
+        })
     except Exception as e:
         db.session.rollback()
+        print("Register error:", e)
+        traceback.print_exc()
         return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route("/api/auth/login", methods=["POST"])
@@ -335,17 +356,28 @@ def user_login():
         data = request.get_json()
         em   = data.get("email",    "").strip().lower()
         pw   = data.get("password", "")
+
         user = User.query.filter_by(email=em).first()
         if not user or not check_password_hash(user.password, pw):
-            return jsonify({"success": False, "message": "Invalid credentials!"})
+            return jsonify({"success": False, "message": "Invalid email or password!"})
+
         session["user_id"]    = user.id
         session["user_name"]  = user.fullname
         session["user_email"] = user.email
-        return jsonify({"success": True, "message": "Welcome back!",
-            "user": {"id": user.id, "fullname": user.fullname,
-                     "email": user.email, "phone": user.phone,
-                     "address": user.address}})
+
+        return jsonify({
+            "success": True,
+            "message": "Welcome back " + user.fullname + "!",
+            "user": {
+                "id":       user.id,
+                "fullname": user.fullname,
+                "email":    user.email,
+                "phone":    user.phone,
+                "address":  user.address
+            }
+        })
     except Exception as e:
+        print("Login error:", e)
         return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route("/api/auth/logout", methods=["POST"])
@@ -360,10 +392,16 @@ def check_auth():
     if session.get("user_id"):
         user = User.query.get(session["user_id"])
         if user:
-            return jsonify({"logged_in": True,
-                "user": {"id": user.id, "fullname": user.fullname,
-                         "email": user.email, "phone": user.phone,
-                         "address": user.address}})
+            return jsonify({
+                "logged_in": True,
+                "user": {
+                    "id":       user.id,
+                    "fullname": user.fullname,
+                    "email":    user.email,
+                    "phone":    user.phone,
+                    "address":  user.address
+                }
+            })
     return jsonify({"logged_in": False})
 
 @app.route("/api/auth/update", methods=["POST"])
@@ -380,10 +418,17 @@ def update_profile():
         user.address  = data.get("address",  user.address)
         db.session.commit()
         session["user_name"] = user.fullname
-        return jsonify({"success": True, "message": "Updated!",
-            "user": {"id": user.id, "fullname": user.fullname,
-                     "email": user.email, "phone": user.phone,
-                     "address": user.address}})
+        return jsonify({
+            "success": True,
+            "message": "Updated!",
+            "user": {
+                "id":       user.id,
+                "fullname": user.fullname,
+                "email":    user.email,
+                "phone":    user.phone,
+                "address":  user.address
+            }
+        })
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)}), 500
@@ -397,13 +442,17 @@ def get_items():
     try:
         items = Item.query.all()
         return jsonify([{
-            "id": i.id, "name": i.name,
-            "description": i.description,
-            "price": i.price, "category": i.category,
-            "in_stock": i.in_stock, "image_url": i.image_url,
-            "date_added": i.date_added.strftime("%Y-%m-%d")
+            "id":          i.id,
+            "name":        i.name,
+            "description": i.description or "",
+            "price":       i.price,
+            "category":    i.category or "General",
+            "in_stock":    i.in_stock,
+            "image_url":   i.image_url or "/static/noimg.png",
+            "date_added":  i.date_added.strftime("%Y-%m-%d") if i.date_added else ""
         } for i in items])
-    except Exception:
+    except Exception as e:
+        print("Get items error:", e)
         return jsonify([])
 
 @app.route("/api/items/add", methods=["POST"])
@@ -417,18 +466,19 @@ def add_item():
         if image and image.filename != "":
             url = upload_image(image)
         new = Item(
-            name=data.get("name"),
-            description=data.get("description", ""),
-            price=float(data.get("price")),
-            category=data.get("category", "General"),
-            in_stock=data.get("in_stock", "true") == "true",
-            image_url=url
+            name        = data.get("name"),
+            description = data.get("description", ""),
+            price       = float(data.get("price")),
+            category    = data.get("category", "General"),
+            in_stock    = data.get("in_stock", "true") == "true",
+            image_url   = url
         )
         db.session.add(new)
         db.session.commit()
         return jsonify({"success": True, "message": "Item added!"})
     except Exception as e:
         db.session.rollback()
+        print("Add item error:", e)
         return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route("/api/items/update/<int:item_id>", methods=["POST"])
@@ -491,8 +541,11 @@ def toggle_stock(item_id):
 @app.route("/api/orders/place", methods=["POST"])
 def place_order():
     if not session.get("user_id"):
-        return jsonify({"success": False,
-            "message": "Login first!", "need_login": True}), 401
+        return jsonify({
+            "success": False,
+            "message": "Login first!",
+            "need_login": True
+        }), 401
     try:
         data = request.get_json()
         if not data or not data.get("items"):
@@ -501,15 +554,16 @@ def place_order():
         if not user:
             return jsonify({"success": False, "message": "User not found!"}), 404
         order = Order(
-            user_id=user.id,
-            customer_name=data.get("customer_name",    user.fullname),
-            customer_phone=data.get("customer_phone",  user.phone),
-            customer_address=data.get("customer_address", user.address),
-            items=str(data.get("items")),
-            total_price=float(data.get("total_price")),
-            status="Pending", payment_status="Paid",
-            transaction_id=data.get("transaction_id", ""),
-            momo_number=data.get("momo_number", "")
+            user_id          = user.id,
+            customer_name    = data.get("customer_name",    user.fullname),
+            customer_phone   = data.get("customer_phone",   user.phone),
+            customer_address = data.get("customer_address", user.address),
+            items            = str(data.get("items")),
+            total_price      = float(data.get("total_price")),
+            status           = "Pending",
+            payment_status   = "Paid",
+            transaction_id   = data.get("transaction_id", ""),
+            momo_number      = data.get("momo_number",    "")
         )
         db.session.add(order)
         db.session.commit()
@@ -523,10 +577,14 @@ def place_order():
             "Order #" + str(order.id) + " Received",
             "Your order has been received! We will confirm shortly.",
             order.id)
-        return jsonify({"success": True, "message": "Order placed!",
-            "order_id": order.id})
+        return jsonify({
+            "success":  True,
+            "message":  "Order placed!",
+            "order_id": order.id
+        })
     except Exception as e:
         db.session.rollback()
+        print("Place order error:", e)
         return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route("/api/orders/my", methods=["GET"])
@@ -538,15 +596,18 @@ def my_orders():
             user_id=session["user_id"]
         ).order_by(Order.date_ordered.desc()).all()
         return jsonify([{
-            "id": o.id, "items": o.items,
-            "total_price": o.total_price, "status": o.status,
+            "id":             o.id,
+            "items":          o.items,
+            "total_price":    o.total_price,
+            "status":         o.status,
             "payment_status": o.payment_status or "Paid",
             "transaction_id": o.transaction_id or "",
-            "date_ordered": o.date_ordered.strftime("%Y-%m-%d %H:%M"),
-            "delivered_at": o.delivered_at.strftime("%Y-%m-%d %H:%M")
-                            if o.delivered_at else ""
+            "date_ordered":   o.date_ordered.strftime("%Y-%m-%d %H:%M"),
+            "delivered_at":   o.delivered_at.strftime("%Y-%m-%d %H:%M")
+                              if o.delivered_at else ""
         } for o in orders])
-    except Exception:
+    except Exception as e:
+        print("My orders error:", e)
         return jsonify([])
 
 @app.route("/api/orders", methods=["GET"])
@@ -556,7 +617,7 @@ def get_orders():
     try:
         orders = Order.query.order_by(Order.date_ordered.desc()).all()
         return jsonify([{
-            "id": o.id,
+            "id":               o.id,
             "customer_name":    o.customer_name,
             "customer_phone":   o.customer_phone,
             "customer_address": o.customer_address,
@@ -569,9 +630,10 @@ def get_orders():
             "date_ordered":     o.date_ordered.strftime("%Y-%m-%d %H:%M"),
             "delivered_at":     o.delivered_at.strftime("%Y-%m-%d %H:%M")
                                 if o.delivered_at else "",
-            "user_id": o.user_id
+            "user_id":          o.user_id
         } for o in orders])
-    except Exception:
+    except Exception as e:
+        print("Get orders error:", e)
         return jsonify([])
 
 @app.route("/api/orders/status/<int:order_id>", methods=["POST"])
@@ -606,17 +668,20 @@ def update_order_status(order_id):
             send_notification(order.user_id, False,
                 "Order #" + str(order.id) + " On The Way!",
                 "Your order is on its way! Please confirm when received. "
-                "Auto-confirms in 14 days.", order.id)
+                "Auto-confirms in 14 days.",
+                order.id)
         elif status == "Confirmed":
             order.status = "Confirmed"
             send_notification(order.user_id, False,
                 "Order #" + str(order.id) + " Confirmed!",
-                "Your order is confirmed and being prepared!", order.id)
+                "Your order is confirmed and being prepared!",
+                order.id)
         elif status == "Cancelled":
             order.status = "Cancelled"
             send_notification(order.user_id, False,
                 "Order #" + str(order.id) + " Cancelled",
-                "Your order was cancelled. Contact us for info.", order.id)
+                "Your order was cancelled. Contact us for info.",
+                order.id)
 
         db.session.commit()
         return jsonify({"success": True, "message": "Status updated!"})
@@ -643,7 +708,8 @@ def confirm_delivery(order_id):
             order.id)
         send_notification(order.user_id, False,
             "Order #" + str(order.id) + " Complete!",
-            "Thank you for confirming! Enjoy your purchase!", order.id)
+            "Thank you for confirming! Enjoy your purchase!",
+            order.id)
         return jsonify({"success": True, "message": "Confirmed! Thank you!"})
     except Exception as e:
         db.session.rollback()
@@ -666,11 +732,12 @@ def dispute_order(order_id):
         db.session.commit()
         send_notification(0, True,
             "DISPUTE - Order #" + str(order.id),
-            order.customer_name + " disputed order. Reason: " + reason,
+            order.customer_name + " disputed. Reason: " + reason,
             order.id)
         send_notification(order.user_id, False,
             "Dispute Filed - #" + str(order.id),
-            "Dispute filed! We will contact you in 24 hours.", order.id)
+            "Dispute filed! We will contact you in 24 hours.",
+            order.id)
         return jsonify({"success": True,
             "message": "Dispute filed! We will contact you."})
     except Exception as e:
@@ -693,8 +760,11 @@ def admin_notifications():
             for_admin=True, is_read=False).count()
         return jsonify({
             "notifications": [{
-                "id": n.id, "title": n.title, "message": n.message,
-                "is_read": n.is_read, "order_id": n.order_id,
+                "id":         n.id,
+                "title":      n.title,
+                "message":    n.message,
+                "is_read":    n.is_read,
+                "order_id":   n.order_id,
                 "created_at": n.created_at.strftime("%Y-%m-%d %H:%M")
             } for n in notifs],
             "unread_count": unread
@@ -715,8 +785,11 @@ def user_notifications():
         ).count()
         return jsonify({
             "notifications": [{
-                "id": n.id, "title": n.title, "message": n.message,
-                "is_read": n.is_read, "order_id": n.order_id,
+                "id":         n.id,
+                "title":      n.title,
+                "message":    n.message,
+                "is_read":    n.is_read,
+                "order_id":   n.order_id,
                 "created_at": n.created_at.strftime("%Y-%m-%d %H:%M")
             } for n in notifs],
             "unread_count": unread
@@ -751,21 +824,91 @@ def mark_all_read():
     except Exception:
         return jsonify({"success": False})
 
+# ==============================
+# USERS
+# ==============================
+
 @app.route("/api/users", methods=["GET"])
 def get_users():
     if not session.get("admin_logged_in"):
         return jsonify([])
     try:
-        users = User.query.all()
-        return jsonify([{
-            "id": u.id, "fullname": u.fullname,
-            "email": u.email, "phone": u.phone,
-            "address": u.address,
-            "created_at": u.created_at.strftime("%Y-%m-%d %H:%M"),
-            "order_count": len(u.orders)
-        } for u in users])
-    except Exception:
+        # Use raw SQL to avoid any ORM issues
+        with db.engine.connect() as conn:
+            rows = conn.execute(db.text(
+                "SELECT id, fullname, email, phone, address, created_at "
+                "FROM users ORDER BY id DESC"
+            )).fetchall()
+
+        print("Users found in DB:", len(rows))
+
+        result = []
+        for row in rows:
+            try:
+                # Count orders for this user
+                with db.engine.connect() as conn2:
+                    order_count = conn2.execute(db.text(
+                        "SELECT COUNT(*) FROM orders WHERE user_id = :uid"
+                    ), {"uid": row[0]}).scalar()
+
+                result.append({
+                    "id":          row[0],
+                    "fullname":    row[1] or "",
+                    "email":       row[2] or "",
+                    "phone":       row[3] or "",
+                    "address":     row[4] or "",
+                    "created_at":  str(row[5])[:16] if row[5] else "",
+                    "order_count": order_count or 0
+                })
+            except Exception as ue:
+                print("Error processing user", row[0], ":", ue)
+                continue
+
+        print("Returning", len(result), "users")
+        return jsonify(result)
+
+    except Exception as e:
+        print("Get users error:", e)
+        traceback.print_exc()
         return jsonify([])
+
+# ==============================
+# DEBUG
+# ==============================
+
+@app.route("/api/debug/users")
+def debug_users():
+    """Check users directly from DB"""
+    if not session.get("admin_logged_in"):
+        return jsonify({"error": "Not logged in - go to /admin first"})
+    try:
+        with db.engine.connect() as conn:
+            rows = conn.execute(db.text(
+                "SELECT id, fullname, email FROM users"
+            )).fetchall()
+            return jsonify({
+                "total_users": len(rows),
+                "users": [{"id": r[0], "name": r[1], "email": r[2]} for r in rows]
+            })
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+@app.route("/api/debug/orders")
+def debug_orders():
+    """Check orders directly from DB"""
+    if not session.get("admin_logged_in"):
+        return jsonify({"error": "Not logged in"})
+    try:
+        with db.engine.connect() as conn:
+            rows = conn.execute(db.text(
+                "SELECT id, customer_name, status, total_price FROM orders"
+            )).fetchall()
+            return jsonify({
+                "total_orders": len(rows),
+                "orders": [{"id": r[0], "name": r[1], "status": r[2], "total": float(r[3])} for r in rows]
+            })
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 # ==============================
 # RUN
