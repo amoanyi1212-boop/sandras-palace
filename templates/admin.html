@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Nunito',sans-serif}
-        body{background:#fff5f7;color:#333}
+        body{background:#fff5f7;color:#333;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
         .sidebar{position:fixed;left:0;top:0;width:270px;height:100vh;background:linear-gradient(180deg,#e91e63,#c2185b,#880e4f);padding:30px 20px;z-index:100;overflow-y:auto;border-radius:0 30px 30px 0}
         .sidebar-logo{text-align:center;margin-bottom:40px;padding-bottom:25px;border-bottom:2px solid rgba(255,255,255,0.2)}
         .sidebar-logo .icon{font-size:50px;animation:bounce 2s ease infinite}
@@ -124,7 +124,60 @@
         .action-option input[type=radio]{width:20px;height:20px;cursor:pointer}
         .action-title{font-weight:800;font-size:15px}
         .action-desc{font-size:12px;color:#666;font-weight:600}
-        @media(max-width:900px){.sidebar{width:0;overflow:hidden}.main-content{margin-left:0}.stats-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}}
+        /* ===== TABLET ===== */
+        @media(max-width:1100px){
+            .stats-grid{grid-template-columns:repeat(3,1fr)}
+        }
+
+        /* ===== MOBILE ===== */
+        @media(max-width:900px){
+            .sidebar{width:0;overflow:hidden;padding:0}
+            .main-content{margin-left:0;padding:15px}
+            .stats-grid{grid-template-columns:1fr 1fr;gap:12px}
+            .stat-card{padding:18px;border-radius:16px}
+            .stat-icon{width:45px;height:45px;font-size:22px;border-radius:14px}
+            .stat-info h3{font-size:22px}
+            .stat-info p{font-size:11px}
+            .form-grid{grid-template-columns:1fr}
+            .topbar{flex-direction:column;gap:15px;align-items:flex-start}
+            .topbar h1{font-size:22px}
+            .card{padding:18px;border-radius:18px}
+            .card-header{flex-direction:column;gap:10px;align-items:flex-start}
+            .card-header h2{font-size:18px}
+            table{min-width:600px}
+            th{padding:10px 8px;font-size:11px}
+            td{padding:10px 8px;font-size:12px}
+            .btn-sm{padding:6px 12px;font-size:11px}
+            .items-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+            .item-image{height:140px}
+            .item-info{padding:12px}
+            .item-info h3{font-size:14px}
+            .item-info .price{font-size:16px}
+            .search-bar{flex-direction:column}
+            .search-bar input{min-width:auto}
+            .modal{width:95%;padding:20px}
+            .modal-header h2{font-size:18px}
+            .notif-area{position:static}
+            .notif-dropdown{position:fixed;right:10px;left:10px;top:80px;width:auto}
+            .notif-btn{padding:10px 16px;font-size:16px}
+
+            /* Dashboard grid */
+            div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+
+            /* Dispute Modal */
+            .action-option{padding:12px}
+            .action-title{font-size:13px}
+            .action-desc{font-size:11px}
+        }
+
+        /* ===== SMALL PHONES ===== */
+        @media(max-width:480px){
+            .stats-grid{grid-template-columns:1fr;gap:10px}
+            .stat-card{padding:15px}
+            .topbar h1{font-size:20px}
+            .items-grid{grid-template-columns:1fr}
+            table{min-width:500px}
+        }
     </style>
 </head>
 <body>
@@ -146,6 +199,15 @@
 </div>
 
 <div class="main-content">
+    <!-- Mobile Menu Button -->
+    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" style="
+        display:none;position:fixed;bottom:20px;left:20px;z-index:99;
+        width:55px;height:55px;border-radius:50%;
+        background:linear-gradient(135deg,#e91e63,#ff6f00);
+        color:white;border:none;font-size:24px;cursor:pointer;
+        box-shadow:0 4px 20px rgba(233,30,99,0.4);
+    ">☰</button>
+
     <div class="topbar">
         <div>
             <h1 id="page-title">📊 Dashboard</h1>
@@ -560,6 +622,37 @@ document.addEventListener('click',function(e){if(!e.target.closest('.notif-btn')
 function fmtItems(s){try{var i=JSON.parse(s.replace(/'/g,'"'));return i.map(function(x){return x.name+' x'+x.quantity}).join(', ')}catch(e){return s}}
 function copyTrans(id){if(!id||id==='N/A')return;if(navigator.clipboard)navigator.clipboard.writeText(id).then(function(){toast('Copied: '+id,'success')});else toast('ID: '+id,'success')}
 function prevImg(input,pid){var p=document.getElementById(pid);if(input.files&&input.files[0]){var r=new FileReader();r.onload=function(e){p.innerHTML='<img src="'+e.target.result+'" />'};r.readAsDataURL(input.files[0])}}
+// MOBILE MENU
+function toggleMobileMenu(){
+    var sidebar=document.querySelector('.sidebar');
+    if(sidebar.style.width==='270px'){
+        sidebar.style.width='0';sidebar.style.padding='0';
+    }else{
+        sidebar.style.width='270px';sidebar.style.padding='30px 20px';
+        sidebar.style.position='fixed';sidebar.style.zIndex='200';
+        sidebar.style.borderRadius='0 30px 30px 0';
+    }
+}
+
+// Show mobile menu button on small screens
+function checkMobileMenu(){
+    var btn=document.getElementById('mobile-menu-btn');
+    if(window.innerWidth<=900){btn.style.display='block'}
+    else{btn.style.display='none';var sb=document.querySelector('.sidebar');sb.style.width='';sb.style.padding=''}
+}
+window.addEventListener('resize',checkMobileMenu);
+checkMobileMenu();
+
+// Close sidebar when clicking a menu item on mobile
+document.querySelectorAll('.nav-menu a').forEach(function(a){
+    a.addEventListener('click',function(){
+        if(window.innerWidth<=900){
+            var sb=document.querySelector('.sidebar');
+            sb.style.width='0';sb.style.padding='0';
+        }
+    });
+});
+
 function toast(m,t){var x=document.getElementById('toast');x.textContent=m;x.className='toast '+t+' show';setTimeout(function(){x.classList.remove('show')},3500)}
 </script>
 </body>
