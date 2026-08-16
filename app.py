@@ -271,6 +271,23 @@ def create_tables():
                                 conn.commit()
                             except Exception:
                                 pass
+                    # Add archive column to orders
+                    try:
+                        conn.execute(db.text(
+                            "ALTER TABLE orders ADD COLUMN IF NOT EXISTS "
+                            "is_archived BOOLEAN DEFAULT FALSE"
+                        ))
+                        conn.commit()
+                    except Exception:
+                        try:
+                            conn.execute(db.text(
+                                "ALTER TABLE orders ADD COLUMN "
+                                "is_archived BOOLEAN DEFAULT FALSE"
+                            ))
+                            conn.commit()
+                        except Exception:
+                            pass
+
                     # Add stock columns to items table
                     for icol, idefn in [
                         ("stock_quantity",  "INTEGER DEFAULT 0"),
@@ -896,15 +913,27 @@ def get_orders():
     if not session.get("admin_logged_in"):
         return jsonify([])
     try:
+        show = request.args.get("show", "active")
+
+        if show == "archived":
+            where = "WHERE COALESCE(is_archived, FALSE) = TRUE"
+        elif show == "all":
+            where = ""
+        else:
+            where = "WHERE COALESCE(is_archived, FALSE) = FALSE"
+
+        query = """
+            SELECT id, customer_name, customer_phone,
+                   customer_address, items, total_price,
+                   status, payment_status, transaction_id,
+                   momo_number, date_ordered, delivered_at, user_id
+            FROM orders
+            """ + where + """
+            ORDER BY date_ordered DESC
+        """
+
         with db.engine.connect() as conn:
-            rows = conn.execute(db.text("""
-                SELECT id, customer_name, customer_phone,
-                       customer_address, items, total_price,
-                       status, payment_status, transaction_id,
-                       momo_number, date_ordered, delivered_at, user_id
-                FROM orders
-                ORDER BY date_ordered DESC
-            """)).fetchall()
+            rows = conn.execute(db.text(query)).fetchall()
 
         result = []
         for o in rows:
@@ -930,7 +959,6 @@ def get_orders():
         return jsonify(result)
     except Exception as e:
         print("Get orders error:", e)
-        traceback.print_exc()
         return jsonify([])
 
 @app.route("/api/orders/status/<int:order_id>", methods=["POST"])
@@ -1714,6 +1742,83 @@ def track_order(order_id):
             "total":    order.total_price,
             "items":    order.items,
             "steps":    steps
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+# ==============================
+# ARCHIVE ORDERS
+# ==============================
+
+@app.route("/api/orders/archive/<int:order_id>", methods=["POST"])
+def archive_order(order_id):
+    """Archive a single completed order"""
+    if not session.get("admin_logged_in"):
+        return jsonify({"success": False}), 401
+    try:
+        # Only allow archiving completed orders
+        with db.engine.connect() as conn:
+            order = conn.execute(db.text(
+                "SELECT status FROM orders WHERE id = :id"
+            ), {"id": order_id}).fetchone()
+
+            if not order:
+                return jsonify({"success": False, "message": "Order not found!"}), 404
+
+            archivable = ["Delivered", "Cancelled", "Refunded", "Dispute Rejected"]
+            if order[0] not in archivable:
+                return jsonify({
+                    "success": False,
+                    "message": "Can only archive completed orders! Status: " + order[0]
+                }), 400
+
+            conn.execute(db.text(
+                "UPDATE orders SET is_archived = TRUE WHERE id = :id"
+            ), {"id": order_id})
+            conn.commit()
+
+        return jsonify({"success": True, "message": "Order archived!"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route("/api/orders/unarchive/<int:order_id>", methods=["POST"])
+def unarchive_order(order_id):
+    """Restore an archived order"""
+    if not session.get("admin_logged_in"):
+        return jsonify({"success": False}), 401
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(db.text(
+                "UPDATE orders SET is_archived = FALSE WHERE id = :id"
+            ), {"id": order_id})
+            conn.commit()
+        return jsonify({"success": True, "message": "Order restored!"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route("/api/orders/archive-completed", methods=["POST"])
+def archive_all_completed():
+    """Archive all completed orders at once"""
+    if not session.get("admin_logged_in"):
+        return jsonify({"success": False}), 401
+    try:
+        with db.engine.connect() as conn:
+            # Only archive truly completed orders
+            # Delivered = customer confirmed receipt
+            # Cancelled = admin cancelled
+            # Refunded = admin approved refund
+            # Dispute Rejected = admin rejected dispute
+            # NOT Awaiting Delivery = customer hasn't confirmed yet
+            result = conn.execute(db.text(
+                "UPDATE orders SET is_archived = TRUE "
+                "WHERE status IN ('Delivered', 'Cancelled', 'Refunded', 'Dispute Rejected') "
+                "AND COALESCE(is_archived, FALSE) = FALSE"
+            ))
+            conn.commit()
+            count = result.rowcount
+        return jsonify({
+            "success": True,
+            "message": str(count) + " orders archived!"
         })
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500

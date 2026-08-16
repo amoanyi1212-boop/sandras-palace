@@ -294,7 +294,16 @@
     <!-- ORDERS -->
     <div class="section" id="section-orders">
         <div class="card">
-            <div class="card-header"><h2>🛒 All Orders</h2><button class="btn btn-primary btn-sm" onclick="loadOrders()">🔄</button></div>
+            <div class="card-header">
+                <h2 id="orders-title">🛒 Active Orders</h2>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+                    <button class="btn btn-sm" id="btn-active" onclick="loadOrders('active')" style="background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;padding:6px 14px;font-size:12px">📋 Active</button>
+                    <button class="btn btn-sm" id="btn-archived" onclick="loadOrders('archived')" style="background:#fce4ec;color:#c2185b;padding:6px 14px;font-size:12px">📦 Archived</button>
+                    <button class="btn btn-sm" id="btn-all" onclick="loadOrders('all')" style="background:#fce4ec;color:#c2185b;padding:6px 14px;font-size:12px">🗂️ All</button>
+                    <button class="btn btn-warning btn-sm" onclick="archiveAllDone()" style="padding:6px 14px;font-size:12px">📦 Archive Done</button>
+                    <button class="btn btn-primary btn-sm" onclick="loadOrders()" style="padding:6px 14px;font-size:12px">🔄</button>
+                </div>
+            </div>
             <div class="table-wrapper">
                 <table>
                     <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>Address</th><th>Items</th><th>Total</th><th>Paid To</th><th>Trans ID</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
@@ -541,8 +550,15 @@ document.getElementById('editForm').addEventListener('submit',function(e){
 document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeModal()});
 
 // ORDERS
-function loadOrders(){
-    fetch('/api/orders').then(function(r){return r.json()}).then(function(orders){
+var currentOV='active';
+
+function loadOrders(view){
+    if(view)currentOV=view;else view=currentOV;
+    var btns={active:document.getElementById('btn-active'),archived:document.getElementById('btn-archived'),all:document.getElementById('btn-all')};
+    for(var k in btns){if(btns[k]){btns[k].style.background=k===view?'linear-gradient(135deg,#e91e63,#ff6f00)':'#fce4ec';btns[k].style.color=k===view?'white':'#c2185b'}}
+    var titles={active:'🛒 Active Orders',archived:'📦 Archived Orders',all:'🗂️ All Orders'};
+    var t=document.getElementById('orders-title');if(t)t.textContent=titles[view]||'🛒 Orders';
+    fetch('/api/orders?show='+view.then(function(r){return r.json()}).then(function(orders){
         allOrders=orders;var tb=document.getElementById('orders-body');
         if(orders.length===0){tb.innerHTML='<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">📭</div><p>No orders</p></div></td></tr>';return}
         tb.innerHTML=orders.map(function(o){
@@ -564,12 +580,17 @@ function loadOrders(){
 }
 
 function getActions(o){
-    if(o.status==='Delivered')return'<span style="color:#43a047;font-weight:800;font-size:12px">✅ Complete</span>';
-    if(o.status==='Cancelled')return'<span style="color:#e53935;font-weight:800;font-size:12px">❌ Cancelled</span>';
+    // Archived view - show restore button
+    if(currentOV==='archived'){
+        return'<button class="btn btn-sm btn-info" onclick="unarchiveOrd('+o.id+')" style="padding:4px 10px;font-size:11px">📤 Restore</button>';
+    }
+
+    if(o.status==='Delivered')return'<span style="color:#43a047;font-weight:800;font-size:12px">✅ Complete</span> <button class="btn btn-sm" onclick="archiveOrd('+o.id+')" style="background:#fce4ec;color:#c2185b;padding:4px 8px;font-size:10px">📦</button>';
+    if(o.status==='Cancelled')return'<span style="color:#e53935;font-weight:800;font-size:12px">❌ Cancelled</span> <button class="btn btn-sm" onclick="archiveOrd('+o.id+')" style="background:#fce4ec;color:#c2185b;padding:4px 8px;font-size:10px">📦</button>';
     if(o.status==='Awaiting Delivery')return'<span style="color:#1976d2;font-weight:800;font-size:12px">📦 Awaiting Customer</span>';
     if(o.status==='Disputed')return'<button class="btn btn-warning btn-sm" onclick="openDisputeRes('+o.id+')">⚠️ Resolve</button>';
-    if(o.status==='Refunded')return'<span style="color:#2e7d32;font-weight:800;font-size:12px">💰 Refunded</span>';
-    if(o.status==='Dispute Rejected')return'<span style="color:#c62828;font-weight:800;font-size:12px">❌ Rejected</span>';
+    if(o.status==='Refunded')return'<span style="color:#2e7d32;font-weight:800;font-size:12px">💰 Refunded</span> <button class="btn btn-sm" onclick="archiveOrd('+o.id+')" style="background:#fce4ec;color:#c2185b;padding:4px 8px;font-size:10px">📦</button>';
+    if(o.status==='Dispute Rejected')return'<span style="color:#c62828;font-weight:800;font-size:12px">❌ Rejected</span> <button class="btn btn-sm" onclick="archiveOrd('+o.id+')" style="background:#fce4ec;color:#c2185b;padding:4px 8px;font-size:10px">📦</button>';
     if(o.status==='Pending')return'<button class="btn btn-success btn-sm" onclick="updateStatus('+o.id+',\'Confirmed\')">✅ Confirm</button> <button class="btn btn-danger btn-sm" onclick="updateStatus('+o.id+',\'Cancelled\')">❌</button>';
     if(o.status==='Confirmed')return'<button class="btn btn-info btn-sm" onclick="updateStatus('+o.id+',\'Delivered\')">📦 Delivered</button>';
     return'';
@@ -767,6 +788,36 @@ function loadReports(){
             }).join('');
         }
     }).catch(function(){});
+}
+
+// ARCHIVE FUNCTIONS
+function archiveOrd(id){
+    if(!confirm('Archive this order?'))return;
+    fetch('/api/orders/archive/'+id,{method:'POST'})
+    .then(function(r){return r.json()})
+    .then(function(d){
+        if(d.success){toast('📦 '+d.message,'success');loadOrders()}
+        else toast(d.message||'Error!','error');
+    }).catch(function(){toast('Error!','error')});
+}
+
+function unarchiveOrd(id){
+    fetch('/api/orders/unarchive/'+id,{method:'POST'})
+    .then(function(r){return r.json()})
+    .then(function(d){
+        if(d.success){toast('📤 '+d.message,'success');loadOrders()}
+        else toast(d.message||'Error!','error');
+    }).catch(function(){toast('Error!','error')});
+}
+
+function archiveAllDone(){
+    if(!confirm('Archive all completed orders?\n\nThis includes:\n✅ Delivered (customer confirmed)\n❌ Cancelled\n💰 Refunded\n❌ Dispute Rejected\n\nNOT: Awaiting Delivery'))return;
+    fetch('/api/orders/archive-completed',{method:'POST'})
+    .then(function(r){return r.json()})
+    .then(function(d){
+        if(d.success){toast('📦 '+d.message,'success');loadOrders()}
+        else toast(d.message||'Error!','error');
+    }).catch(function(){toast('Error!','error')});
 }
 
 function toast(m,t){var x=document.getElementById('toast');x.textContent=m;x.className='toast '+t+' show';setTimeout(function(){x.classList.remove('show')},3500)}
