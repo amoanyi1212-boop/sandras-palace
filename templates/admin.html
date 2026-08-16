@@ -8,718 +8,1045 @@
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Nunito',sans-serif}
         body{background:#fff5f7;color:#333}
-        .sidebar{position:fixed;left:0;top:0;width:270px;height:100vh;background:linear-gradient(180deg,#e91e63,#c2185b,#880e4f);padding:30px 20px;z-index:100;overflow-y:auto;border-radius:0 30px 30px 0}
-        .sidebar-logo{text-align:center;margin-bottom:40px;padding-bottom:25px;border-bottom:2px solid rgba(255,255,255,0.2)}
-        .sidebar-logo .icon{font-size:50px;animation:bounce 2s ease infinite}
-        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-        .sidebar-logo h2{font-family:'Fredoka One',cursive;color:white;font-size:22px;margin-top:10px}
-        .sidebar-logo p{color:rgba(255,255,255,0.6);font-size:12px;font-weight:700}
+
+        /* SIDEBAR */
+        .sidebar{position:fixed;left:0;top:0;width:250px;height:100vh;background:linear-gradient(180deg,#e91e63,#c2185b,#880e4f);padding:25px 15px;z-index:50;overflow-y:auto}
+        .logo-area{text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid rgba(255,255,255,0.2)}
+        .logo-area .icon{font-size:45px}
+        .logo-area h2{font-family:'Fredoka One',cursive;color:white;font-size:20px;margin-top:8px}
+        .logo-area p{color:rgba(255,255,255,0.5);font-size:11px;font-weight:700}
         .nav-menu{list-style:none}
-        .nav-menu li{margin-bottom:8px}
-        .nav-menu li a{display:flex;align-items:center;gap:12px;padding:14px 18px;color:rgba(255,255,255,0.8);text-decoration:none;border-radius:15px;font-size:15px;font-weight:700;transition:all 0.3s;cursor:pointer}
-        .nav-menu li a:hover,.nav-menu li a.active{background:rgba(255,255,255,0.2);color:white;transform:translateX(5px)}
-        .logout-btn{display:flex;align-items:center;gap:12px;padding:14px 18px;color:#ffcdd2!important;border-radius:15px;font-size:15px;font-weight:700;margin-top:25px;cursor:pointer;background:none;border:none;width:100%}
-        .logout-btn:hover{background:rgba(255,255,255,0.15)!important}
-        .main-content{margin-left:270px;padding:30px;min-height:100vh}
-        .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;gap:15px}
-        .topbar-left h1{font-family:'Fredoka One',cursive;font-size:26px;color:#c2185b}
-        .topbar-left p{color:#aaa;font-size:13px;font-weight:700;margin-top:3px}
-        .notif-area{position:relative;flex-shrink:0}
-        .notif-btn{background:linear-gradient(135deg,#e91e63,#ff6f00);border:none;border-radius:15px;padding:12px 20px;color:white;font-size:18px;cursor:pointer;font-weight:800;position:relative}
-        .notif-count{position:absolute;top:-5px;right:-5px;background:#e53935;color:white;width:22px;height:22px;border-radius:50%;font-size:11px;display:none;align-items:center;justify-content:center;font-weight:800}
-        .notif-dropdown{display:none;position:absolute;right:0;top:55px;background:white;border-radius:20px;width:360px;max-height:430px;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.15);border:3px solid #fce4ec;z-index:500}
-        .notif-dropdown.show{display:block}
-        .notif-hdr{padding:16px 18px;background:#fff0f3;border-radius:17px 17px 0 0;display:flex;justify-content:space-between;align-items:center}
-        .notif-hdr span{font-family:'Fredoka One',cursive;color:#c2185b;font-size:15px}
-        .notif-hdr button{background:none;border:none;color:#e91e63;font-size:12px;font-weight:800;cursor:pointer}
-        .notif-item{padding:12px 16px;border-bottom:2px solid #fce4ec;cursor:pointer}
-        .notif-item:hover{background:#fff0f3}
-        .notif-item.unread{background:#fff0f3}
-        .ni-title{font-weight:800;color:#c2185b;font-size:13px;margin-bottom:3px}
-        .ni-msg{font-size:12px;color:#666;font-weight:600}
-        .ni-time{font-size:10px;color:#aaa;margin-top:4px;font-weight:700}
-        .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:15px;margin-bottom:25px}
-        .stat-card{background:white;border-radius:18px;padding:20px;box-shadow:0 4px 20px rgba(233,30,99,0.08);display:flex;align-items:center;gap:12px;transition:all 0.3s;border:2px solid transparent;cursor:pointer}
-        .stat-card:hover{transform:translateY(-4px);border-color:#e91e63}
-        .stat-icon{width:55px;height:55px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
-        .stat-icon.pink{background:#fce4ec}.stat-icon.green{background:#e8f5e9}.stat-icon.red{background:#ffebee}.stat-icon.yellow{background:#fff8e1}.stat-icon.blue{background:#e3f2fd}
-        .stat-info h3{font-family:'Fredoka One',cursive;font-size:26px;color:#c2185b}
-        .stat-info p{font-size:12px;color:#aaa;font-weight:700}
-        .section{display:none !important}.section.active{display:block !important}
-        .modal-overlay{z-index:9999 !important}
-        .modal-overlay.show{display:flex !important}
-        .card{background:white;border-radius:22px;padding:25px;box-shadow:0 4px 20px rgba(233,30,99,0.08);margin-bottom:22px;border:2px solid #fce4ec}
-        .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:10px}
-        .card-header h2{font-family:'Fredoka One',cursive;font-size:20px;color:#c2185b}
-        .btn{padding:9px 20px;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;font-family:'Nunito'}
-        .btn:hover{transform:translateY(-1px)}
-        .btn-primary{background:linear-gradient(135deg,#e91e63,#ff6f00);color:white}
-        .btn-success{background:linear-gradient(135deg,#43a047,#66bb6a);color:white}
-        .btn-danger{background:linear-gradient(135deg,#e53935,#ef5350);color:white}
-        .btn-warning{background:linear-gradient(135deg,#fb8c00,#ffa726);color:white}
-        .btn-info{background:linear-gradient(135deg,#1976d2,#42a5f5);color:white}
-        .btn-ghost{background:#fce4ec;color:#c2185b;border:none}
-        .btn-ghost:hover{background:#e91e63;color:white}
-        .btn-sm{padding:6px 12px;font-size:12px}
-        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-        .form-group{margin-bottom:18px}
-        .form-group.full-width{grid-column:1/-1}
-        .form-group label{display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px}
-        .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:'Nunito';transition:border-color 0.2s}
-        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#e91e63;background:white}
-        .form-group textarea{resize:vertical;min-height:90px}
-        .upload-area{border:3px dashed #fce4ec;border-radius:16px;padding:30px;text-align:center;cursor:pointer;background:#fffbfc;transition:all 0.2s}
-        .upload-area:hover{border-color:#e91e63;background:#fff0f3}
-        .upload-area .uicon{font-size:40px;margin-bottom:8px}
-        .upload-area p{color:#aaa;font-size:13px;font-weight:700}
-        .img-preview{margin-top:12px}
-        .img-preview img{max-width:140px;max-height:140px;border-radius:12px;object-fit:cover;border:3px solid #fce4ec}
-        .search-bar{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap}
-        .search-bar input{flex:1;padding:12px 16px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;font-family:'Nunito';min-width:180px}
-        .search-bar input:focus{border-color:#e91e63}
-        .search-bar select{padding:12px 16px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Nunito';outline:none}
-        .items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
-        .item-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 4px 15px rgba(233,30,99,0.08);transition:all 0.3s;border:3px solid transparent}
-        .item-card:hover{transform:translateY(-4px);border-color:#e91e63}
-        .item-card.oos{opacity:0.65;border-color:#ef5350}
-        .item-img{width:100%;height:170px;object-fit:cover;background:#fff0f3}
-        .item-info{padding:15px}
-        .item-info h3{font-family:'Fredoka One',cursive;font-size:15px;color:#c2185b;margin-bottom:4px}
-        .item-cat{font-size:11px;color:#aaa;font-weight:700;margin-bottom:6px}
-        .item-price{font-family:'Fredoka One',cursive;font-size:18px;color:#e91e63;margin-bottom:8px}
-        .stock-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:10px}
-        .sb-in{background:#e8f5e9;color:#43a047}
-        .sb-out{background:#ffebee;color:#e53935}
-        .item-actions{display:flex;gap:6px;flex-wrap:wrap}
-        .tbl-wrap{overflow-x:auto}
-        table{width:100%;border-collapse:collapse;min-width:750px}
-        th{background:#fff0f3;padding:12px 10px;text-align:left;font-size:11px;font-weight:800;color:#c2185b;border-bottom:3px solid #fce4ec;white-space:nowrap}
-        td{padding:11px 10px;border-bottom:2px solid #fce4ec;font-size:11px;font-weight:600;vertical-align:middle}
-        tr:hover td{background:#fffbfc}
-        .badge{padding:4px 10px;border-radius:18px;font-size:10px;font-weight:800;display:inline-block;white-space:nowrap}
-        .b-pending{background:#fff8e1;color:#f9a825}
-        .b-confirmed{background:#e3f2fd;color:#1976d2}
-        .b-delivered{background:#e8f5e9;color:#43a047}
-        .b-cancelled{background:#ffebee;color:#e53935}
-        .b-awaiting{background:#e3f2fd;color:#1976d2}
-        .b-disputed{background:#fff3e0;color:#e65100}
-        .b-refunded{background:#e8f5e9;color:#2e7d32}
-        .b-rejected{background:#fce4ec;color:#c62828}
-        .b-trans{background:#e3f2fd;color:#1976d2;cursor:pointer}
-        .b-trans:hover{background:#1976d2;color:white}
-        .b-momo{background:#fff8e1;color:#f57f17}
-        .arc-btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-        .arc-btn{padding:6px 14px;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito';transition:all 0.2s}
-        .arc-btn.on{background:linear-gradient(135deg,#e91e63,#ff6f00);color:white}
-        .arc-btn.off{background:#fce4ec;color:#c2185b}
-        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-        .modal-overlay.show{display:flex !important}
-        .modal{background:white;border-radius:26px;padding:30px;width:92%;max-width:580px;max-height:90vh;overflow-y:auto;animation:popIn 0.3s ease;border:3px solid #fce4ec}
-        @keyframes popIn{from{opacity:0;transform:scale(0.82)}to{opacity:1;transform:scale(1)}}
-        .modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-        .modal-hdr h2{font-family:'Fredoka One',cursive;font-size:20px;color:#c2185b}
-        .modal-x{background:#ffebee;border:none;font-size:18px;cursor:pointer;color:#e53935;width:33px;height:33px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-        .modal-x:hover{background:#e53935;color:white}
-        .act-opt{display:flex;align-items:center;gap:12px;padding:13px;border-radius:12px;cursor:pointer;margin-bottom:8px}
-        .act-opt input[type=radio]{width:18px;height:18px;cursor:pointer;flex-shrink:0}
-        .act-title{font-weight:800;font-size:13px}
-        .act-desc{font-size:11px;color:#666;font-weight:600}
-        .toast{position:fixed;bottom:25px;right:25px;padding:14px 22px;border-radius:14px;color:white;font-weight:800;font-size:14px;z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.4s;font-family:'Nunito'}
+        .nav-menu li{margin-bottom:5px}
+        .nav-menu li a{display:flex;align-items:center;gap:10px;padding:12px 15px;color:rgba(255,255,255,0.8);text-decoration:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s}
+        .nav-menu li a:hover,.nav-menu li a.active{background:rgba(255,255,255,0.2);color:white}
+        .nav-logout{display:flex;align-items:center;gap:10px;padding:12px 15px;color:#ffcdd2;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;background:none;border:none;width:100%;margin-top:20px}
+        .nav-logout:hover{background:rgba(255,255,255,0.1)}
+
+        /* MOBILE MENU TOGGLE */
+        .menu-toggle{display:none;position:fixed;bottom:20px;left:20px;z-index:200;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 15px rgba(233,30,99,0.4)}
+
+        /* MAIN */
+        .main{margin-left:250px;padding:25px;min-height:100vh}
+        .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:10px;flex-wrap:wrap}
+        .topbar h1{font-family:'Fredoka One',cursive;font-size:24px;color:#c2185b}
+        .topbar p{color:#aaa;font-size:12px;font-weight:700}
+
+        /* NOTIFICATION */
+        .notif-wrap{position:relative}
+        .notif-btn{background:linear-gradient(135deg,#e91e63,#ff6f00);border:none;border-radius:12px;padding:10px 18px;color:white;font-size:16px;cursor:pointer;position:relative}
+        .notif-badge{position:absolute;top:-5px;right:-5px;background:#e53935;color:white;width:20px;height:20px;border-radius:50%;font-size:10px;display:none;align-items:center;justify-content:center;font-weight:800}
+        .notif-box{display:none;position:absolute;right:0;top:48px;background:white;border-radius:16px;width:320px;max-height:400px;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,0.15);border:2px solid #fce4ec;z-index:300}
+        .notif-box.open{display:block}
+        .notif-box-hdr{padding:14px 16px;background:#fff0f3;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center}
+        .notif-box-hdr span{font-family:'Fredoka One',cursive;color:#c2185b;font-size:14px}
+        .notif-box-hdr button{background:none;border:none;color:#e91e63;font-size:11px;font-weight:800;cursor:pointer}
+        .notif-row{padding:10px 14px;border-bottom:1px solid #fce4ec;cursor:pointer;font-size:12px}
+        .notif-row:hover{background:#fff0f3}
+        .notif-row.unread{background:#fff0f3}
+        .notif-row .nt{font-weight:800;color:#c2185b;margin-bottom:2px}
+        .notif-row .nm{color:#666;font-weight:600}
+        .notif-row .nd{color:#aaa;font-size:10px;margin-top:3px;font-weight:700}
+
+        /* STATS */
+        .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+        .stat{background:white;border-radius:16px;padding:18px 14px;box-shadow:0 3px 15px rgba(233,30,99,0.07);display:flex;align-items:center;gap:10px;cursor:pointer;border:2px solid transparent;transition:all 0.2s}
+        .stat:hover{border-color:#e91e63;transform:translateY(-3px)}
+        .stat-ico{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+        .si-pink{background:#fce4ec}.si-green{background:#e8f5e9}.si-red{background:#ffebee}.si-yellow{background:#fff8e1}.si-blue{background:#e3f2fd}
+        .stat-val{font-family:'Fredoka One',cursive;font-size:24px;color:#c2185b}
+        .stat-lbl{font-size:11px;color:#aaa;font-weight:700}
+
+        /* SECTIONS */
+        .sec{display:none}
+        .sec.on{display:block}
+
+        /* CARD */
+        .card{background:white;border-radius:18px;padding:20px;box-shadow:0 3px 15px rgba(233,30,99,0.07);margin-bottom:18px;border:2px solid #fce4ec}
+        .card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+        .card-hdr h2{font-family:'Fredoka One',cursive;font-size:18px;color:#c2185b}
+
+        /* BUTTONS */
+        .btn{padding:8px 16px;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito';display:inline-flex;align-items:center;gap:5px;transition:all 0.2s}
+        .btn:hover{opacity:0.9;transform:translateY(-1px)}
+        .bp{background:linear-gradient(135deg,#e91e63,#ff6f00);color:white}
+        .bs{background:linear-gradient(135deg,#43a047,#66bb6a);color:white}
+        .bd{background:linear-gradient(135deg,#e53935,#ef5350);color:white}
+        .bw{background:linear-gradient(135deg,#fb8c00,#ffa726);color:white}
+        .bi{background:linear-gradient(135deg,#1976d2,#42a5f5);color:white}
+        .bg{background:#fce4ec;color:#c2185b}
+        .bg:hover{background:#e91e63;color:white}
+
+        /* FORM */
+        .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+        .fg{margin-bottom:15px}
+        .fg.fw{grid-column:1/-1}
+        .fg label{display:block;font-size:12px;font-weight:800;color:#555;margin-bottom:6px}
+        .fg input,.fg select,.fg textarea{width:100%;padding:10px 12px;border:2px solid #fce4ec;border-radius:10px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:'Nunito'}
+        .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:#e91e63;background:white}
+        .fg textarea{resize:vertical;min-height:80px}
+        .upload-box{border:2px dashed #fce4ec;border-radius:12px;padding:25px;text-align:center;cursor:pointer;background:#fffbfc}
+        .upload-box:hover{border-color:#e91e63;background:#fff0f3}
+        .upload-box .ui{font-size:35px;margin-bottom:6px}
+        .upload-box p{color:#aaa;font-size:12px;font-weight:700}
+        .img-prev{margin-top:10px}
+        .img-prev img{max-width:120px;max-height:120px;border-radius:10px;object-fit:cover;border:2px solid #fce4ec}
+
+        /* SEARCH BAR */
+        .sbar{display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap}
+        .sbar input{flex:1;padding:10px 14px;border:2px solid #fce4ec;border-radius:10px;font-size:12px;font-weight:600;outline:none;font-family:'Nunito';min-width:150px}
+        .sbar input:focus{border-color:#e91e63}
+        .sbar select{padding:10px 14px;border:2px solid #fce4ec;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Nunito';outline:none}
+
+        /* ITEMS GRID */
+        .igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px}
+        .icard{background:white;border-radius:14px;overflow:hidden;box-shadow:0 3px 12px rgba(233,30,99,0.07);border:2px solid transparent;transition:all 0.2s}
+        .icard:hover{border-color:#e91e63;transform:translateY(-3px)}
+        .icard.oos{opacity:0.6;border-color:#ef5350}
+        .icard img{width:100%;height:150px;object-fit:cover;background:#fff0f3}
+        .icard-body{padding:12px}
+        .icard-body h3{font-family:'Fredoka One',cursive;font-size:14px;color:#c2185b;margin-bottom:3px}
+        .icard-cat{font-size:10px;color:#aaa;font-weight:700;margin-bottom:5px}
+        .icard-price{font-family:'Fredoka One',cursive;font-size:16px;color:#e91e63;margin-bottom:6px}
+        .icard-stock{display:inline-block;padding:3px 10px;border-radius:15px;font-size:10px;font-weight:800;margin-bottom:8px}
+        .sin{background:#e8f5e9;color:#43a047}
+        .sout{background:#ffebee;color:#e53935}
+        .icard-acts{display:flex;gap:5px;flex-wrap:wrap}
+
+        /* TABLE */
+        .twrap{overflow-x:auto}
+        .twrap table{width:100%;border-collapse:collapse;min-width:600px}
+        .twrap th{background:#fff0f3;padding:10px 8px;text-align:left;font-size:10px;font-weight:800;color:#c2185b;border-bottom:2px solid #fce4ec;white-space:nowrap}
+        .twrap td{padding:10px 8px;border-bottom:1px solid #fce4ec;font-size:10px;font-weight:600;vertical-align:middle}
+        .twrap tr:hover td{background:#fffbfc}
+
+        /* BADGES */
+        .bdg{padding:3px 8px;border-radius:12px;font-size:9px;font-weight:800;display:inline-block;white-space:nowrap}
+        .bpend{background:#fff8e1;color:#f9a825}
+        .bconf{background:#e3f2fd;color:#1976d2}
+        .bdel{background:#e8f5e9;color:#43a047}
+        .bcan{background:#ffebee;color:#e53935}
+        .bawt{background:#e3f2fd;color:#1976d2}
+        .bdis{background:#fff3e0;color:#e65100}
+        .bref{background:#e8f5e9;color:#2e7d32}
+        .brej{background:#fce4ec;color:#c62828}
+        .btrans{background:#e3f2fd;color:#1976d2;cursor:pointer}
+        .btrans:hover{background:#1976d2;color:white}
+        .bmomo{background:#fff8e1;color:#f57f17}
+
+        /* ARCHIVE BUTTONS */
+        .arc-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+        .arcbtn{padding:5px 12px;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Nunito'}
+        .arcbtn.on{background:linear-gradient(135deg,#e91e63,#ff6f00);color:white}
+        .arcbtn.off{background:#fce4ec;color:#c2185b}
+
+        /* MODAL */
+        .moverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+        .moverlay.open{display:flex}
+        .mbox{background:white;border-radius:20px;padding:25px;width:95%;max-width:560px;max-height:88vh;overflow-y:auto;border:2px solid #fce4ec}
+        .mhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+        .mhdr h2{font-family:'Fredoka One',cursive;font-size:18px;color:#c2185b}
+        .mclose{background:#ffebee;border:none;color:#e53935;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center}
+        .mclose:hover{background:#e53935;color:white}
+
+        /* DISPUTE OPTIONS */
+        .dopt{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;cursor:pointer;margin-bottom:8px}
+        .dopt input[type=radio]{width:16px;height:16px;cursor:pointer}
+        .dopt-title{font-weight:800;font-size:12px}
+        .dopt-desc{font-size:10px;color:#666;font-weight:600}
+
+        /* TOAST */
+        .toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:12px;color:white;font-weight:800;font-size:13px;z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.3s;font-family:'Nunito';max-width:300px}
         .toast.show{transform:translateY(0);opacity:1}
-        .toast.success{background:linear-gradient(135deg,#43a047,#66bb6a)}
-        .toast.error{background:linear-gradient(135deg,#e53935,#ef5350)}
-        .empty-state{text-align:center;padding:50px 20px;color:#aaa}
-        .empty-state .eico{font-size:55px;margin-bottom:12px}
-        .empty-state p{font-size:14px;font-weight:700}
-        @media(max-width:900px){.sidebar{width:0;overflow:hidden;border-radius:0}.main-content{margin-left:0}.stats-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}}
+        .tsuccess{background:linear-gradient(135deg,#43a047,#66bb6a)}
+        .terror{background:linear-gradient(135deg,#e53935,#ef5350)}
+
+        /* EMPTY */
+        .empty{text-align:center;padding:40px 15px;color:#aaa}
+        .empty .ei{font-size:45px;margin-bottom:10px}
+        .empty p{font-size:13px;font-weight:700}
+
+        /* RESPONSIVE */
+        @media(max-width:900px){
+            .sidebar{transform:translateX(-100%);transition:transform 0.3s;border-radius:0 20px 20px 0}
+            .sidebar.mobile-open{transform:translateX(0)}
+            .main{margin-left:0;padding:15px}
+            .menu-toggle{display:flex;align-items:center;justify-content:center}
+            .stats{grid-template-columns:repeat(3,1fr)}
+            .fgrid{grid-template-columns:1fr}
+            .topbar h1{font-size:20px}
+        }
+        @media(max-width:500px){
+            .stats{grid-template-columns:1fr 1fr}
+            .igrid{grid-template-columns:1fr 1fr}
+            .arc-row{flex-wrap:wrap}
+        }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="sidebar-logo">
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="logo-area">
         <div class="icon">👑</div>
         <h2>Esirifuah's Palace</h2>
         <p>✨ Admin Panel</p>
     </div>
     <ul class="nav-menu">
-        <li><a onclick="showSec('dashboard')" class="active" id="nav-dashboard">📊 Dashboard</a></li>
-        <li><a onclick="showSec('add-item')" id="nav-add-item">➕ Add Item</a></li>
-        <li><a onclick="showSec('manage-items')" id="nav-manage-items">📦 Items</a></li>
-        <li><a onclick="showSec('orders')" id="nav-orders">🛒 Orders</a></li>
-        <li><a onclick="showSec('users')" id="nav-users">👥 Users</a></li>
-        <li><a onclick="showSec('coupons')" id="nav-coupons">🎟️ Coupons</a></li>
-        <li><a onclick="showSec('reports')" id="nav-reports">📊 Reports</a></li>
+        <li><a id="nav-dashboard"    onclick="go('dashboard')">   📊 Dashboard</a></li>
+        <li><a id="nav-add-item"     onclick="go('add-item')">     ➕ Add Item</a></li>
+        <li><a id="nav-manage-items" onclick="go('manage-items')"> 📦 Items</a></li>
+        <li><a id="nav-orders"       onclick="go('orders')">       🛒 Orders</a></li>
+        <li><a id="nav-users"        onclick="go('users')">        👥 Users</a></li>
+        <li><a id="nav-coupons"      onclick="go('coupons')">      🎟️ Coupons</a></li>
+        <li><a id="nav-reports"      onclick="go('reports')">      📊 Reports</a></li>
     </ul>
-    <button class="logout-btn" onclick="if(confirm('Logout?'))window.location='/admin/logout'">🚪 Logout</button>
+    <button class="nav-logout" onclick="if(confirm('Logout?'))window.location='/admin/logout'">🚪 Logout</button>
 </div>
 
-<div class="main-content">
+<!-- MOBILE TOGGLE -->
+<button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+
+<!-- MAIN -->
+<div class="main" id="mainContent">
     <div class="topbar">
-        <div class="topbar-left">
+        <div>
             <h1 id="pg-title">📊 Dashboard</h1>
             <p id="pg-sub">Overview</p>
         </div>
-        <div class="notif-area">
-            <button class="notif-btn" onclick="toggleNotifs()">🔔 <span class="notif-count" id="notif-count">0</span></button>
-            <div class="notif-dropdown" id="notif-dropdown">
-                <div class="notif-hdr"><span>🔔 Notifications</span><button onclick="markAllRead()">Mark all read</button></div>
-                <div id="notif-list"><div class="empty-state" style="padding:25px"><p>No notifications</p></div></div>
+        <div class="notif-wrap">
+            <button class="notif-btn" onclick="toggleNotif()">
+                🔔 <span class="notif-badge" id="nbadge">0</span>
+            </button>
+            <div class="notif-box" id="notif-box">
+                <div class="notif-box-hdr">
+                    <span>🔔 Notifications</span>
+                    <button onclick="readAll()">Mark all read</button>
+                </div>
+                <div id="nlist"><div class="empty" style="padding:20px"><p>No notifications</p></div></div>
             </div>
         </div>
     </div>
 
     <!-- DASHBOARD -->
-    <div class="section active" id="section-dashboard">
-        <div class="stats-grid">
-            <div class="stat-card" onclick="showSec('manage-items')"><div class="stat-icon pink">📦</div><div class="stat-info"><h3 id="s-items">0</h3><p>Items</p></div></div>
-            <div class="stat-card" onclick="showSec('manage-items');setTimeout(function(){document.getElementById('f-stock').value='true';filterItems()},150)"><div class="stat-icon green">✅</div><div class="stat-info"><h3 id="s-in">0</h3><p>In Stock</p></div></div>
-            <div class="stat-card" onclick="showSec('manage-items');setTimeout(function(){document.getElementById('f-stock').value='false';filterItems()},150)"><div class="stat-icon red">❌</div><div class="stat-info"><h3 id="s-out">0</h3><p>Out of Stock</p></div></div>
-            <div class="stat-card" onclick="showSec('orders')"><div class="stat-icon yellow">🛒</div><div class="stat-info"><h3 id="s-orders">0</h3><p>Orders</p></div></div>
-            <div class="stat-card" onclick="showSec('users')"><div class="stat-icon blue">👥</div><div class="stat-info"><h3 id="s-users">0</h3><p>Users</p></div></div>
+    <div class="sec on" id="sec-dashboard">
+        <div class="stats">
+            <div class="stat" onclick="go('manage-items')"><div class="stat-ico si-pink">📦</div><div><div class="stat-val" id="si">0</div><div class="stat-lbl">Items</div></div></div>
+            <div class="stat" onclick="go('manage-items');setTimeout(function(){document.getElementById('fstock').value='true';fi()},200)"><div class="stat-ico si-green">✅</div><div><div class="stat-val" id="sin">0</div><div class="stat-lbl">In Stock</div></div></div>
+            <div class="stat" onclick="go('manage-items');setTimeout(function(){document.getElementById('fstock').value='false';fi()},200)"><div class="stat-ico si-red">❌</div><div><div class="stat-val" id="sout">0</div><div class="stat-lbl">Out</div></div></div>
+            <div class="stat" onclick="go('orders')"><div class="stat-ico si-yellow">🛒</div><div><div class="stat-val" id="sord">0</div><div class="stat-lbl">Orders</div></div></div>
+            <div class="stat" onclick="go('users')"><div class="stat-ico si-blue">👥</div><div><div class="stat-val" id="susr">0</div><div class="stat-lbl">Users</div></div></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:22px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
             <div class="card">
-                <div class="card-header"><h2>📋 Recent Orders</h2><button class="btn btn-primary btn-sm" onclick="showSec('orders')">View All</button></div>
-                <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Trans</th><th>Status</th></tr></thead><tbody id="dash-orders"><tr><td colspan="5"><div class="empty-state"><div class="eico">📭</div><p>No orders</p></div></td></tr></tbody></table></div>
+                <div class="card-hdr"><h2>📋 Recent Orders</h2><button class="btn bp" onclick="go('orders')">View All</button></div>
+                <div class="twrap"><table><thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Trans</th><th>Status</th></tr></thead><tbody id="d-orders"><tr><td colspan="5"><div class="empty"><div class="ei">📭</div><p>No orders</p></div></td></tr></tbody></table></div>
             </div>
             <div class="card">
-                <div class="card-header"><h2>👥 Recent Users</h2><button class="btn btn-primary btn-sm" onclick="showSec('users')">View All</button></div>
-                <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Orders</th></tr></thead><tbody id="dash-users"><tr><td colspan="4"><div class="empty-state"><div class="eico">👥</div><p>No users</p></div></td></tr></tbody></table></div>
+                <div class="card-hdr"><h2>👥 Recent Users</h2><button class="btn bp" onclick="go('users')">View All</button></div>
+                <div class="twrap"><table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Orders</th></tr></thead><tbody id="d-users"><tr><td colspan="4"><div class="empty"><div class="ei">👥</div><p>No users</p></div></td></tr></tbody></table></div>
             </div>
         </div>
         <div class="card" id="oos-card" style="display:none">
-            <div class="card-header"><h2>⚠️ Out of Stock Items</h2></div>
-            <div class="items-grid" id="oos-grid"></div>
+            <div class="card-hdr"><h2>⚠️ Out of Stock</h2></div>
+            <div class="igrid" id="oos-grid"></div>
         </div>
     </div>
 
     <!-- ADD ITEM -->
-    <div class="section" id="section-add-item">
+    <div class="sec" id="sec-add-item">
         <div class="card">
-            <div class="card-header"><h2>➕ Add New Item</h2></div>
+            <div class="card-hdr"><h2>➕ Add New Item</h2></div>
             <form id="addForm" enctype="multipart/form-data">
-                <div class="form-grid">
-                    <div class="form-group"><label>✨ Name *</label><input type="text" id="a-name" placeholder="Item name" required /></div>
-                    <div class="form-group"><label>💰 Price (GH₵) *</label><input type="number" id="a-price" placeholder="0.00" step="0.01" min="0" required /></div>
-                    <div class="form-group"><label>📁 Category</label><select id="a-cat"><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select></div>
-                    <div class="form-group"><label>📦 Stock Quantity</label><input type="number" id="a-qty" placeholder="0" min="0" value="0" /></div>
-                    <div class="form-group"><label>⚠️ Low Stock Alert</label><input type="number" id="a-low" placeholder="5" min="1" value="5" /></div>
-                    <div class="form-group"><label>📊 Status</label><select id="a-stock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select></div>
-                    <div class="form-group full-width"><label>📝 Description</label><textarea id="a-desc" placeholder="Describe this item..."></textarea></div>
-                    <div class="form-group full-width"><label>📷 Image</label>
-                        <div class="upload-area" onclick="document.getElementById('a-img').click()"><div class="uicon">📷</div><p>Click to upload</p></div>
-                        <input type="file" id="a-img" accept="image/*" style="display:none" onchange="prevImg(this,'a-prev')" />
-                        <div class="img-preview" id="a-prev"></div>
+                <div class="fgrid">
+                    <div class="fg"><label>✨ Name *</label><input type="text" id="an" placeholder="Item name" required /></div>
+                    <div class="fg"><label>💰 Price (GH₵) *</label><input type="number" id="ap" placeholder="0.00" step="0.01" min="0" required /></div>
+                    <div class="fg"><label>📁 Category</label><select id="ac"><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select></div>
+                    <div class="fg"><label>📦 Stock Qty</label><input type="number" id="aq" min="0" value="0" /></div>
+                    <div class="fg"><label>⚠️ Low Stock Alert</label><input type="number" id="al" min="1" value="5" /></div>
+                    <div class="fg"><label>📊 Status</label><select id="as"><option value="true">In Stock</option><option value="false">Out of Stock</option></select></div>
+                    <div class="fg fw"><label>📝 Description</label><textarea id="ad" placeholder="Describe this item..."></textarea></div>
+                    <div class="fg fw"><label>📷 Image</label>
+                        <div class="upload-box" onclick="document.getElementById('aimg').click()"><div class="ui">📷</div><p>Click to upload</p></div>
+                        <input type="file" id="aimg" accept="image/*" style="display:none" onchange="previewImg(this,'aprev')" />
+                        <div class="img-prev" id="aprev"></div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="margin-top:5px">✨ Add Item</button>
+                <button type="submit" class="btn bp" style="margin-top:8px">✨ Add Item</button>
             </form>
         </div>
     </div>
 
     <!-- MANAGE ITEMS -->
-    <div class="section" id="section-manage-items">
+    <div class="sec" id="sec-manage-items">
         <div class="card">
-            <div class="card-header"><h2>📦 Manage Items</h2><button class="btn btn-primary btn-sm" onclick="loadItems()">🔄 Refresh</button></div>
-            <div class="search-bar">
-                <input type="text" id="f-search" placeholder="🔍 Search items..." oninput="filterItems()" />
-                <select id="f-cat" onchange="filterItems()"><option value="all">All Categories</option><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select>
-                <select id="f-stock" onchange="filterItems()"><option value="all">All Stock</option><option value="true">In Stock</option><option value="false">Out of Stock</option></select>
+            <div class="card-hdr"><h2>📦 Items</h2><button class="btn bp" onclick="loadItems()">🔄</button></div>
+            <div class="sbar">
+                <input type="text" id="fsearch" placeholder="🔍 Search..." oninput="fi()" />
+                <select id="fcat" onchange="fi()"><option value="all">All Categories</option><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select>
+                <select id="fstock" onchange="fi()"><option value="all">All Stock</option><option value="true">In Stock</option><option value="false">Out of Stock</option></select>
             </div>
-            <div class="items-grid" id="items-grid"><div class="empty-state" style="grid-column:1/-1"><div class="eico">📦</div><p>No items</p></div></div>
+            <div class="igrid" id="items-grid"><div class="empty" style="grid-column:1/-1"><div class="ei">📦</div><p>No items</p></div></div>
         </div>
     </div>
 
     <!-- ORDERS -->
-    <div class="section" id="section-orders">
+    <div class="sec" id="sec-orders">
         <div class="card">
-            <div class="card-header">
+            <div class="card-hdr">
                 <h2 id="ord-title">🛒 Active Orders</h2>
-                <div class="arc-btns">
-                    <button class="arc-btn on" id="arc-active" onclick="loadOrders('active')">📋 Active</button>
-                    <button class="arc-btn off" id="arc-archived" onclick="loadOrders('archived')">📦 Archived</button>
-                    <button class="arc-btn off" id="arc-all" onclick="loadOrders('all')">🗂️ All</button>
-                    <button class="btn btn-warning btn-sm" onclick="archiveAllDone()">📦 Archive Done</button>
-                    <button class="btn btn-primary btn-sm" onclick="loadOrders()">🔄</button>
+                <div class="arc-row">
+                    <button class="arcbtn on" id="arc-active"   onclick="loadOrders('active')">📋 Active</button>
+                    <button class="arcbtn off" id="arc-archived" onclick="loadOrders('archived')">📦 Archived</button>
+                    <button class="arcbtn off" id="arc-all"      onclick="loadOrders('all')">🗂️ All</button>
+                    <button class="btn bw" onclick="archiveDone()">📦 Archive Done</button>
+                    <button class="btn bp" onclick="loadOrders()">🔄</button>
                 </div>
             </div>
-            <div class="tbl-wrap">
+            <div class="twrap">
                 <table>
                     <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>Address</th><th>Items</th><th>Total</th><th>Paid To</th><th>Trans ID</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
-                    <tbody id="ord-body"><tr><td colspan="11"><div class="empty-state"><div class="eico">📭</div><p>No orders</p></div></td></tr></tbody>
+                    <tbody id="ord-body"><tr><td colspan="11"><div class="empty"><div class="ei">📭</div><p>No orders</p></div></td></tr></tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <!-- USERS -->
-    <div class="section" id="section-users">
+    <div class="sec" id="sec-users">
         <div class="card">
-            <div class="card-header"><h2>👥 Registered Users</h2><button class="btn btn-primary btn-sm" onclick="loadUsers()">🔄 Refresh</button></div>
-            <div class="tbl-wrap">
+            <div class="card-hdr"><h2>👥 Users</h2><button class="btn bp" onclick="loadUsers()">🔄</button></div>
+            <div class="twrap">
                 <table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Orders</th><th>Joined</th></tr></thead>
-                <tbody id="usr-body"><tr><td colspan="7"><div class="empty-state"><div class="eico">👥</div><p>No users</p></div></td></tr></tbody></table>
+                <tbody id="usr-body"><tr><td colspan="7"><div class="empty"><div class="ei">👥</div><p>No users</p></div></td></tr></tbody>
+            </table></div>
         </div>
     </div>
 
     <!-- COUPONS -->
-    <div class="section" id="section-coupons">
-        <div class="card" style="display:block !important;visibility:visible !important">
-            <div class="card-header"><h2>🎟️ Create Coupon</h2></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
-                <div style="margin-bottom:18px">
-                    <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">Code *</label>
-                    <input type="text" id="cp-code" placeholder="e.g. SAVE20" style="width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:Nunito;text-transform:uppercase" />
+    <div class="sec" id="sec-coupons">
+        <div class="card">
+            <div class="card-hdr"><h2>🎟️ Create Coupon</h2></div>
+            <div class="fgrid">
+                <div class="fg">
+                    <label>Code *</label>
+                    <input type="text" id="cpcode" placeholder="e.g. SAVE20" style="text-transform:uppercase" />
                 </div>
-                <div style="margin-bottom:18px">
-                    <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">Type</label>
-                    <select id="cp-type" style="width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:Nunito;cursor:pointer">
+                <div class="fg">
+                    <label>Type</label>
+                    <select id="cptype">
                         <option value="percentage">Percentage (%)</option>
-                        <option value="fixed">Fixed Amount (GH₵)</option>
+                        <option value="fixed">Fixed (GH₵)</option>
                     </select>
                 </div>
-                <div style="margin-bottom:18px">
-                    <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">Discount Value *</label>
-                    <input type="number" id="cp-val" placeholder="e.g. 20" min="0.01" step="0.01" style="width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:Nunito" />
+                <div class="fg">
+                    <label>Discount Value *</label>
+                    <input type="number" id="cpval" placeholder="e.g. 20" min="0.01" step="0.01" />
                 </div>
-                <div style="margin-bottom:18px">
-                    <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">Min Order (GH₵)</label>
-                    <input type="number" id="cp-min" placeholder="0" min="0" value="0" style="width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:Nunito" />
+                <div class="fg">
+                    <label>Min Order (GH₵)</label>
+                    <input type="number" id="cpmin" placeholder="0" min="0" value="0" />
                 </div>
-                <div style="margin-bottom:18px">
-                    <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">Max Uses (0 = unlimited)</label>
-                    <input type="number" id="cp-max" placeholder="0" min="0" value="0" style="width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:Nunito" />
+                <div class="fg">
+                    <label>Max Uses (0=unlimited)</label>
+                    <input type="number" id="cpmax" placeholder="0" min="0" value="0" />
                 </div>
-                <div style="margin-bottom:18px">
-                    <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">Expires On</label>
-                    <input type="date" id="cp-exp" style="width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:Nunito" />
+                <div class="fg">
+                    <label>Expires On</label>
+                    <input type="date" id="cpexp" />
                 </div>
             </div>
-            <button class="btn btn-primary" id="create-coupon-btn" onclick="createCoupon()" style="margin-top:10px">🎟️ Create Coupon</button>
+            <button class="btn bp" id="cpbtn" onclick="createCoupon()">🎟️ Create Coupon</button>
         </div>
         <div class="card">
-            <div class="card-header"><h2>📋 All Coupons</h2><button class="btn btn-primary btn-sm" onclick="loadCoupons()">🔄</button></div>
-            <div class="tbl-wrap">
-                <table><thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Min Order</th><th>Used</th><th>Max</th><th>Status</th><th>Expires</th><th>Actions</th></tr></thead>
-                <tbody id="cpn-body"><tr><td colspan="9"><div class="empty-state"><p>No coupons yet</p></div></td></tr></tbody></table>
+            <div class="card-hdr"><h2>📋 All Coupons</h2><button class="btn bp" onclick="loadCoupons()">🔄</button></div>
+            <div class="twrap">
+                <table>
+                    <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Min</th><th>Used</th><th>Max</th><th>Status</th><th>Expires</th><th>Action</th></tr></thead>
+                    <tbody id="cpn-body"><tr><td colspan="9"><div class="empty"><p>No coupons yet</p></div></td></tr></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <!-- REPORTS -->
-    <div class="section" id="section-reports">
-        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
-            <div class="stat-card"><div class="stat-icon yellow">💰</div><div class="stat-info"><h3 id="r-total" style="font-size:18px">GH₵0</h3><p>Total Revenue</p></div></div>
-            <div class="stat-card"><div class="stat-icon green">📅</div><div class="stat-info"><h3 id="r-today" style="font-size:18px">GH₵0</h3><p>Today</p></div></div>
-            <div class="stat-card"><div class="stat-icon blue">📆</div><div class="stat-info"><h3 id="r-week" style="font-size:18px">GH₵0</h3><p>This Week</p></div></div>
-            <div class="stat-card"><div class="stat-icon pink">🗓️</div><div class="stat-info"><h3 id="r-month" style="font-size:18px">GH₵0</h3><p>This Month</p></div></div>
+    <div class="sec" id="sec-reports">
+        <div class="stats" style="grid-template-columns:repeat(4,1fr)">
+            <div class="stat"><div class="stat-ico si-yellow">💰</div><div><div class="stat-val" id="rtotal" style="font-size:16px">GH₵0</div><div class="stat-lbl">Total Revenue</div></div></div>
+            <div class="stat"><div class="stat-ico si-green">📅</div><div><div class="stat-val" id="rtoday" style="font-size:16px">GH₵0</div><div class="stat-lbl">Today</div></div></div>
+            <div class="stat"><div class="stat-ico si-blue">📆</div><div><div class="stat-val" id="rweek" style="font-size:16px">GH₵0</div><div class="stat-lbl">This Week</div></div></div>
+            <div class="stat"><div class="stat-ico si-pink">🗓️</div><div><div class="stat-val" id="rmonth" style="font-size:16px">GH₵0</div><div class="stat-lbl">This Month</div></div></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
             <div class="card">
-                <div class="card-header"><h2>📊 Order Stats</h2></div>
-                <div style="display:flex;gap:10px;flex-wrap:wrap">
-                    <div style="flex:1;min-width:90px;background:#e8f5e9;border-radius:12px;padding:15px;text-align:center"><div style="font-family:'Fredoka One',cursive;font-size:26px;color:#43a047" id="r-done">0</div><div style="font-size:11px;font-weight:800;color:#666">Completed</div></div>
-                    <div style="flex:1;min-width:90px;background:#fff8e1;border-radius:12px;padding:15px;text-align:center"><div style="font-family:'Fredoka One',cursive;font-size:26px;color:#f9a825" id="r-pend">0</div><div style="font-size:11px;font-weight:800;color:#666">Pending</div></div>
-                    <div style="flex:1;min-width:90px;background:#ffebee;border-radius:12px;padding:15px;text-align:center"><div style="font-family:'Fredoka One',cursive;font-size:26px;color:#e53935" id="r-canc">0</div><div style="font-size:11px;font-weight:800;color:#666">Cancelled</div></div>
+                <div class="card-hdr"><h2>📊 Order Stats</h2></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <div style="flex:1;min-width:80px;background:#e8f5e9;border-radius:10px;padding:12px;text-align:center"><div style="font-family:'Fredoka One',cursive;font-size:22px;color:#43a047" id="rdone">0</div><div style="font-size:10px;font-weight:800;color:#666">Completed</div></div>
+                    <div style="flex:1;min-width:80px;background:#fff8e1;border-radius:10px;padding:12px;text-align:center"><div style="font-family:'Fredoka One',cursive;font-size:22px;color:#f9a825" id="rpend">0</div><div style="font-size:10px;font-weight:800;color:#666">Pending</div></div>
+                    <div style="flex:1;min-width:80px;background:#ffebee;border-radius:10px;padding:12px;text-align:center"><div style="font-family:'Fredoka One',cursive;font-size:22px;color:#e53935" id="rcanc">0</div><div style="font-size:10px;font-weight:800;color:#666">Cancelled</div></div>
                 </div>
             </div>
             <div class="card">
-                <div class="card-header"><h2>🏆 Best Sellers</h2></div>
-                <div id="r-best"><p style="color:#aaa;text-align:center;padding:20px;font-weight:700">No data yet</p></div>
+                <div class="card-hdr"><h2>🏆 Best Sellers</h2></div>
+                <div id="rbest"><p style="color:#aaa;text-align:center;padding:15px;font-weight:700">No data yet</p></div>
             </div>
         </div>
-        <div class="card" style="margin-top:22px">
-            <div class="card-header"><h2>📈 Daily Sales (Last 7 Days)</h2><button class="btn btn-primary btn-sm" onclick="loadReports()">🔄</button></div>
-            <div id="r-chart" style="display:flex;gap:10px;align-items:flex-end;height:180px;padding:10px 0"><div class="empty-state" style="width:100%"><p>No data</p></div></div>
+        <div class="card" style="margin-top:18px">
+            <div class="card-hdr"><h2>📈 Daily Sales (7 Days)</h2><button class="btn bp" onclick="loadReports()">🔄</button></div>
+            <div id="rchart" style="display:flex;gap:8px;align-items:flex-end;height:150px;padding:8px 0"><div class="empty" style="width:100%"><p>No data</p></div></div>
         </div>
     </div>
 </div>
 
-<!-- EDIT ITEM MODAL -->
-<div class="modal-overlay" id="editModal">
-    <div class="modal">
-        <div class="modal-hdr"><h2>✏️ Edit Item</h2><button class="modal-x" onclick="closeEditModal()">✕</button></div>
+<!-- ==================== -->
+<!-- EDIT ITEM MODAL      -->
+<!-- ==================== -->
+<div class="moverlay" id="editModal">
+    <div class="mbox">
+        <div class="mhdr">
+            <h2>✏️ Edit Item</h2>
+            <button class="mclose" onclick="closeEdit()">✕</button>
+        </div>
         <form id="editForm" enctype="multipart/form-data">
-            <input type="hidden" id="e-id" />
-            <div class="form-grid">
-                <div class="form-group"><label>Name *</label><input type="text" id="e-name" required /></div>
-                <div class="form-group"><label>Price (GH₵) *</label><input type="number" id="e-price" step="0.01" min="0" required /></div>
-                <div class="form-group"><label>Category</label><select id="e-cat"><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select></div>
-                <div class="form-group"><label>Stock Quantity</label><input type="number" id="e-qty" min="0" value="0" /></div>
-                <div class="form-group"><label>Low Stock Alert</label><input type="number" id="e-low" min="1" value="5" /></div>
-                <div class="form-group"><label>Status</label><select id="e-stock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select></div>
-                <div class="form-group full-width"><label>Description</label><textarea id="e-desc"></textarea></div>
-                <div class="form-group full-width"><label>Image (leave empty to keep current)</label>
-                    <div class="upload-area" onclick="document.getElementById('e-img').click()"><div class="uicon">📷</div><p>Click to change image</p></div>
-                    <input type="file" id="e-img" accept="image/*" style="display:none" onchange="prevImg(this,'e-prev')" />
-                    <div class="img-preview" id="e-prev"></div>
+            <input type="hidden" id="eid" />
+            <div class="fgrid">
+                <div class="fg"><label>Name *</label><input type="text" id="ename" required /></div>
+                <div class="fg"><label>Price (GH₵) *</label><input type="number" id="eprice" step="0.01" min="0" required /></div>
+                <div class="fg"><label>Category</label><select id="ecat"><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select></div>
+                <div class="fg"><label>Stock Qty</label><input type="number" id="eqty" min="0" value="0" /></div>
+                <div class="fg"><label>Low Stock Alert</label><input type="number" id="elow" min="1" value="5" /></div>
+                <div class="fg"><label>Status</label><select id="estatus"><option value="true">In Stock</option><option value="false">Out of Stock</option></select></div>
+                <div class="fg fw"><label>Description</label><textarea id="edesc"></textarea></div>
+                <div class="fg fw"><label>Image (leave empty to keep)</label>
+                    <div class="upload-box" onclick="document.getElementById('eimg').click()"><div class="ui">📷</div><p>Click to change</p></div>
+                    <input type="file" id="eimg" accept="image/*" style="display:none" onchange="previewImg(this,'eprev')" />
+                    <div class="img-prev" id="eprev"></div>
                 </div>
             </div>
-            <div style="display:flex;gap:10px;margin-top:10px">
-                <button type="submit" class="btn btn-primary">💾 Save Changes</button>
-                <button type="button" class="btn btn-danger" onclick="closeEditModal()">Cancel</button>
+            <div style="display:flex;gap:8px;margin-top:10px">
+                <button type="submit" class="btn bp">💾 Save</button>
+                <button type="button" class="btn bd" onclick="closeEdit()">Cancel</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- DISPUTE MODAL -->
-<div class="modal-overlay" id="drModal">
-    <div class="modal">
-        <div class="modal-hdr"><h2>⚠️ Resolve Dispute</h2><button class="modal-x" onclick="document.getElementById('drModal').classList.remove('show')">✕</button></div>
-        <div style="background:#fff0f3;border-radius:14px;padding:15px;margin-bottom:15px;border:2px solid #fce4ec">
-            <h3 style="font-family:'Fredoka One',cursive;color:#c2185b;font-size:15px;margin-bottom:6px" id="dr-title">Order #0</h3>
-            <p id="dr-cust" style="font-size:13px;font-weight:700;color:#555;margin-bottom:3px"></p>
-            <p id="dr-itms" style="font-size:12px;color:#888;font-weight:600;margin-bottom:3px"></p>
-            <p id="dr-tot" style="font-family:'Fredoka One',cursive;color:#e91e63;font-size:17px"></p>
+<!-- ==================== -->
+<!-- DISPUTE MODAL        -->
+<!-- ==================== -->
+<div class="moverlay" id="drModal">
+    <div class="mbox">
+        <div class="mhdr">
+            <h2>⚠️ Resolve Dispute</h2>
+            <button class="mclose" onclick="closeDR()">✕</button>
         </div>
-        <div style="background:#fff3e0;border-radius:14px;padding:15px;margin-bottom:15px;border:2px solid #f9a825">
-            <h3 style="font-family:'Fredoka One',cursive;color:#e65100;font-size:13px;margin-bottom:5px">⚠️ Customer Reason:</h3>
-            <p id="dr-reason" style="font-size:13px;color:#555;font-weight:600;font-style:italic">"No reason provided"</p>
+        <div style="background:#fff0f3;border-radius:12px;padding:12px;margin-bottom:12px;border:2px solid #fce4ec">
+            <h3 style="font-family:'Fredoka One',cursive;color:#c2185b;font-size:14px;margin-bottom:4px" id="dr-title">Order #0</h3>
+            <p id="dr-cust" style="font-size:12px;font-weight:700;color:#555;margin-bottom:2px"></p>
+            <p id="dr-itms" style="font-size:11px;color:#888;font-weight:600;margin-bottom:2px"></p>
+            <p id="dr-tot" style="font-family:'Fredoka One',cursive;color:#e91e63;font-size:15px"></p>
         </div>
-        <div style="margin-bottom:16px">
-            <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:8px">Choose Action:</label>
-            <div class="act-opt" style="background:#e8f5e9" onclick="document.getElementById('dr-r1').checked=true;drActVal='refund'"><input type="radio" name="dract" id="dr-r1" /><div><div class="act-title" style="color:#2e7d32">💰 Approve Refund</div><div class="act-desc">Customer gets money back</div></div></div>
-            <div class="act-opt" style="background:#e3f2fd" onclick="document.getElementById('dr-r2').checked=true;drActVal='redeliver'"><input type="radio" name="dract" id="dr-r2" /><div><div class="act-title" style="color:#1976d2">📦 Redeliver Order</div><div class="act-desc">Send order again</div></div></div>
-            <div class="act-opt" style="background:#ffebee" onclick="document.getElementById('dr-r3').checked=true;drActVal='no_refund'"><input type="radio" name="dract" id="dr-r3" /><div><div class="act-title" style="color:#c62828">❌ Reject Dispute</div><div class="act-desc">No refund after investigation</div></div></div>
+        <div style="background:#fff3e0;border-radius:12px;padding:12px;margin-bottom:12px;border:2px solid #f9a825">
+            <p style="font-family:'Fredoka One',cursive;color:#e65100;font-size:12px;margin-bottom:4px">⚠️ Customer Reason:</p>
+            <p id="dr-reason" style="font-size:12px;color:#555;font-weight:600;font-style:italic">"No reason"</p>
         </div>
-        <div style="margin-bottom:15px">
-            <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">💬 Admin Comment *</label>
-            <textarea id="dr-comment" placeholder="Write your decision..." style="width:100%;padding:12px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;font-family:'Nunito';min-height:90px;resize:vertical"></textarea>
-        </div>
+        <p style="font-size:12px;font-weight:800;color:#555;margin-bottom:8px">Choose Action:</p>
+        <div class="dopt" style="background:#e8f5e9" onclick="document.getElementById('dr1').checked=true;drAct='refund'"><input type="radio" name="dract" id="dr1" /><div><div class="dopt-title" style="color:#2e7d32">💰 Approve Refund</div><div class="dopt-desc">Customer gets money back</div></div></div>
+        <div class="dopt" style="background:#e3f2fd" onclick="document.getElementById('dr2').checked=true;drAct='redeliver'"><input type="radio" name="dract" id="dr2" /><div><div class="dopt-title" style="color:#1976d2">📦 Redeliver</div><div class="dopt-desc">Send order again</div></div></div>
+        <div class="dopt" style="background:#ffebee" onclick="document.getElementById('dr3').checked=true;drAct='no_refund'"><input type="radio" name="dract" id="dr3" /><div><div class="dopt-title" style="color:#c62828">❌ Reject Dispute</div><div class="dopt-desc">No refund after investigation</div></div></div>
+        <p style="font-size:12px;font-weight:800;color:#555;margin:10px 0 6px">💬 Admin Comment *</p>
+        <textarea id="dr-comment" placeholder="Write your decision..." style="width:100%;padding:10px;border:2px solid #fce4ec;border-radius:10px;font-size:12px;font-weight:600;outline:none;font-family:'Nunito';min-height:80px;resize:vertical;margin-bottom:10px"></textarea>
         <input type="hidden" id="dr-oid" />
-        <button onclick="submitDR()" id="dr-btn" style="width:100%;padding:14px;background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border:none;border-radius:13px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito'">✅ Submit Resolution</button>
+        <button id="dr-btn" onclick="submitDR()" style="width:100%;padding:12px;background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Nunito'">✅ Submit</button>
     </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-var allItems=[], allOrders=[], allUsers=[], lastNC=0, curOV='active', drActVal='';
+// ============================================================
+// STATE
+// ============================================================
+var items=[], orders=[], users=[], lastN=0, curView='active', drAct='';
 
-window.onload=function(){loadDashboard();loadNotifs();setInterval(loadNotifs,5000)};
+// ============================================================
+// INIT
+// ============================================================
+window.onload=function(){
+    go('dashboard');
+    loadNotifs();
+    setInterval(loadNotifs,5000);
+};
 
-function getImg(u){if(!u)return'/static/noimg.png';if(u.startsWith('http'))return u;if(u.startsWith('static/'))return'/'+u;return u}
+// ============================================================
+// MOBILE SIDEBAR
+// ============================================================
+function toggleSidebar(){
+    document.getElementById('sidebar').classList.toggle('mobile-open');
+}
+document.addEventListener('click',function(e){
+    if(window.innerWidth<=900 && !e.target.closest('#sidebar') && !e.target.closest('#menuToggle')){
+        document.getElementById('sidebar').classList.remove('mobile-open');
+    }
+});
 
-function getSC(s){
-    var m={'Pending':'b-pending','Confirmed':'b-confirmed','Delivered':'b-delivered','Cancelled':'b-cancelled','Awaiting Delivery':'b-awaiting','Disputed':'b-disputed','Refunded':'b-refunded','Dispute Rejected':'b-rejected'};
-    return m[s]||'b-pending';
+// ============================================================
+// NAVIGATION
+// ============================================================
+function go(sec){
+    // Hide all sections
+    document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on')});
+    // Remove active from nav
+    document.querySelectorAll('.nav-menu a').forEach(function(a){a.classList.remove('active')});
+    // Show target section
+    document.getElementById('sec-'+sec).classList.add('on');
+    // Activate nav item
+    var navEl=document.getElementById('nav-'+sec);
+    if(navEl)navEl.classList.add('active');
+    // Update title
+    var titles={
+        'dashboard':    ['📊 Dashboard','Overview'],
+        'add-item':     ['➕ Add Item','Add a new product'],
+        'manage-items': ['📦 Items','Manage your stock'],
+        'orders':       ['🛒 Orders','Manage orders'],
+        'users':        ['👥 Users','Registered customers'],
+        'coupons':      ['🎟️ Coupons','Discount codes'],
+        'reports':      ['📊 Reports','Sales analytics']
+    };
+    var t=titles[sec]||[sec,''];
+    document.getElementById('pg-title').textContent=t[0];
+    document.getElementById('pg-sub').textContent=t[1];
+    // Close mobile sidebar
+    if(window.innerWidth<=900){
+        document.getElementById('sidebar').classList.remove('mobile-open');
+    }
+    // Load data
+    if(sec==='dashboard')loadDashboard();
+    if(sec==='manage-items')loadItems();
+    if(sec==='orders')loadOrders();
+    if(sec==='users')loadUsers();
+    if(sec==='coupons')loadCoupons();
+    if(sec==='reports')loadReports();
 }
 
-function fmtItems(s){try{return JSON.parse(s.replace(/'/g,'"')).map(function(x){return x.name+' x'+x.quantity}).join(', ')}catch(e){return s}}
-
-function copyT(id){if(!id||id==='N/A')return;if(navigator.clipboard)navigator.clipboard.writeText(id).then(function(){toast('✅ Copied: '+id,'success')});else toast('ID: '+id,'success')}
-
-function prevImg(input,pid){var p=document.getElementById(pid);if(input.files&&input.files[0]){var r=new FileReader();r.onload=function(e){p.innerHTML='<img src="'+e.target.result+'" />'};r.readAsDataURL(input.files[0])}}
-
-function toast(m,t){var x=document.getElementById('toast');x.textContent=m;x.className='toast '+t+' show';setTimeout(function(){x.classList.remove('show')},3500)}
-
-function showSec(s){
-    document.querySelectorAll('.section').forEach(function(x){x.classList.remove('active')});
-    document.querySelectorAll('.nav-menu a').forEach(function(x){x.classList.remove('active')});
-    document.getElementById('section-'+s).classList.add('active');
-    document.getElementById('nav-'+s).classList.add('active');
-    var t={'dashboard':['📊 Dashboard','Overview'],'add-item':['➕ Add Item','Add product'],'manage-items':['📦 Items','Manage stock'],'orders':['🛒 Orders','Manage orders'],'users':['👥 Users','Customers'],'coupons':['🎟️ Coupons','Discount codes'],'reports':['📊 Reports','Analytics']};
-    var v=t[s]||[s,''];
-    document.getElementById('pg-title').textContent=v[0];
-    document.getElementById('pg-sub').textContent=v[1];
-    if(s==='dashboard')loadDashboard();
-    if(s==='manage-items')loadItems();
-    if(s==='orders')loadOrders();
-    if(s==='users')loadUsers();
-    if(s==='coupons')loadCoupons();
-    if(s==='reports')loadReports();
+// ============================================================
+// HELPERS
+// ============================================================
+function img(u){
+    if(!u)return'/static/noimg.png';
+    if(u.startsWith('http'))return u;
+    if(u.startsWith('static/'))return'/'+u;
+    return u;
+}
+function badge(s){
+    var m={'Pending':'bpend','Confirmed':'bconf','Delivered':'bdel','Cancelled':'bcan',
+           'Awaiting Delivery':'bawt','Disputed':'bdis','Refunded':'bref','Dispute Rejected':'brej'};
+    return m[s]||'bpend';
+}
+function fmtI(s){
+    try{return JSON.parse(s.replace(/'/g,'"')).map(function(x){return x.name+' x'+x.quantity}).join(', ')}
+    catch(e){return s}
+}
+function cpT(id){
+    if(!id||id==='N/A')return;
+    if(navigator.clipboard)navigator.clipboard.writeText(id).then(function(){toast('✅ Copied: '+id,'s')});
+    else toast('ID: '+id,'s');
+}
+function previewImg(inp,pid){
+    var p=document.getElementById(pid);
+    if(inp.files&&inp.files[0]){
+        var r=new FileReader();
+        r.onload=function(e){p.innerHTML='<img src="'+e.target.result+'" />'};
+        r.readAsDataURL(inp.files[0]);
+    }
+}
+function toast(m,t){
+    var x=document.getElementById('toast');
+    x.textContent=m;
+    x.className='toast '+(t==='s'?'tsuccess':'terror')+' show';
+    setTimeout(function(){x.classList.remove('show')},3000);
 }
 
+// ============================================================
+// DASHBOARD
+// ============================================================
 function loadDashboard(){
-    Promise.all([fetch('/api/items').then(function(r){return r.json()}),fetch('/api/orders?show=all').then(function(r){return r.json()}),fetch('/api/users').then(function(r){return r.json()})])
-    .then(function(res){
-        allItems=res[0];allOrders=res[1];allUsers=res[2];
-        document.getElementById('s-items').textContent=allItems.length;
-        document.getElementById('s-in').textContent=allItems.filter(function(i){return i.in_stock}).length;
-        document.getElementById('s-out').textContent=allItems.filter(function(i){return!i.in_stock}).length;
-        document.getElementById('s-orders').textContent=allOrders.length;
-        document.getElementById('s-users').textContent=allUsers.length;
-        var ro=allOrders.slice(0,5),otb=document.getElementById('dash-orders');
-        if(ro.length===0)otb.innerHTML='<tr><td colspan="5"><div class="empty-state"><div class="eico">📭</div><p>No orders</p></div></td></tr>';
-        else otb.innerHTML=ro.map(function(o){return'<tr><td style="font-weight:800;color:#c2185b">#'+o.id+'</td><td>'+o.customer_name+'</td><td style="font-family:Fredoka One,cursive;color:#e91e63">GH&#8373;'+o.total_price.toFixed(2)+'</td><td><span class="badge b-trans" onclick="copyT(\''+(o.transaction_id||'')+'\')">'+(o.transaction_id||'N/A')+'</span></td><td><span class="badge '+getSC(o.status)+'">'+o.status+'</span></td></tr>'}).join('');
-        var ru=allUsers.slice(-5).reverse(),utb=document.getElementById('dash-users');
-        if(ru.length===0)utb.innerHTML='<tr><td colspan="4"><div class="empty-state"><div class="eico">👥</div><p>No users</p></div></td></tr>';
-        else utb.innerHTML=ru.map(function(u){return'<tr><td style="font-weight:800;color:#c2185b">#'+u.id+'</td><td>'+u.fullname+'</td><td>'+u.email+'</td><td style="font-weight:800;color:#e91e63">'+u.order_count+'</td></tr>'}).join('');
-        var oos=allItems.filter(function(i){return!i.in_stock}),oc=document.getElementById('oos-card'),og=document.getElementById('oos-grid');
-        if(oos.length>0){oc.style.display='block';og.innerHTML=oos.map(function(i){return'<div class="item-card oos"><img class="item-img" src="'+getImg(i.image_url)+'" onerror="this.src=\'/static/noimg.png\'" /><div class="item-info"><h3>'+i.name+'</h3><p class="item-price">GH&#8373;'+i.price.toFixed(2)+'</p><button class="btn btn-success btn-sm" onclick="toggleStock('+i.id+');setTimeout(loadDashboard,1000)">✅ Restock</button></div></div>'}).join('')}
-        else oc.style.display='none';
-    }).catch(function(e){console.error('Dashboard:',e)});
+    Promise.all([
+        fetch('/api/items').then(function(r){return r.json()}),
+        fetch('/api/orders?show=all').then(function(r){return r.json()}),
+        fetch('/api/users').then(function(r){return r.json()})
+    ]).then(function(res){
+        items=res[0]; orders=res[1]; users=res[2];
+        document.getElementById('si').textContent=items.length;
+        document.getElementById('sin').textContent=items.filter(function(i){return i.in_stock}).length;
+        document.getElementById('sout').textContent=items.filter(function(i){return!i.in_stock}).length;
+        document.getElementById('sord').textContent=orders.length;
+        document.getElementById('susr').textContent=users.length;
+        // Recent orders
+        var ro=orders.slice(0,5),tb=document.getElementById('d-orders');
+        tb.innerHTML=ro.length===0?'<tr><td colspan="5"><div class="empty"><div class="ei">📭</div><p>No orders</p></div></td></tr>':
+        ro.map(function(o){return'<tr><td style="font-weight:800;color:#c2185b">#'+o.id+'</td><td>'+o.customer_name+'</td><td style="font-family:Fredoka One,cursive;color:#e91e63">GH&#8373;'+o.total_price.toFixed(2)+'</td><td><span class="bdg btrans" onclick="cpT(\''+(o.transaction_id||'')+'\')">'+( o.transaction_id||'N/A')+'</span></td><td><span class="bdg '+badge(o.status)+'">'+o.status+'</span></td></tr>'}).join('');
+        // Recent users
+        var ru=users.slice(-5).reverse(),ub=document.getElementById('d-users');
+        ub.innerHTML=ru.length===0?'<tr><td colspan="4"><div class="empty"><div class="ei">👥</div><p>No users</p></div></td></tr>':
+        ru.map(function(u){return'<tr><td style="font-weight:800;color:#c2185b">#'+u.id+'</td><td>'+u.fullname+'</td><td>'+u.email+'</td><td style="font-weight:800;color:#e91e63">'+u.order_count+'</td></tr>'}).join('');
+        // Out of stock
+        var oos=items.filter(function(i){return!i.in_stock});
+        document.getElementById('oos-card').style.display=oos.length>0?'block':'none';
+        if(oos.length>0){
+            document.getElementById('oos-grid').innerHTML=oos.map(function(i){
+                return'<div class="icard oos"><img src="'+img(i.image_url)+'" onerror="this.src=\'/static/noimg.png\'" /><div class="icard-body"><h3>'+i.name+'</h3><p class="icard-price">GH&#8373;'+i.price.toFixed(2)+'</p><button class="btn bs" onclick="toggleStock('+i.id+');setTimeout(loadDashboard,1000)">✅ Restock</button></div></div>';
+            }).join('');
+        }
+    }).catch(function(e){console.error('Dashboard error:',e)});
 }
 
+// ============================================================
+// ADD ITEM
+// ============================================================
 document.getElementById('addForm').addEventListener('submit',function(e){
     e.preventDefault();
     var fd=new FormData();
-    fd.append('name',document.getElementById('a-name').value);
-    fd.append('price',document.getElementById('a-price').value);
-    fd.append('category',document.getElementById('a-cat').value);
-    fd.append('stock_quantity',document.getElementById('a-qty').value);
-    fd.append('low_stock_alert',document.getElementById('a-low').value);
-    fd.append('in_stock',document.getElementById('a-stock').value);
-    fd.append('description',document.getElementById('a-desc').value);
-    var img=document.getElementById('a-img').files[0];if(img)fd.append('image',img);
-    fetch('/api/items/add',{method:'POST',body:fd}).then(function(r){return r.json()}).then(function(d){
-        if(d.success){toast('✅ '+d.message,'success');document.getElementById('addForm').reset();document.getElementById('a-prev').innerHTML=''}
-        else toast('❌ '+d.message,'error')}).catch(function(){toast('❌ Error!','error')});
+    fd.append('name',document.getElementById('an').value);
+    fd.append('price',document.getElementById('ap').value);
+    fd.append('category',document.getElementById('ac').value);
+    fd.append('stock_quantity',document.getElementById('aq').value);
+    fd.append('low_stock_alert',document.getElementById('al').value);
+    fd.append('in_stock',document.getElementById('as').value);
+    fd.append('description',document.getElementById('ad').value);
+    var imgf=document.getElementById('aimg').files[0];
+    if(imgf)fd.append('image',imgf);
+    fetch('/api/items/add',{method:'POST',body:fd})
+    .then(function(r){return r.json()})
+    .then(function(d){
+        if(d.success){toast('✅ '+d.message,'s');document.getElementById('addForm').reset();document.getElementById('aprev').innerHTML=''}
+        else toast('❌ '+d.message,'e');
+    }).catch(function(){toast('❌ Error!','e')});
 });
 
-function loadItems(){fetch('/api/items').then(function(r){return r.json()}).then(function(items){allItems=items;displayItems(items)}).catch(function(){toast('❌ Failed','error')})}
+// ============================================================
+// ITEMS
+// ============================================================
+function loadItems(){
+    fetch('/api/items')
+    .then(function(r){return r.json()})
+    .then(function(data){items=data;showItems(data)})
+    .catch(function(){toast('❌ Failed to load items','e')});
+}
 
-function displayItems(items){
+function showItems(data){
     var g=document.getElementById('items-grid');
-    if(items.length===0){g.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="eico">📦</div><p>No items</p></div>';return}
-    g.innerHTML=items.map(function(i){
-        var sq=i.stock_quantity||0,stk=i.in_stock?'✅ '+(sq>0?sq+' in stock':'In Stock'):'❌ Out ('+sq+')',sCls=i.in_stock?'sb-in':'sb-out';
-        return'<div class="item-card'+(i.in_stock?'':' oos')+'"><img class="item-img" src="'+getImg(i.image_url)+'" onerror="this.src=\'/static/noimg.png\'" /><div class="item-info"><h3>'+i.name+'</h3><p class="item-cat">📁 '+i.category+'</p><p class="item-price">GH&#8373;'+i.price.toFixed(2)+'</p><span class="stock-badge '+sCls+'">'+stk+'</span><div class="item-actions"><button class="btn btn-warning btn-sm" onclick="openEditModal('+i.id+')">✏️ Edit</button><button class="btn btn-sm '+(i.in_stock?'btn-danger':'btn-success')+'" onclick="toggleStock('+i.id+')">'+(i.in_stock?'❌':'✅')+'</button><button class="btn btn-danger btn-sm" onclick="delItem('+i.id+')">🗑️</button></div></div></div>';
+    if(data.length===0){g.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">📦</div><p>No items</p></div>';return}
+    g.innerHTML=data.map(function(i){
+        var sq=i.stock_quantity||0;
+        var stk=i.in_stock?'✅ '+(sq>0?sq+' in stock':'In Stock'):'❌ Out ('+sq+')';
+        var sc=i.in_stock?'sin':'sout';
+        return'<div class="icard'+(i.in_stock?'':' oos')+'">'
+            +'<img src="'+img(i.image_url)+'" onerror="this.src=\'/static/noimg.png\'" />'
+            +'<div class="icard-body">'
+            +'<h3>'+i.name+'</h3>'
+            +'<p class="icard-cat">📁 '+i.category+'</p>'
+            +'<p class="icard-price">GH&#8373;'+i.price.toFixed(2)+'</p>'
+            +'<span class="icard-stock '+sc+'">'+stk+'</span>'
+            +'<div class="icard-acts">'
+            +'<button class="btn bw" onclick="openEdit('+i.id+')">✏️ Edit</button>'
+            +'<button class="btn '+(i.in_stock?'bd':'bs')+'" onclick="toggleStock('+i.id+')">'+(i.in_stock?'❌':'✅')+'</button>'
+            +'<button class="btn bd" onclick="delItem('+i.id+')">🗑️</button>'
+            +'</div></div></div>';
     }).join('');
 }
 
-function filterItems(){
-    var s=document.getElementById('f-search').value.toLowerCase(),c=document.getElementById('f-cat').value,st=document.getElementById('f-stock').value;
-    displayItems(allItems.filter(function(i){return(i.name.toLowerCase().indexOf(s)>-1||(i.description||'').toLowerCase().indexOf(s)>-1)&&(c==='all'||i.category===c)&&(st==='all'||String(i.in_stock)===st)}));
+function fi(){
+    var s=document.getElementById('fsearch').value.toLowerCase();
+    var c=document.getElementById('fcat').value;
+    var st=document.getElementById('fstock').value;
+    showItems(items.filter(function(i){
+        return(i.name.toLowerCase().indexOf(s)>-1||(i.description||'').toLowerCase().indexOf(s)>-1)
+            &&(c==='all'||i.category===c)
+            &&(st==='all'||String(i.in_stock)===st);
+    }));
 }
 
-function toggleStock(id){fetch('/api/items/toggle/'+id,{method:'POST'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('✅ '+d.message,'success');loadItems()}else toast('❌ '+d.message,'error')})}
+function toggleStock(id){
+    fetch('/api/items/toggle/'+id,{method:'POST'})
+    .then(function(r){return r.json()})
+    .then(function(d){if(d.success){toast('✅ '+d.message,'s');loadItems()}else toast('❌ '+d.message,'e')});
+}
 
-function delItem(id){if(!confirm('Delete permanently?'))return;fetch('/api/items/delete/'+id,{method:'DELETE'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('✅ Deleted','success');loadItems()}else toast('❌ '+d.message,'error')})}
+function delItem(id){
+    if(!confirm('Delete this item permanently?'))return;
+    fetch('/api/items/delete/'+id,{method:'DELETE'})
+    .then(function(r){return r.json()})
+    .then(function(d){if(d.success){toast('✅ '+d.message,'s');loadItems()}else toast('❌ '+d.message,'e')});
+}
 
-function openEditModal(id){
-    // Load items if not loaded yet
-    if(allItems.length===0){
-        loadItems();
-        setTimeout(function(){openEditModal(id)},1000);
-        return;
-    }
-    var item=allItems.find(function(i){return i.id===id});
-    if(!item){
-        // Try fetching directly
-        fetch('/api/items').then(function(r){return r.json()}).then(function(items){
-            allItems=items;
-            var i=items.find(function(x){return x.id===id});
-            if(i){openEditModal(id)}else toast('❌ Item not found!','error');
+// ============================================================
+// EDIT MODAL - completely self-contained
+// ============================================================
+function openEdit(id){
+    // Reload items if empty
+    if(items.length===0){
+        fetch('/api/items').then(function(r){return r.json()}).then(function(data){
+            items=data;
+            openEdit(id);
         });
         return;
     }
-    document.getElementById('e-id').value=item.id;
-    document.getElementById('e-name').value=item.name||'';
-    document.getElementById('e-price').value=item.price||0;
-    document.getElementById('e-cat').value=item.category||'General';
-    document.getElementById('e-qty').value=item.stock_quantity||0;
-    document.getElementById('e-low').value=item.low_stock_alert||5;
-    document.getElementById('e-stock').value=String(item.in_stock);
-    document.getElementById('e-desc').value=item.description||'';
-    document.getElementById('e-prev').innerHTML='';
-    document.getElementById('e-img').value='';
-    // Force show modal
-    var modal=document.getElementById('editModal');
-    modal.style.display='flex';
-    modal.classList.add('show');
+    var item=items.find(function(i){return i.id===id});
+    if(!item){toast('❌ Item not found!','e');return}
+    // Fill form
+    document.getElementById('eid').value=item.id;
+    document.getElementById('ename').value=item.name||'';
+    document.getElementById('eprice').value=item.price||0;
+    document.getElementById('ecat').value=item.category||'General';
+    document.getElementById('eqty').value=item.stock_quantity||0;
+    document.getElementById('elow').value=item.low_stock_alert||5;
+    document.getElementById('estatus').value=String(item.in_stock);
+    document.getElementById('edesc').value=item.description||'';
+    document.getElementById('eprev').innerHTML='';
+    document.getElementById('eimg').value='';
+    // Show modal
+    document.getElementById('editModal').classList.add('open');
 }
 
-function closeEditModal(){
-    var modal=document.getElementById('editModal');
-    modal.style.display='none';
-    modal.classList.remove('show');
+function closeEdit(){
+    document.getElementById('editModal').classList.remove('open');
 }
-
-
 
 document.getElementById('editForm').addEventListener('submit',function(e){
     e.preventDefault();
-    var id=document.getElementById('e-id').value;
-    if(!id){toast('❌ No item selected!','error');return}
-    var name=document.getElementById('e-name').value.trim();
-    var price=document.getElementById('e-price').value.trim();
-    if(!name){toast('❌ Name required!','error');return}
-    if(!price){toast('❌ Price required!','error');return}
+    var id=document.getElementById('eid').value;
+    if(!id){toast('❌ No item!','e');return}
+    var name=document.getElementById('ename').value.trim();
+    var price=document.getElementById('eprice').value.trim();
+    if(!name){toast('❌ Name required!','e');return}
+    if(!price){toast('❌ Price required!','e');return}
     var fd=new FormData();
     fd.append('name',name);
     fd.append('price',price);
-    fd.append('category',document.getElementById('e-cat').value);
-    fd.append('stock_quantity',document.getElementById('e-qty').value||'0');
-    fd.append('low_stock_alert',document.getElementById('e-low').value||'5');
-    fd.append('in_stock',document.getElementById('e-stock').value);
-    fd.append('description',document.getElementById('e-desc').value);
-    var img=document.getElementById('e-img').files[0];if(img)fd.append('image',img);
+    fd.append('category',document.getElementById('ecat').value);
+    fd.append('stock_quantity',document.getElementById('eqty').value||'0');
+    fd.append('low_stock_alert',document.getElementById('elow').value||'5');
+    fd.append('in_stock',document.getElementById('estatus').value);
+    fd.append('description',document.getElementById('edesc').value);
+    var imgf=document.getElementById('eimg').files[0];
+    if(imgf)fd.append('image',imgf);
     fetch('/api/items/update/'+id,{method:'POST',body:fd})
     .then(function(r){return r.json()})
     .then(function(d){
-        if(d.success){toast('✅ '+d.message,'success');closeEditModal();loadItems()}
-        else toast('❌ '+d.message,'error')
-    }).catch(function(){toast('❌ Error!','error')});
+        if(d.success){toast('✅ '+d.message,'s');closeEdit();loadItems()}
+        else toast('❌ '+d.message,'e');
+    }).catch(function(){toast('❌ Error!','e')});
 });
 
-document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeEditModal()});
+// Close edit modal on backdrop click
+document.getElementById('editModal').addEventListener('click',function(e){
+    if(e.target===this)closeEdit();
+});
 
+// ============================================================
+// ORDERS
+// ============================================================
 function loadOrders(view){
-    if(view)curOV=view;
-    ['active','archived','all'].forEach(function(v){var b=document.getElementById('arc-'+v);if(b)b.className='arc-btn '+(v===curOV?'on':'off')});
+    if(view)curView=view;
+    // Update archive buttons
+    ['active','archived','all'].forEach(function(v){
+        var b=document.getElementById('arc-'+v);
+        if(b)b.className='arcbtn '+(v===curView?'on':'off');
+    });
+    // Update title
     var titles={active:'🛒 Active Orders',archived:'📦 Archived Orders',all:'🗂️ All Orders'};
-    var t=document.getElementById('ord-title');if(t)t.textContent=titles[curOV]||'🛒 Orders';
-    fetch('/api/orders?show='+curOV).then(function(r){return r.json()}).then(function(orders){
-        allOrders=orders;
+    document.getElementById('ord-title').textContent=titles[curView]||'🛒 Orders';
+    // Fetch
+    fetch('/api/orders?show='+curView)
+    .then(function(r){return r.json()})
+    .then(function(data){
+        orders=data;
         var tb=document.getElementById('ord-body');
-        if(orders.length===0){tb.innerHTML='<tr><td colspan="11"><div class="empty-state"><div class="eico">📭</div><p>No orders</p></div></td></tr>';return}
-        tb.innerHTML=orders.map(function(o){
-            return'<tr><td style="font-weight:800;color:#c2185b">#'+o.id+'</td><td>'+o.customer_name+'</td><td>'+o.customer_phone+'</td><td style="max-width:110px;font-size:11px">'+o.customer_address+'</td><td style="max-width:130px;font-size:11px">'+fmtItems(o.items)+'</td><td style="font-family:Fredoka One,cursive;color:#e91e63;white-space:nowrap">GH&#8373;'+o.total_price.toFixed(2)+'</td><td><span class="badge b-momo">'+(o.momo_number||'N/A')+'</span></td><td><span class="badge b-trans" onclick="copyT(\''+(o.transaction_id||'')+'\')">'+(o.transaction_id||'N/A')+'</span></td><td><span class="badge '+getSC(o.status)+'">'+o.status+'</span></td><td style="font-size:11px;white-space:nowrap">'+o.date_ordered+'</td><td>'+getOrdAct(o)+'</td></tr>';
+        if(data.length===0){
+            tb.innerHTML='<tr><td colspan="11"><div class="empty"><div class="ei">📭</div><p>No orders</p></div></td></tr>';
+            return;
+        }
+        tb.innerHTML=data.map(function(o){
+            return'<tr>'
+                +'<td style="font-weight:800;color:#c2185b">#'+o.id+'</td>'
+                +'<td>'+o.customer_name+'</td>'
+                +'<td>'+o.customer_phone+'</td>'
+                +'<td style="max-width:100px;font-size:10px">'+o.customer_address+'</td>'
+                +'<td style="max-width:120px;font-size:10px">'+fmtI(o.items)+'</td>'
+                +'<td style="font-family:Fredoka One,cursive;color:#e91e63;white-space:nowrap">GH&#8373;'+o.total_price.toFixed(2)+'</td>'
+                +'<td><span class="bdg bmomo">'+(o.momo_number||'N/A')+'</span></td>'
+                +'<td><span class="bdg btrans" onclick="cpT(\''+(o.transaction_id||'')+'\')">'+(o.transaction_id||'N/A')+'</span></td>'
+                +'<td><span class="bdg '+badge(o.status)+'">'+o.status+'</span></td>'
+                +'<td style="font-size:10px;white-space:nowrap">'+o.date_ordered+'</td>'
+                +'<td>'+ordAct(o)+'</td>'
+                +'</tr>';
         }).join('');
-    }).catch(function(e){console.error('Orders:',e);toast('❌ Failed to load orders','error')});
+    }).catch(function(e){console.error('Orders:',e);toast('❌ Failed','e')});
 }
 
-function getOrdAct(o){
-    if(curOV==='archived')return'<button class="btn btn-info btn-sm" onclick="unarchiveOrd('+o.id+')">📤 Restore</button>';
-    if(o.status==='Delivered')return'<span style="color:#43a047;font-weight:800;font-size:11px">✅ Done</span> <button class="btn btn-ghost btn-sm" onclick="archiveOrd('+o.id+')" title="Archive">📦</button>';
-    if(o.status==='Cancelled')return'<span style="color:#e53935;font-weight:800;font-size:11px">❌</span> <button class="btn btn-ghost btn-sm" onclick="archiveOrd('+o.id+')" title="Archive">📦</button>';
-    if(o.status==='Refunded')return'<span style="color:#2e7d32;font-weight:800;font-size:11px">💰</span> <button class="btn btn-ghost btn-sm" onclick="archiveOrd('+o.id+')" title="Archive">📦</button>';
-    if(o.status==='Dispute Rejected')return'<span style="color:#c62828;font-weight:800;font-size:11px">❌ Rejected</span> <button class="btn btn-ghost btn-sm" onclick="archiveOrd('+o.id+')" title="Archive">📦</button>';
-    if(o.status==='Awaiting Delivery')return'<span style="color:#1976d2;font-weight:800;font-size:11px">📦 Awaiting</span>';
-    if(o.status==='Disputed')return'<button class="btn btn-warning btn-sm" onclick="openDR('+o.id+')">⚠️ Resolve</button>';
-    if(o.status==='Pending')return'<button class="btn btn-success btn-sm" onclick="updOrdStat('+o.id+',\'Confirmed\')">✅</button> <button class="btn btn-danger btn-sm" onclick="updOrdStat('+o.id+',\'Cancelled\')">❌</button>';
-    if(o.status==='Confirmed')return'<button class="btn btn-info btn-sm" onclick="updOrdStat('+o.id+',\'Delivered\')">📦 Send</button>';
+function ordAct(o){
+    if(curView==='archived')return'<button class="btn bi" onclick="unarchOrd('+o.id+')">📤 Restore</button>';
+    if(o.status==='Delivered')return'<span style="color:#43a047;font-weight:800;font-size:10px">✅ Done</span> <button class="btn bg" onclick="archOrd('+o.id+')" title="Archive">📦</button>';
+    if(o.status==='Cancelled')return'<span style="color:#e53935;font-weight:800;font-size:10px">❌</span> <button class="btn bg" onclick="archOrd('+o.id+')" title="Archive">📦</button>';
+    if(o.status==='Refunded')return'<span style="color:#2e7d32;font-weight:800;font-size:10px">💰</span> <button class="btn bg" onclick="archOrd('+o.id+')" title="Archive">📦</button>';
+    if(o.status==='Dispute Rejected')return'<span style="color:#c62828;font-weight:800;font-size:10px">❌</span> <button class="btn bg" onclick="archOrd('+o.id+')" title="Archive">📦</button>';
+    if(o.status==='Awaiting Delivery')return'<span style="color:#1976d2;font-weight:800;font-size:10px">📦 Awaiting</span>';
+    if(o.status==='Disputed')return'<button class="btn bw" onclick="openDR('+o.id+')">⚠️ Resolve</button>';
+    if(o.status==='Pending')return'<button class="btn bs" onclick="updOrd('+o.id+',\'Confirmed\')">✅</button> <button class="btn bd" onclick="updOrd('+o.id+',\'Cancelled\')">❌</button>';
+    if(o.status==='Confirmed')return'<button class="btn bi" onclick="updOrd('+o.id+',\'Delivered\')">📦 Send</button>';
     return'';
 }
 
-function updOrdStat(id,status){
+function updOrd(id,status){
     fetch('/api/orders/status/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:status})})
-    .then(function(r){return r.json()}).then(function(d){if(d.success){toast('✅ '+d.message,'success');loadOrders()}else toast('❌ '+d.message,'error')});
+    .then(function(r){return r.json()})
+    .then(function(d){if(d.success){toast('✅ '+d.message,'s');loadOrders()}else toast('❌ '+d.message,'e')});
 }
 
-function archiveOrd(id){if(!confirm('Archive this order?'))return;fetch('/api/orders/archive/'+id,{method:'POST'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('📦 '+d.message,'success');loadOrders()}else toast('❌ '+d.message,'error')}).catch(function(){toast('❌ Error!','error')})}
+function archOrd(id){
+    if(!confirm('Archive this order?'))return;
+    fetch('/api/orders/archive/'+id,{method:'POST'})
+    .then(function(r){return r.json()})
+    .then(function(d){if(d.success){toast('📦 '+d.message,'s');loadOrders()}else toast('❌ '+d.message,'e')});
+}
 
-function unarchiveOrd(id){fetch('/api/orders/unarchive/'+id,{method:'POST'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('📤 '+d.message,'success');loadOrders()}else toast('❌ '+d.message,'error')}).catch(function(){toast('❌ Error!','error')})}
+function unarchOrd(id){
+    fetch('/api/orders/unarchive/'+id,{method:'POST'})
+    .then(function(r){return r.json()})
+    .then(function(d){if(d.success){toast('📤 '+d.message,'s');loadOrders()}else toast('❌ '+d.message,'e')});
+}
 
-function archiveAllDone(){if(!confirm('Archive all completed orders?\n\nWill archive: Delivered, Cancelled, Refunded, Dispute Rejected\nWill NOT archive: Awaiting Delivery'))return;fetch('/api/orders/archive-completed',{method:'POST'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('📦 '+d.message,'success');loadOrders()}else toast('❌ '+d.message,'error')}).catch(function(){toast('❌ Error!','error')})}
+function archiveDone(){
+    if(!confirm('Archive all completed orders?\n\nWill archive:\n✅ Delivered (customer confirmed)\n❌ Cancelled\n💰 Refunded\n❌ Dispute Rejected\n\nWill NOT archive:\n📦 Awaiting Delivery'))return;
+    fetch('/api/orders/archive-completed',{method:'POST'})
+    .then(function(r){return r.json()})
+    .then(function(d){if(d.success){toast('📦 '+d.message,'s');loadOrders()}else toast('❌ '+d.message,'e')});
+}
 
-function openDR(orderId){
-    var o=allOrders.find(function(x){return x.id===orderId});if(!o)return;
-    drActVal='';
-    document.getElementById('dr-oid').value=orderId;
-    document.getElementById('dr-title').textContent='Order #'+orderId;
+// ============================================================
+// DISPUTE
+// ============================================================
+function openDR(id){
+    var o=orders.find(function(x){return x.id===id});
+    if(!o)return;
+    drAct='';
+    document.getElementById('dr-oid').value=id;
+    document.getElementById('dr-title').textContent='Order #'+id;
     document.getElementById('dr-cust').textContent='Customer: '+o.customer_name+' ('+o.customer_phone+')';
-    document.getElementById('dr-itms').textContent='Items: '+fmtItems(o.items);
+    document.getElementById('dr-itms').textContent='Items: '+fmtI(o.items);
     document.getElementById('dr-tot').textContent='GH\u20b5 '+o.total_price.toFixed(2);
     document.getElementById('dr-comment').value='';
     document.querySelectorAll('input[name="dract"]').forEach(function(r){r.checked=false});
     document.getElementById('dr-reason').textContent='"No reason provided"';
     fetch('/api/notifications/admin').then(function(r){return r.json()}).then(function(d){
-        if(d.notifications){var dn=d.notifications.find(function(n){return n.title.indexOf('DISPUTE')>-1&&n.title.indexOf('#'+orderId)>-1});
-        if(dn){var rs=dn.message.indexOf('Reason: ');if(rs>-1)document.getElementById('dr-reason').textContent='"'+dn.message.substring(rs+8)+'"'}}
+        if(d.notifications){
+            var dn=d.notifications.find(function(n){return n.title.indexOf('DISPUTE')>-1&&n.title.indexOf('#'+id)>-1});
+            if(dn){var rs=dn.message.indexOf('Reason: ');if(rs>-1)document.getElementById('dr-reason').textContent='"'+dn.message.substring(rs+8)+'"'}
+        }
     }).catch(function(){});
-    document.getElementById('drModal').classList.add('show');
+    document.getElementById('drModal').classList.add('open');
 }
+
+function closeDR(){document.getElementById('drModal').classList.remove('open')}
 
 function submitDR(){
-    var oid=document.getElementById('dr-oid').value,comment=document.getElementById('dr-comment').value.trim();
-    if(!drActVal){toast('❌ Select an action!','error');return}
-    if(!comment){toast('❌ Add a comment!','error');return}
-    var btn=document.getElementById('dr-btn');btn.textContent='Submitting...';btn.disabled=true;
-    fetch('/api/orders/resolve-dispute/'+oid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:drActVal,comment:comment})})
-    .then(function(r){return r.json()}).then(function(d){if(d.success){toast('✅ Resolved!','success');document.getElementById('drModal').classList.remove('show');loadOrders()}else toast('❌ '+d.message,'error')})
-    .catch(function(){toast('❌ Error!','error')}).finally(function(){btn.textContent='✅ Submit';btn.disabled=false});
+    var oid=document.getElementById('dr-oid').value;
+    var comment=document.getElementById('dr-comment').value.trim();
+    if(!drAct){toast('❌ Select an action!','e');return}
+    if(!comment){toast('❌ Add a comment!','e');return}
+    var btn=document.getElementById('dr-btn');
+    btn.textContent='Submitting...';btn.disabled=true;
+    fetch('/api/orders/resolve-dispute/'+oid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:drAct,comment:comment})})
+    .then(function(r){return r.json()})
+    .then(function(d){
+        if(d.success){toast('✅ Resolved!','s');closeDR();loadOrders()}
+        else toast('❌ '+d.message,'e');
+    }).catch(function(){toast('❌ Error!','e')})
+    .finally(function(){btn.textContent='✅ Submit';btn.disabled=false});
 }
-document.getElementById('drModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
 
+document.getElementById('drModal').addEventListener('click',function(e){if(e.target===this)closeDR()});
+
+// ============================================================
+// USERS
+// ============================================================
 function loadUsers(){
-    fetch('/api/users').then(function(r){return r.json()}).then(function(users){
-        allUsers=users;var tb=document.getElementById('usr-body');
-        if(users.length===0){tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="eico">👥</div><p>No users</p></div></td></tr>';return}
-        tb.innerHTML=users.map(function(u){return'<tr><td style="font-weight:800;color:#c2185b">#'+u.id+'</td><td>'+u.fullname+'</td><td>'+u.email+'</td><td>'+u.phone+'</td><td>'+u.address+'</td><td style="font-weight:800;color:#e91e63;text-align:center">'+u.order_count+'</td><td style="font-size:11px">'+u.created_at+'</td></tr>'}).join('');
-    }).catch(function(){toast('❌ Failed','error')});
+    fetch('/api/users')
+    .then(function(r){return r.json()})
+    .then(function(data){
+        users=data;
+        var tb=document.getElementById('usr-body');
+        if(data.length===0){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><p>No users</p></div></td></tr>';return}
+        tb.innerHTML=data.map(function(u){
+            return'<tr>'
+                +'<td style="font-weight:800;color:#c2185b">#'+u.id+'</td>'
+                +'<td>'+u.fullname+'</td>'
+                +'<td>'+u.email+'</td>'
+                +'<td>'+u.phone+'</td>'
+                +'<td>'+u.address+'</td>'
+                +'<td style="font-weight:800;color:#e91e63;text-align:center">'+u.order_count+'</td>'
+                +'<td style="font-size:10px">'+u.created_at+'</td>'
+                +'</tr>';
+        }).join('');
+    }).catch(function(){toast('❌ Failed','e')});
 }
 
+// ============================================================
+// COUPONS
+// ============================================================
 function loadCoupons(){
-    fetch('/api/coupons').then(function(r){return r.json()}).then(function(coupons){
+    fetch('/api/coupons')
+    .then(function(r){return r.json()})
+    .then(function(data){
         var tb=document.getElementById('cpn-body');
-        if(!coupons||coupons.length===0){tb.innerHTML='<tr><td colspan="9"><div class="empty-state"><p>No coupons yet</p></div></td></tr>';return}
-        tb.innerHTML=coupons.map(function(c){
+        if(!data||data.length===0){
+            tb.innerHTML='<tr><td colspan="9"><div class="empty"><p>No coupons yet</p></div></td></tr>';
+            return;
+        }
+        tb.innerHTML=data.map(function(c){
             var val=c.discount_type==='percentage'?c.discount_value+'%':'GH&#8373;'+c.discount_value;
-            return'<tr><td style="font-weight:800;color:#c2185b">'+c.code+'</td><td>'+c.discount_type+'</td><td style="font-weight:800">'+val+'</td><td>GH&#8373;'+c.min_order+'</td><td>'+c.used_count+'</td><td>'+(c.max_uses||'∞')+'</td><td><span class="badge '+(c.is_active?'b-confirmed':'b-cancelled')+'">'+(c.is_active?'Active':'Off')+'</span></td><td>'+(c.expires_at||'Never')+'</td><td><button class="btn btn-sm '+(c.is_active?'btn-warning':'btn-success')+'" onclick="toggleCpn('+c.id+')">'+(c.is_active?'Disable':'Enable')+'</button> <button class="btn btn-danger btn-sm" onclick="delCpn('+c.id+')">🗑️</button></td></tr>';
+            return'<tr>'
+                +'<td style="font-weight:800;color:#c2185b">'+c.code+'</td>'
+                +'<td>'+c.discount_type+'</td>'
+                +'<td style="font-weight:800">'+val+'</td>'
+                +'<td>GH&#8373;'+c.min_order+'</td>'
+                +'<td>'+c.used_count+'</td>'
+                +'<td>'+(c.max_uses||'∞')+'</td>'
+                +'<td><span class="bdg '+(c.is_active?'bconf':'bcan')+'">'+(c.is_active?'Active':'Off')+'</span></td>'
+                +'<td>'+(c.expires_at||'Never')+'</td>'
+                +'<td>'
+                +'<button class="btn '+(c.is_active?'bw':'bs')+'" onclick="togCpn('+c.id+')">'+(c.is_active?'Disable':'Enable')+'</button> '
+                +'<button class="btn bd" onclick="delCpn('+c.id+')">🗑️</button>'
+                +'</td></tr>';
         }).join('');
-    }).catch(function(){toast('❌ Failed','error')});
+    }).catch(function(){toast('❌ Failed','e')});
 }
 
 function createCoupon(){
-    var code=document.getElementById('cp-code').value.trim().toUpperCase();
-    var valStr=document.getElementById('cp-val').value.trim();
-    if(!code){toast('❌ Code required!','error');return}
-    if(!valStr){toast('❌ Value required!','error');return}
+    var code=document.getElementById('cpcode').value.trim().toUpperCase();
+    var valStr=document.getElementById('cpval').value.trim();
+    if(!code){toast('❌ Code required!','e');return}
+    if(!valStr){toast('❌ Value required!','e');return}
     var val=parseFloat(valStr);
-    if(isNaN(val)||val<=0){toast('❌ Value must be greater than 0!','error');return}
-    var minOrder=parseFloat(document.getElementById('cp-min').value)||0;
-    var maxUses=parseInt(document.getElementById('cp-max').value)||0;
-    var expires=document.getElementById('cp-exp').value||'';
-    var payload={code:code,discount_type:document.getElementById('cp-type').value,discount_value:val,min_order:minOrder,max_uses:maxUses,expires_at:expires};
-    var btn=document.getElementById('create-coupon-btn');
+    if(isNaN(val)||val<=0){toast('❌ Value must be > 0!','e');return}
+    var minOrder=parseFloat(document.getElementById('cpmin').value)||0;
+    var maxUses=parseInt(document.getElementById('cpmax').value)||0;
+    var expires=document.getElementById('cpexp').value||'';
+    var payload={
+        code:code,
+        discount_type:document.getElementById('cptype').value,
+        discount_value:val,
+        min_order:minOrder,
+        max_uses:maxUses,
+        expires_at:expires
+    };
+    var btn=document.getElementById('cpbtn');
     btn.textContent='Creating...';btn.disabled=true;
     fetch('/api/coupons/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){return r.json()})
     .then(function(d){
         if(d.success){
-            toast('✅ '+d.message,'success');loadCoupons();
-            document.getElementById('cp-code').value='';
-            document.getElementById('cp-val').value='';
-            document.getElementById('cp-min').value='0';
-            document.getElementById('cp-max').value='0';
-            document.getElementById('cp-exp').value='';
-        }else toast('❌ '+d.message,'error');
-    }).catch(function(){toast('❌ Error!','error')})
+            toast('✅ '+d.message,'s');
+            loadCoupons();
+            document.getElementById('cpcode').value='';
+            document.getElementById('cpval').value='';
+            document.getElementById('cpmin').value='0';
+            document.getElementById('cpmax').value='0';
+            document.getElementById('cpexp').value='';
+        }else toast('❌ '+d.message,'e');
+    }).catch(function(){toast('❌ Error!','e')})
     .finally(function(){btn.textContent='🎟️ Create Coupon';btn.disabled=false});
 }
 
-function toggleCpn(id){fetch('/api/coupons/toggle/'+id,{method:'POST'}).then(function(){loadCoupons();toast('✅ Updated!','success')})}
-function delCpn(id){if(!confirm('Delete?'))return;fetch('/api/coupons/delete/'+id,{method:'DELETE'}).then(function(){loadCoupons();toast('✅ Deleted!','success')})}
+function togCpn(id){
+    fetch('/api/coupons/toggle/'+id,{method:'POST'}).then(function(){loadCoupons();toast('✅ Updated!','s')});
+}
+function delCpn(id){
+    if(!confirm('Delete coupon?'))return;
+    fetch('/api/coupons/delete/'+id,{method:'DELETE'}).then(function(){loadCoupons();toast('✅ Deleted!','s')});
+}
 
+// ============================================================
+// REPORTS
+// ============================================================
 function loadReports(){
-    fetch('/api/reports/sales').then(function(r){return r.json()}).then(function(d){
-        document.getElementById('r-total').textContent='GH\u20b5'+d.total_revenue.toFixed(2);
-        document.getElementById('r-today').textContent='GH\u20b5'+d.today_revenue.toFixed(2);
-        document.getElementById('r-week').textContent='GH\u20b5'+d.week_revenue.toFixed(2);
-        document.getElementById('r-month').textContent='GH\u20b5'+d.month_revenue.toFixed(2);
-        document.getElementById('r-done').textContent=d.completed_orders;
-        document.getElementById('r-pend').textContent=d.pending_orders;
-        document.getElementById('r-canc').textContent=d.cancelled_orders;
-        var bs=document.getElementById('r-best');
-        if(d.best_sellers.length===0)bs.innerHTML='<p style="color:#aaa;text-align:center;padding:20px;font-weight:700">No data yet</p>';
-        else bs.innerHTML=d.best_sellers.map(function(b,i){return'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:2px solid #fce4ec"><span style="font-family:Fredoka One,cursive;color:#c2185b;font-size:15px;width:22px">#'+(i+1)+'</span><div style="flex:1"><div style="font-weight:800;color:#333;font-size:12px">'+b.name+'</div><div style="font-size:10px;color:#aaa;font-weight:700">'+b.orders+' orders</div></div><span style="font-family:Fredoka One,cursive;color:#e91e63;font-size:13px">GH\u20b5'+b.revenue.toFixed(2)+'</span></div>'}).join('');
-        var dc=document.getElementById('r-chart');
-        if(d.daily_sales.length===0)dc.innerHTML='<div class="empty-state" style="width:100%"><p>No data</p></div>';
-        else{var mx=Math.max.apply(null,d.daily_sales.map(function(s){return s.revenue}))||1;dc.innerHTML=d.daily_sales.map(function(s){var h=Math.max((s.revenue/mx)*150,5),day=s.date.split('-')[2];return'<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="font-family:Fredoka One,cursive;color:#e91e63;font-size:9px">GH\u20b5'+Math.round(s.revenue)+'</div><div style="width:100%;height:'+h+'px;background:linear-gradient(180deg,#e91e63,#ff6f00);border-radius:6px 6px 0 0;min-width:20px"></div><div style="font-size:10px;font-weight:800;color:#888">'+day+'</div><div style="font-size:9px;color:#aaa">'+s.orders+'</div></div>'}).join('')}
+    fetch('/api/reports/sales')
+    .then(function(r){return r.json()})
+    .then(function(d){
+        document.getElementById('rtotal').textContent='GH\u20b5'+d.total_revenue.toFixed(2);
+        document.getElementById('rtoday').textContent='GH\u20b5'+d.today_revenue.toFixed(2);
+        document.getElementById('rweek').textContent='GH\u20b5'+d.week_revenue.toFixed(2);
+        document.getElementById('rmonth').textContent='GH\u20b5'+d.month_revenue.toFixed(2);
+        document.getElementById('rdone').textContent=d.completed_orders;
+        document.getElementById('rpend').textContent=d.pending_orders;
+        document.getElementById('rcanc').textContent=d.cancelled_orders;
+        var bs=document.getElementById('rbest');
+        if(!d.best_sellers||d.best_sellers.length===0){bs.innerHTML='<p style="color:#aaa;text-align:center;padding:15px;font-weight:700">No data yet</p>'}
+        else{bs.innerHTML=d.best_sellers.map(function(b,i){return'<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #fce4ec"><span style="font-family:Fredoka One,cursive;color:#c2185b;font-size:14px;width:20px">#'+(i+1)+'</span><div style="flex:1"><div style="font-weight:800;color:#333;font-size:11px">'+b.name+'</div><div style="font-size:9px;color:#aaa;font-weight:700">'+b.orders+' orders</div></div><span style="font-family:Fredoka One,cursive;color:#e91e63;font-size:12px">GH\u20b5'+b.revenue.toFixed(2)+'</span></div>'}).join('')}
+        var dc=document.getElementById('rchart');
+        if(!d.daily_sales||d.daily_sales.length===0){dc.innerHTML='<div class="empty" style="width:100%"><p>No data</p></div>'}
+        else{var mx=Math.max.apply(null,d.daily_sales.map(function(s){return s.revenue}))||1;dc.innerHTML=d.daily_sales.map(function(s){var h=Math.max((s.revenue/mx)*130,4),day=s.date.split('-')[2];return'<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="font-family:Fredoka One,cursive;color:#e91e63;font-size:8px">GH\u20b5'+Math.round(s.revenue)+'</div><div style="width:100%;height:'+h+'px;background:linear-gradient(180deg,#e91e63,#ff6f00);border-radius:5px 5px 0 0;min-width:18px"></div><div style="font-size:9px;font-weight:800;color:#888">'+day+'</div><div style="font-size:8px;color:#aaa">'+s.orders+'</div></div>'}).join('')}
     }).catch(function(e){console.error('Reports:',e)});
 }
 
-function toggleNotifs(){var dd=document.getElementById('notif-dropdown');if(dd.classList.contains('show')){dd.classList.remove('show')}else{dd.classList.add('show');loadNotifs()}}
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+function toggleNotif(){
+    var b=document.getElementById('notif-box');
+    if(b.classList.contains('open')){b.classList.remove('open')}
+    else{b.classList.add('open');loadNotifs()}
+}
 
 function loadNotifs(){
-    fetch('/api/notifications/admin').then(function(r){return r.json()}).then(function(d){
-        var cnt=document.getElementById('notif-count');
-        if(d.unread_count>0){cnt.textContent=d.unread_count;cnt.style.display='flex';if(d.unread_count>lastNC&&lastNC>=0&&d.notifications.length>0){var n=d.notifications[0];if(!n.is_read)showPop(n.title,n.message)}lastNC=d.unread_count}
-        else{cnt.style.display='none';lastNC=0}
-        var list=document.getElementById('notif-list');
-        if(!d.notifications||d.notifications.length===0){list.innerHTML='<div class="empty-state" style="padding:25px"><p>No notifications</p></div>';return}
-        list.innerHTML=d.notifications.map(function(n){return'<div class="notif-item'+(n.is_read?'':' unread')+'" onclick="markNR('+n.id+',this)"><div class="ni-title">'+(n.is_read?'':'🔴 ')+n.title+'</div><div class="ni-msg">'+n.message+'</div><div class="ni-time">'+n.created_at+'</div></div>'}).join('');
+    fetch('/api/notifications/admin')
+    .then(function(r){return r.json()})
+    .then(function(d){
+        var badge=document.getElementById('nbadge');
+        if(d.unread_count>0){
+            badge.textContent=d.unread_count;badge.style.display='flex';
+            if(d.unread_count>lastN&&lastN>=0&&d.notifications.length>0){
+                var n=d.notifications[0];if(!n.is_read)showPop(n.title,n.message);
+            }
+            lastN=d.unread_count;
+        }else{badge.style.display='none';lastN=0}
+        var nl=document.getElementById('nlist');
+        if(!d.notifications||d.notifications.length===0){nl.innerHTML='<div class="empty" style="padding:20px"><p>No notifications</p></div>';return}
+        nl.innerHTML=d.notifications.map(function(n){
+            return'<div class="notif-row'+(n.is_read?'':' unread')+'" onclick="markN('+n.id+',this)">'
+                +'<div class="nt">'+(n.is_read?'':'🔴 ')+n.title+'</div>'
+                +'<div class="nm">'+n.message+'</div>'
+                +'<div class="nd">'+n.created_at+'</div>'
+                +'</div>';
+        }).join('');
     }).catch(function(){});
 }
 
-function markNR(id,el){fetch('/api/notifications/read/'+id,{method:'POST'}).then(function(){if(el){el.classList.remove('unread');var t=el.querySelector('.ni-title');if(t)t.innerHTML=t.innerHTML.replace('🔴 ','')}loadNotifs()})}
-
-function markAllRead(){fetch('/api/notifications/read-all',{method:'POST',headers:{'Content-Type':'application/json'}}).then(function(){loadNotifs();toast('✅ All read!','success')})}
-
-function showPop(title,msg){
-    var old=document.getElementById('adm-pop');if(old)old.remove();
-    var p=document.createElement('div');p.id='adm-pop';
-    p.style.cssText='position:fixed;top:20px;right:20px;background:white;border-radius:18px;padding:18px;box-shadow:0 10px 40px rgba(233,30,99,0.3);border:3px solid #fce4ec;z-index:10000;max-width:360px;animation:popIn 0.3s ease;cursor:pointer';
-    p.onclick=function(){p.remove();toggleNotifs()};
-    p.innerHTML='<div style="display:flex;align-items:center;gap:10px"><div style="font-size:28px">🔔</div><div><div style="font-family:Fredoka One,cursive;color:#c2185b;font-size:14px">'+title+'</div><div style="font-size:12px;color:#666;font-weight:600;margin-top:3px">'+msg+'</div></div><button onclick="event.stopPropagation();this.parentElement.parentElement.remove()" style="background:#ffebee;border:none;color:#e53935;width:26px;height:26px;border-radius:50%;cursor:pointer;font-weight:800;flex-shrink:0;font-size:12px">x</button></div>';
-    document.body.appendChild(p);
-    setTimeout(function(){var el=document.getElementById('adm-pop');if(el){el.style.opacity='0';el.style.transition='all 0.3s';setTimeout(function(){el.remove()},300)}},10000);
+function markN(id,el){
+    fetch('/api/notifications/read/'+id,{method:'POST'}).then(function(){
+        if(el){el.classList.remove('unread');var t=el.querySelector('.nt');if(t)t.innerHTML=t.innerHTML.replace('🔴 ','')}
+        loadNotifs();
+    });
 }
 
-document.addEventListener('click',function(e){if(!e.target.closest('.notif-btn')&&!e.target.closest('.notif-dropdown'))document.getElementById('notif-dropdown').classList.remove('show')});
+function readAll(){
+    fetch('/api/notifications/read-all',{method:'POST',headers:{'Content-Type':'application/json'}})
+    .then(function(){loadNotifs();toast('✅ All read!','s')});
+}
+
+function showPop(title,msg){
+    var old=document.getElementById('admpop');if(old)old.remove();
+    var p=document.createElement('div');p.id='admpop';
+    p.style.cssText='position:fixed;top:20px;right:20px;background:white;border-radius:16px;padding:16px;box-shadow:0 8px 30px rgba(233,30,99,0.25);border:2px solid #fce4ec;z-index:9999;max-width:320px;cursor:pointer';
+    p.onclick=function(){p.remove();toggleNotif()};
+    p.innerHTML='<div style="display:flex;align-items:center;gap:8px"><div style="font-size:26px">🔔</div><div style="flex:1"><div style="font-family:Fredoka One,cursive;color:#c2185b;font-size:13px">'+title+'</div><div style="font-size:11px;color:#666;font-weight:600;margin-top:2px">'+msg+'</div></div><button onclick="event.stopPropagation();this.parentElement.parentElement.remove()" style="background:#ffebee;border:none;color:#e53935;width:24px;height:24px;border-radius:50%;cursor:pointer;font-weight:800;font-size:11px;flex-shrink:0">x</button></div>';
+    document.body.appendChild(p);
+    setTimeout(function(){var el=document.getElementById('admpop');if(el){el.style.opacity='0';el.style.transition='all 0.3s';setTimeout(function(){el.remove()},300)}},10000);
+}
+
+document.addEventListener('click',function(e){
+    if(!e.target.closest('.notif-wrap'))document.getElementById('notif-box').classList.remove('open');
+});
 </script>
 </body>
 </html>
