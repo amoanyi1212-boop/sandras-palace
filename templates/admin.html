@@ -134,7 +134,6 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
     <div class="sidebar-logo">
         <div class="icon">👑</div>
@@ -153,7 +152,6 @@
     <button class="logout-btn" onclick="if(confirm('Logout?'))window.location='/admin/logout'">🚪 Logout</button>
 </div>
 
-<!-- MAIN -->
 <div class="main-content">
     <div class="topbar">
         <div class="topbar-left">
@@ -202,17 +200,13 @@
                 <div class="form-grid">
                     <div class="form-group"><label>✨ Name *</label><input type="text" id="a-name" placeholder="Item name" required /></div>
                     <div class="form-group"><label>💰 Price (GH₵) *</label><input type="number" id="a-price" placeholder="0.00" step="0.01" min="0" required /></div>
-                    <div class="form-group"><label>📁 Category</label>
-                        <select id="a-cat"><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select>
-                    </div>
+                    <div class="form-group"><label>📁 Category</label><select id="a-cat"><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select></div>
                     <div class="form-group"><label>📦 Stock Quantity</label><input type="number" id="a-qty" placeholder="0" min="0" value="0" /></div>
                     <div class="form-group"><label>⚠️ Low Stock Alert</label><input type="number" id="a-low" placeholder="5" min="1" value="5" /></div>
-                    <div class="form-group"><label>📊 Status</label>
-                        <select id="a-stock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select>
-                    </div>
+                    <div class="form-group"><label>📊 Status</label><select id="a-stock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select></div>
                     <div class="form-group full-width"><label>📝 Description</label><textarea id="a-desc" placeholder="Describe this item..."></textarea></div>
                     <div class="form-group full-width"><label>📷 Image</label>
-                        <div class="upload-area" onclick="document.getElementById('a-img').click()"><div class="uicon">📷</div><p>Click to upload image</p><p style="font-size:11px;color:#ccc;margin-top:4px">PNG, JPG, JPEG</p></div>
+                        <div class="upload-area" onclick="document.getElementById('a-img').click()"><div class="uicon">📷</div><p>Click to upload</p></div>
                         <input type="file" id="a-img" accept="image/*" style="display:none" onchange="prevImg(this,'a-prev')" />
                         <div class="img-preview" id="a-prev"></div>
                     </div>
@@ -231,9 +225,7 @@
                 <select id="f-cat" onchange="filterItems()"><option value="all">All Categories</option><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select>
                 <select id="f-stock" onchange="filterItems()"><option value="all">All Stock</option><option value="true">In Stock</option><option value="false">Out of Stock</option></select>
             </div>
-            <div class="items-grid" id="items-grid">
-                <div class="empty-state" style="grid-column:1/-1"><div class="eico">📦</div><p>No items found</p></div>
-            </div>
+            <div class="items-grid" id="items-grid"><div class="empty-state" style="grid-column:1/-1"><div class="eico">📦</div><p>No items</p></div></div>
         </div>
     </div>
 
@@ -276,12 +268,12 @@
             <div class="form-grid">
                 <div class="form-group"><label>Code *</label><input type="text" id="cp-code" placeholder="e.g. SAVE20" style="text-transform:uppercase" /></div>
                 <div class="form-group"><label>Type</label><select id="cp-type"><option value="percentage">Percentage (%)</option><option value="fixed">Fixed Amount (GH₵)</option></select></div>
-                <div class="form-group"><label>Value *</label><input type="number" id="cp-val" placeholder="e.g. 20" min="0" step="0.01" /></div>
+                <div class="form-group"><label>Value *</label><input type="number" id="cp-val" placeholder="e.g. 20" min="0.01" step="0.01" /></div>
                 <div class="form-group"><label>Min Order (GH₵)</label><input type="number" id="cp-min" placeholder="0" min="0" value="0" /></div>
                 <div class="form-group"><label>Max Uses (0 = unlimited)</label><input type="number" id="cp-max" placeholder="0" min="0" value="0" /></div>
                 <div class="form-group"><label>Expires On</label><input type="date" id="cp-exp" /></div>
             </div>
-            <button class="btn btn-primary" onclick="createCoupon()">🎟️ Create Coupon</button>
+            <button class="btn btn-primary" id="create-coupon-btn" onclick="createCoupon()">🎟️ Create Coupon</button>
         </div>
         <div class="card">
             <div class="card-header"><h2>📋 All Coupons</h2><button class="btn btn-primary btn-sm" onclick="loadCoupons()">🔄</button></div>
@@ -329,16 +321,12 @@
             <div class="form-grid">
                 <div class="form-group"><label>Name *</label><input type="text" id="e-name" required /></div>
                 <div class="form-group"><label>Price (GH₵) *</label><input type="number" id="e-price" step="0.01" min="0" required /></div>
-                <div class="form-group"><label>Category</label>
-                    <select id="e-cat"><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select>
-                </div>
+                <div class="form-group"><label>Category</label><select id="e-cat"><option value="General">General</option><option value="Food">Food</option><option value="Drinks">Drinks</option><option value="Snacks">Snacks</option><option value="Household">Household</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Other">Other</option></select></div>
                 <div class="form-group"><label>Stock Quantity</label><input type="number" id="e-qty" min="0" value="0" /></div>
                 <div class="form-group"><label>Low Stock Alert</label><input type="number" id="e-low" min="1" value="5" /></div>
-                <div class="form-group"><label>Status</label>
-                    <select id="e-stock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select>
-                </div>
+                <div class="form-group"><label>Status</label><select id="e-stock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select></div>
                 <div class="form-group full-width"><label>Description</label><textarea id="e-desc"></textarea></div>
-                <div class="form-group full-width"><label>Image (optional - leave empty to keep current)</label>
+                <div class="form-group full-width"><label>Image (leave empty to keep current)</label>
                     <div class="upload-area" onclick="document.getElementById('e-img').click()"><div class="uicon">📷</div><p>Click to change image</p></div>
                     <input type="file" id="e-img" accept="image/*" style="display:none" onchange="prevImg(this,'e-prev')" />
                     <div class="img-preview" id="e-prev"></div>
@@ -352,7 +340,7 @@
     </div>
 </div>
 
-<!-- DISPUTE RESOLUTION MODAL -->
+<!-- DISPUTE MODAL -->
 <div class="modal-overlay" id="drModal">
     <div class="modal">
         <div class="modal-hdr"><h2>⚠️ Resolve Dispute</h2><button class="modal-x" onclick="document.getElementById('drModal').classList.remove('show')">✕</button></div>
@@ -374,7 +362,7 @@
         </div>
         <div style="margin-bottom:15px">
             <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">💬 Admin Comment *</label>
-            <textarea id="dr-comment" placeholder="Write your decision and reason..." style="width:100%;padding:12px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;font-family:'Nunito';min-height:90px;resize:vertical"></textarea>
+            <textarea id="dr-comment" placeholder="Write your decision..." style="width:100%;padding:12px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;font-family:'Nunito';min-height:90px;resize:vertical"></textarea>
         </div>
         <input type="hidden" id="dr-oid" />
         <button onclick="submitDR()" id="dr-btn" style="width:100%;padding:14px;background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border:none;border-radius:13px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito'">✅ Submit Resolution</button>
@@ -384,833 +372,308 @@
 <div class="toast" id="toast"></div>
 
 <script>
-    // Global state
-    var allItems = [];
-    var allOrders = [];
-    var allUsers = [];
-    var lastNC = 0;
-    var curOV = 'active';
-    var drActVal = '';
+var allItems=[], allOrders=[], allUsers=[], lastNC=0, curOV='active', drActVal='';
 
-    // ============================
-    // INIT
-    // ============================
-    window.onload = function() {
-        loadDashboard();
-        loadNotifs();
-        setInterval(loadNotifs, 5000);
-    };
+window.onload=function(){loadDashboard();loadNotifs();setInterval(loadNotifs,5000)};
 
-    // ============================
-    // HELPERS
-    // ============================
-    function getImg(u) {
-        if (!u) return '/static/noimg.png';
-        if (u.startsWith('http')) return u;
-        if (u.startsWith('static/')) return '/' + u;
-        return u;
-    }
+function getImg(u){if(!u)return'/static/noimg.png';if(u.startsWith('http'))return u;if(u.startsWith('static/'))return'/'+u;return u}
 
-    function getSC(s) {
-        var m = {
-            'Pending':          'b-pending',
-            'Confirmed':        'b-confirmed',
-            'Delivered':        'b-delivered',
-            'Cancelled':        'b-cancelled',
-            'Awaiting Delivery':'b-awaiting',
-            'Disputed':         'b-disputed',
-            'Refunded':         'b-refunded',
-            'Dispute Rejected': 'b-rejected'
-        };
-        return m[s] || 'b-pending';
-    }
+function getSC(s){
+    var m={'Pending':'b-pending','Confirmed':'b-confirmed','Delivered':'b-delivered','Cancelled':'b-cancelled','Awaiting Delivery':'b-awaiting','Disputed':'b-disputed','Refunded':'b-refunded','Dispute Rejected':'b-rejected'};
+    return m[s]||'b-pending';
+}
 
-    function fmtItems(s) {
-        try {
-            return JSON.parse(s.replace(/'/g, '"')).map(function(x) {
-                return x.name + ' x' + x.quantity;
-            }).join(', ');
-        } catch(e) { return s; }
-    }
+function fmtItems(s){try{return JSON.parse(s.replace(/'/g,'"')).map(function(x){return x.name+' x'+x.quantity}).join(', ')}catch(e){return s}}
 
-    function copyT(id) {
-        if (!id || id === 'N/A') return;
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(id).then(function() {
-                toast('✅ Copied: ' + id, 'success');
-            });
-        } else {
-            toast('Trans ID: ' + id, 'success');
-        }
-    }
+function copyT(id){if(!id||id==='N/A')return;if(navigator.clipboard)navigator.clipboard.writeText(id).then(function(){toast('✅ Copied: '+id,'success')});else toast('ID: '+id,'success')}
 
-    function prevImg(input, pid) {
-        var p = document.getElementById(pid);
-        if (input.files && input.files[0]) {
-            var r = new FileReader();
-            r.onload = function(e) {
-                p.innerHTML = '<img src="' + e.target.result + '" />';
-            };
-            r.readAsDataURL(input.files[0]);
-        }
-    }
+function prevImg(input,pid){var p=document.getElementById(pid);if(input.files&&input.files[0]){var r=new FileReader();r.onload=function(e){p.innerHTML='<img src="'+e.target.result+'" />'};r.readAsDataURL(input.files[0])}}
 
-    function toast(m, t) {
-        var x = document.getElementById('toast');
-        x.textContent = m;
-        x.className = 'toast ' + t + ' show';
-        setTimeout(function() { x.classList.remove('show'); }, 3500);
-    }
+function toast(m,t){var x=document.getElementById('toast');x.textContent=m;x.className='toast '+t+' show';setTimeout(function(){x.classList.remove('show')},3500)}
 
-    // ============================
-    // NAVIGATION
-    // ============================
-    function showSec(s) {
-        document.querySelectorAll('.section').forEach(function(x) { x.classList.remove('active'); });
-        document.querySelectorAll('.nav-menu a').forEach(function(x) { x.classList.remove('active'); });
-        document.getElementById('section-' + s).classList.add('active');
-        document.getElementById('nav-' + s).classList.add('active');
-        var titles = {
-            'dashboard':    ['📊 Dashboard',   'Overview'],
-            'add-item':     ['➕ Add Item',     'Add a new product'],
-            'manage-items': ['📦 Items',        'Manage your stock'],
-            'orders':       ['🛒 Orders',       'Manage customer orders'],
-            'users':        ['👥 Users',         'Registered customers'],
-            'coupons':      ['🎟️ Coupons',      'Discount codes'],
-            'reports':      ['📊 Reports',      'Sales analytics']
-        };
-        var t = titles[s] || [s, ''];
-        document.getElementById('pg-title').textContent = t[0];
-        document.getElementById('pg-sub').textContent = t[1];
-        if (s === 'dashboard')    loadDashboard();
-        if (s === 'manage-items') loadItems();
-        if (s === 'orders')       loadOrders();
-        if (s === 'users')        loadUsers();
-        if (s === 'coupons')      loadCoupons();
-        if (s === 'reports')      loadReports();
-    }
+function showSec(s){
+    document.querySelectorAll('.section').forEach(function(x){x.classList.remove('active')});
+    document.querySelectorAll('.nav-menu a').forEach(function(x){x.classList.remove('active')});
+    document.getElementById('section-'+s).classList.add('active');
+    document.getElementById('nav-'+s).classList.add('active');
+    var t={'dashboard':['📊 Dashboard','Overview'],'add-item':['➕ Add Item','Add product'],'manage-items':['📦 Items','Manage stock'],'orders':['🛒 Orders','Manage orders'],'users':['👥 Users','Customers'],'coupons':['🎟️ Coupons','Discount codes'],'reports':['📊 Reports','Analytics']};
+    var v=t[s]||[s,''];
+    document.getElementById('pg-title').textContent=v[0];
+    document.getElementById('pg-sub').textContent=v[1];
+    if(s==='dashboard')loadDashboard();
+    if(s==='manage-items')loadItems();
+    if(s==='orders')loadOrders();
+    if(s==='users')loadUsers();
+    if(s==='coupons')loadCoupons();
+    if(s==='reports')loadReports();
+}
 
-    // ============================
-    // DASHBOARD
-    // ============================
-    function loadDashboard() {
-        Promise.all([
-            fetch('/api/items').then(function(r) { return r.json(); }),
-            fetch('/api/orders?show=all').then(function(r) { return r.json(); }),
-            fetch('/api/users').then(function(r) { return r.json(); })
-        ]).then(function(res) {
-            allItems  = res[0];
-            allOrders = res[1];
-            allUsers  = res[2];
+function loadDashboard(){
+    Promise.all([fetch('/api/items').then(function(r){return r.json()}),fetch('/api/orders?show=all').then(function(r){return r.json()}),fetch('/api/users').then(function(r){return r.json()})])
+    .then(function(res){
+        allItems=res[0];allOrders=res[1];allUsers=res[2];
+        document.getElementById('s-items').textContent=allItems.length;
+        document.getElementById('s-in').textContent=allItems.filter(function(i){return i.in_stock}).length;
+        document.getElementById('s-out').textContent=allItems.filter(function(i){return!i.in_stock}).length;
+        document.getElementById('s-orders').textContent=allOrders.length;
+        document.getElementById('s-users').textContent=allUsers.length;
+        var ro=allOrders.slice(0,5),otb=document.getElementById('dash-orders');
+        if(ro.length===0)otb.innerHTML='<tr><td colspan="5"><div class="empty-state"><div class="eico">📭</div><p>No orders</p></div></td></tr>';
+        else otb.innerHTML=ro.map(function(o){return'<tr><td style="font-weight:800;color:#c2185b">#'+o.id+'</td><td>'+o.customer_name+'</td><td style="font-family:Fredoka One,cursive;color:#e91e63">GH&#8373;'+o.total_price.toFixed(2)+'</td><td><span class="badge b-trans" onclick="copyT(\''+(o.transaction_id||'')+'\')">'+(o.transaction_id||'N/A')+'</span></td><td><span class="badge '+getSC(o.status)+'">'+o.status+'</span></td></tr>'}).join('');
+        var ru=allUsers.slice(-5).reverse(),utb=document.getElementById('dash-users');
+        if(ru.length===0)utb.innerHTML='<tr><td colspan="4"><div class="empty-state"><div class="eico">👥</div><p>No users</p></div></td></tr>';
+        else utb.innerHTML=ru.map(function(u){return'<tr><td style="font-weight:800;color:#c2185b">#'+u.id+'</td><td>'+u.fullname+'</td><td>'+u.email+'</td><td style="font-weight:800;color:#e91e63">'+u.order_count+'</td></tr>'}).join('');
+        var oos=allItems.filter(function(i){return!i.in_stock}),oc=document.getElementById('oos-card'),og=document.getElementById('oos-grid');
+        if(oos.length>0){oc.style.display='block';og.innerHTML=oos.map(function(i){return'<div class="item-card oos"><img class="item-img" src="'+getImg(i.image_url)+'" onerror="this.src=\'/static/noimg.png\'" /><div class="item-info"><h3>'+i.name+'</h3><p class="item-price">GH&#8373;'+i.price.toFixed(2)+'</p><button class="btn btn-success btn-sm" onclick="toggleStock('+i.id+');setTimeout(loadDashboard,1000)">✅ Restock</button></div></div>'}).join('')}
+        else oc.style.display='none';
+    }).catch(function(e){console.error('Dashboard:',e)});
+}
 
-            document.getElementById('s-items').textContent  = allItems.length;
-            document.getElementById('s-in').textContent     = allItems.filter(function(i) { return i.in_stock; }).length;
-            document.getElementById('s-out').textContent    = allItems.filter(function(i) { return !i.in_stock; }).length;
-            document.getElementById('s-orders').textContent = allOrders.length;
-            document.getElementById('s-users').textContent  = allUsers.length;
+document.getElementById('addForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var fd=new FormData();
+    fd.append('name',document.getElementById('a-name').value);
+    fd.append('price',document.getElementById('a-price').value);
+    fd.append('category',document.getElementById('a-cat').value);
+    fd.append('stock_quantity',document.getElementById('a-qty').value);
+    fd.append('low_stock_alert',document.getElementById('a-low').value);
+    fd.append('in_stock',document.getElementById('a-stock').value);
+    fd.append('description',document.getElementById('a-desc').value);
+    var img=document.getElementById('a-img').files[0];if(img)fd.append('image',img);
+    fetch('/api/items/add',{method:'POST',body:fd}).then(function(r){return r.json()}).then(function(d){
+        if(d.success){toast('✅ '+d.message,'success');document.getElementById('addForm').reset();document.getElementById('a-prev').innerHTML=''}
+        else toast('❌ '+d.message,'error')}).catch(function(){toast('❌ Error!','error')});
+});
 
-            // Recent orders
-            var ro  = allOrders.slice(0, 5);
-            var otb = document.getElementById('dash-orders');
-            if (ro.length === 0) {
-                otb.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="eico">📭</div><p>No orders</p></div></td></tr>';
-            } else {
-                otb.innerHTML = ro.map(function(o) {
-                    return '<tr>' +
-                        '<td style="font-weight:800;color:#c2185b">#' + o.id + '</td>' +
-                        '<td>' + o.customer_name + '</td>' +
-                        '<td style="font-family:Fredoka One,cursive;color:#e91e63">GH&#8373;' + o.total_price.toFixed(2) + '</td>' +
-                        '<td><span class="badge b-trans" onclick="copyT(\'' + (o.transaction_id || '') + '\')">' + (o.transaction_id || 'N/A') + '</span></td>' +
-                        '<td><span class="badge ' + getSC(o.status) + '">' + o.status + '</span></td>' +
-                        '</tr>';
-                }).join('');
-            }
+function loadItems(){fetch('/api/items').then(function(r){return r.json()}).then(function(items){allItems=items;displayItems(items)}).catch(function(){toast('❌ Failed','error')})}
 
-            // Recent users
-            var ru  = allUsers.slice(-5).reverse();
-            var utb = document.getElementById('dash-users');
-            if (ru.length === 0) {
-                utb.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="eico">👥</div><p>No users</p></div></td></tr>';
-            } else {
-                utb.innerHTML = ru.map(function(u) {
-                    return '<tr>' +
-                        '<td style="font-weight:800;color:#c2185b">#' + u.id + '</td>' +
-                        '<td>' + u.fullname + '</td>' +
-                        '<td>' + u.email + '</td>' +
-                        '<td style="font-weight:800;color:#e91e63">' + u.order_count + '</td>' +
-                        '</tr>';
-                }).join('');
-            }
+function displayItems(items){
+    var g=document.getElementById('items-grid');
+    if(items.length===0){g.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="eico">📦</div><p>No items</p></div>';return}
+    g.innerHTML=items.map(function(i){
+        var sq=i.stock_quantity||0,stk=i.in_stock?'✅ '+(sq>0?sq+' in stock':'In Stock'):'❌ Out ('+sq+')',sCls=i.in_stock?'sb-in':'sb-out';
+        return'<div class="item-card'+(i.in_stock?'':' oos')+'"><img class="item-img" src="'+getImg(i.image_url)+'" onerror="this.src=\'/static/noimg.png\'" /><div class="item-info"><h3>'+i.name+'</h3><p class="item-cat">📁 '+i.category+'</p><p class="item-price">GH&#8373;'+i.price.toFixed(2)+'</p><span class="stock-badge '+sCls+'">'+stk+'</span><div class="item-actions"><button class="btn btn-warning btn-sm" onclick="openEditModal('+i.id+')">✏️ Edit</button><button class="btn btn-sm '+(i.in_stock?'btn-danger':'btn-success')+'" onclick="toggleStock('+i.id+')">'+(i.in_stock?'❌':'✅')+'</button><button class="btn btn-danger btn-sm" onclick="delItem('+i.id+')">🗑️</button></div></div></div>';
+    }).join('');
+}
 
-            // Out of stock alert
-            var oos  = allItems.filter(function(i) { return !i.in_stock; });
-            var oc   = document.getElementById('oos-card');
-            var og   = document.getElementById('oos-grid');
-            if (oos.length > 0) {
-                oc.style.display = 'block';
-                og.innerHTML = oos.map(function(i) {
-                    return '<div class="item-card oos">' +
-                        '<img class="item-img" src="' + getImg(i.image_url) + '" onerror="this.src=\'/static/noimg.png\'" />' +
-                        '<div class="item-info">' +
-                        '<h3>' + i.name + '</h3>' +
-                        '<p class="item-price">GH&#8373;' + i.price.toFixed(2) + '</p>' +
-                        '<button class="btn btn-success btn-sm" onclick="toggleStock(' + i.id + ');setTimeout(loadDashboard,1000)">✅ Restock</button>' +
-                        '</div></div>';
-                }).join('');
-            } else {
-                oc.style.display = 'none';
-            }
-        }).catch(function(e) { console.error('Dashboard error:', e); });
-    }
+function filterItems(){
+    var s=document.getElementById('f-search').value.toLowerCase(),c=document.getElementById('f-cat').value,st=document.getElementById('f-stock').value;
+    displayItems(allItems.filter(function(i){return(i.name.toLowerCase().indexOf(s)>-1||(i.description||'').toLowerCase().indexOf(s)>-1)&&(c==='all'||i.category===c)&&(st==='all'||String(i.in_stock)===st)}));
+}
 
-    // ============================
-    // ADD ITEM
-    // ============================
-    document.getElementById('addForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        var fd = new FormData();
-        fd.append('name',            document.getElementById('a-name').value);
-        fd.append('price',           document.getElementById('a-price').value);
-        fd.append('category',        document.getElementById('a-cat').value);
-        fd.append('stock_quantity',  document.getElementById('a-qty').value);
-        fd.append('low_stock_alert', document.getElementById('a-low').value);
-        fd.append('in_stock',        document.getElementById('a-stock').value);
-        fd.append('description',     document.getElementById('a-desc').value);
-        var img = document.getElementById('a-img').files[0];
-        if (img) fd.append('image', img);
+function toggleStock(id){fetch('/api/items/toggle/'+id,{method:'POST'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('✅ '+d.message,'success');loadItems()}else toast('❌ '+d.message,'error')})}
 
-        fetch('/api/items/add', { method: 'POST', body: fd })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            if (d.success) {
-                toast('✅ ' + d.message, 'success');
-                document.getElementById('addForm').reset();
-                document.getElementById('a-prev').innerHTML = '';
-            } else {
-                toast('❌ ' + d.message, 'error');
-            }
-        }).catch(function() { toast('❌ Error!', 'error'); });
-    });
+function delItem(id){if(!confirm('Delete permanently?'))return;fetch('/api/items/delete/'+id,{method:'DELETE'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('✅ Deleted','success');loadItems()}else toast('❌ '+d.message,'error')})}
 
-    // ============================
-    // LOAD ITEMS
-    // ============================
-    function loadItems() {
-        fetch('/api/items')
-        .then(function(r) { return r.json(); })
-        .then(function(items) {
-            allItems = items;
-            displayItems(items);
-        }).catch(function() { toast('❌ Failed to load items', 'error'); });
-    }
+function openEditModal(id){
+    var item=allItems.find(function(i){return i.id===id});
+    if(!item){toast('❌ Item not found!','error');return}
+    document.getElementById('e-id').value=item.id;
+    document.getElementById('e-name').value=item.name||'';
+    document.getElementById('e-price').value=item.price||0;
+    document.getElementById('e-cat').value=item.category||'General';
+    document.getElementById('e-qty').value=item.stock_quantity||0;
+    document.getElementById('e-low').value=item.low_stock_alert||5;
+    document.getElementById('e-stock').value=String(item.in_stock);
+    document.getElementById('e-desc').value=item.description||'';
+    document.getElementById('e-prev').innerHTML='';
+    document.getElementById('e-img').value='';
+    document.getElementById('editModal').classList.add('show');
+}
 
-    function displayItems(items) {
-        var g = document.getElementById('items-grid');
-        if (items.length === 0) {
-            g.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="eico">📦</div><p>No items found</p></div>';
-            return;
-        }
-        g.innerHTML = items.map(function(i) {
-            var sq   = i.stock_quantity || 0;
-            var stk  = i.in_stock ? '✅ ' + (sq > 0 ? sq + ' in stock' : 'In Stock') : '❌ Out (' + sq + ')';
-            var sCls = i.in_stock ? 'sb-in' : 'sb-out';
-            return '<div class="item-card' + (i.in_stock ? '' : ' oos') + '">' +
-                '<img class="item-img" src="' + getImg(i.image_url) + '" onerror="this.src=\'/static/noimg.png\'" />' +
-                '<div class="item-info">' +
-                '<h3>' + i.name + '</h3>' +
-                '<p class="item-cat">📁 ' + i.category + '</p>' +
-                '<p class="item-price">GH&#8373;' + i.price.toFixed(2) + '</p>' +
-                '<span class="stock-badge ' + sCls + '">' + stk + '</span>' +
-                '<div class="item-actions">' +
-                '<button class="btn btn-warning btn-sm" onclick="openEditModal(' + i.id + ')">✏️ Edit</button>' +
-                '<button class="btn btn-sm ' + (i.in_stock ? 'btn-danger' : 'btn-success') + '" onclick="toggleStock(' + i.id + ')">' + (i.in_stock ? '❌' : '✅') + '</button>' +
-                '<button class="btn btn-danger btn-sm" onclick="delItem(' + i.id + ')">🗑️</button>' +
-                '</div></div></div>';
+function closeEditModal(){document.getElementById('editModal').classList.remove('show')}
+
+document.getElementById('editForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var id=document.getElementById('e-id').value;
+    if(!id){toast('❌ No item selected!','error');return}
+    var name=document.getElementById('e-name').value.trim();
+    var price=document.getElementById('e-price').value.trim();
+    if(!name){toast('❌ Name required!','error');return}
+    if(!price){toast('❌ Price required!','error');return}
+    var fd=new FormData();
+    fd.append('name',name);
+    fd.append('price',price);
+    fd.append('category',document.getElementById('e-cat').value);
+    fd.append('stock_quantity',document.getElementById('e-qty').value||'0');
+    fd.append('low_stock_alert',document.getElementById('e-low').value||'5');
+    fd.append('in_stock',document.getElementById('e-stock').value);
+    fd.append('description',document.getElementById('e-desc').value);
+    var img=document.getElementById('e-img').files[0];if(img)fd.append('image',img);
+    fetch('/api/items/update/'+id,{method:'POST',body:fd})
+    .then(function(r){return r.json()})
+    .then(function(d){
+        if(d.success){toast('✅ '+d.message,'success');closeEditModal();loadItems()}
+        else toast('❌ '+d.message,'error')
+    }).catch(function(){toast('❌ Error!','error')});
+});
+
+document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeEditModal()});
+
+function loadOrders(view){
+    if(view)curOV=view;
+    ['active','archived','all'].forEach(function(v){var b=document.getElementById('arc-'+v);if(b)b.className='arc-btn '+(v===curOV?'on':'off')});
+    var titles={active:'🛒 Active Orders',archived:'📦 Archived Orders',all:'🗂️ All Orders'};
+    var t=document.getElementById('ord-title');if(t)t.textContent=titles[curOV]||'🛒 Orders';
+    fetch('/api/orders?show='+curOV).then(function(r){return r.json()}).then(function(orders){
+        allOrders=orders;
+        var tb=document.getElementById('ord-body');
+        if(orders.length===0){tb.innerHTML='<tr><td colspan="11"><div class="empty-state"><div class="eico">📭</div><p>No orders</p></div></td></tr>';return}
+        tb.innerHTML=orders.map(function(o){
+            return'<tr><td style="font-weight:800;color:#c2185b">#'+o.id+'</td><td>'+o.customer_name+'</td><td>'+o.customer_phone+'</td><td style="max-width:110px;font-size:11px">'+o.customer_address+'</td><td style="max-width:130px;font-size:11px">'+fmtItems(o.items)+'</td><td style="font-family:Fredoka One,cursive;color:#e91e63;white-space:nowrap">GH&#8373;'+o.total_price.toFixed(2)+'</td><td><span class="badge b-momo">'+(o.momo_number||'N/A')+'</span></td><td><span class="badge b-trans" onclick="copyT(\''+(o.transaction_id||'')+'\')">'+(o.transaction_id||'N/A')+'</span></td><td><span class="badge '+getSC(o.status)+'">'+o.status+'</span></td><td style="font-size:11px;white-space:nowrap">'+o.date_ordered+'</td><td>'+getOrdAct(o)+'</td></tr>';
         }).join('');
-    }
+    }).catch(function(e){console.error('Orders:',e);toast('❌ Failed to load orders','error')});
+}
 
-    function filterItems() {
-        var s  = document.getElementById('f-search').value.toLowerCase();
-        var c  = document.getElementById('f-cat').value;
-        var st = document.getElementById('f-stock').value;
-        displayItems(allItems.filter(function(i) {
-            var ms = i.name.toLowerCase().indexOf(s) > -1 || (i.description || '').toLowerCase().indexOf(s) > -1;
-            var mc = c === 'all' || i.category === c;
-            var mt = st === 'all' || String(i.in_stock) === st;
-            return ms && mc && mt;
-        }));
-    }
+function getOrdAct(o){
+    if(curOV==='archived')return'<button class="btn btn-info btn-sm" onclick="unarchiveOrd('+o.id+')">📤 Restore</button>';
+    if(o.status==='Delivered')return'<span style="color:#43a047;font-weight:800;font-size:11px">✅ Done</span> <button class="btn btn-ghost btn-sm" onclick="archiveOrd('+o.id+')" title="Archive">📦</button>';
+    if(o.status==='Cancelled')return'<span style="color:#e53935;font-weight:800;font-size:11px">❌</span> <button class="btn btn-ghost btn-sm" onclick="archiveOrd('+o.id+')" title="Archive">📦</button>';
+    if(o.status==='Refunded')return'<span style="color:#2e7d32;font-weight:800;font-size:11px">💰</span> <button class="btn btn-ghost btn-sm" onclick="archiveOrd('+o.id+')" title="Archive">📦</button>';
+    if(o.status==='Dispute Rejected')return'<span style="color:#c62828;font-weight:800;font-size:11px">❌ Rejected</span> <button class="btn btn-ghost btn-sm" onclick="archiveOrd('+o.id+')" title="Archive">📦</button>';
+    if(o.status==='Awaiting Delivery')return'<span style="color:#1976d2;font-weight:800;font-size:11px">📦 Awaiting</span>';
+    if(o.status==='Disputed')return'<button class="btn btn-warning btn-sm" onclick="openDR('+o.id+')">⚠️ Resolve</button>';
+    if(o.status==='Pending')return'<button class="btn btn-success btn-sm" onclick="updOrdStat('+o.id+',\'Confirmed\')">✅</button> <button class="btn btn-danger btn-sm" onclick="updOrdStat('+o.id+',\'Cancelled\')">❌</button>';
+    if(o.status==='Confirmed')return'<button class="btn btn-info btn-sm" onclick="updOrdStat('+o.id+',\'Delivered\')">📦 Send</button>';
+    return'';
+}
 
-    function toggleStock(id) {
-        fetch('/api/items/toggle/' + id, { method: 'POST' })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            if (d.success) { toast('✅ ' + d.message, 'success'); loadItems(); }
-            else toast('❌ ' + d.message, 'error');
-        });
-    }
+function updOrdStat(id,status){
+    fetch('/api/orders/status/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:status})})
+    .then(function(r){return r.json()}).then(function(d){if(d.success){toast('✅ '+d.message,'success');loadOrders()}else toast('❌ '+d.message,'error')});
+}
 
-    function delItem(id) {
-        if (!confirm('Delete this item permanently?')) return;
-        fetch('/api/items/delete/' + id, { method: 'DELETE' })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            if (d.success) { toast('✅ ' + d.message, 'success'); loadItems(); }
-            else toast('❌ ' + d.message, 'error');
-        });
-    }
+function archiveOrd(id){if(!confirm('Archive this order?'))return;fetch('/api/orders/archive/'+id,{method:'POST'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('📦 '+d.message,'success');loadOrders()}else toast('❌ '+d.message,'error')}).catch(function(){toast('❌ Error!','error')})}
 
-    // ============================
-    // EDIT ITEM MODAL
-    // ============================
-    function openEditModal(id) {
-        var item = allItems.find(function(i) { return i.id === id; });
-        if (!item) {
-            toast('❌ Item not found!', 'error');
-            return;
-        }
-        // Populate form
-        document.getElementById('e-id').value    = item.id;
-        document.getElementById('e-name').value  = item.name || '';
-        document.getElementById('e-price').value = item.price || 0;
-        document.getElementById('e-cat').value   = item.category || 'General';
-        document.getElementById('e-qty').value   = item.stock_quantity || 0;
-        document.getElementById('e-low').value   = item.low_stock_alert || 5;
-        document.getElementById('e-stock').value = String(item.in_stock);
-        document.getElementById('e-desc').value  = item.description || '';
-        document.getElementById('e-prev').innerHTML = '';
-        // Clear file input
-        document.getElementById('e-img').value = '';
-        // Show modal
-        document.getElementById('editModal').classList.add('show');
-    }
+function unarchiveOrd(id){fetch('/api/orders/unarchive/'+id,{method:'POST'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('📤 '+d.message,'success');loadOrders()}else toast('❌ '+d.message,'error')}).catch(function(){toast('❌ Error!','error')})}
 
-    function closeEditModal() {
-        document.getElementById('editModal').classList.remove('show');
-    }
+function archiveAllDone(){if(!confirm('Archive all completed orders?\n\nWill archive: Delivered, Cancelled, Refunded, Dispute Rejected\nWill NOT archive: Awaiting Delivery'))return;fetch('/api/orders/archive-completed',{method:'POST'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('📦 '+d.message,'success');loadOrders()}else toast('❌ '+d.message,'error')}).catch(function(){toast('❌ Error!','error')})}
 
-    document.getElementById('editForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        var id = document.getElementById('e-id').value;
-        if (!id) { toast('❌ No item selected!', 'error'); return; }
+function openDR(orderId){
+    var o=allOrders.find(function(x){return x.id===orderId});if(!o)return;
+    drActVal='';
+    document.getElementById('dr-oid').value=orderId;
+    document.getElementById('dr-title').textContent='Order #'+orderId;
+    document.getElementById('dr-cust').textContent='Customer: '+o.customer_name+' ('+o.customer_phone+')';
+    document.getElementById('dr-itms').textContent='Items: '+fmtItems(o.items);
+    document.getElementById('dr-tot').textContent='GH\u20b5 '+o.total_price.toFixed(2);
+    document.getElementById('dr-comment').value='';
+    document.querySelectorAll('input[name="dract"]').forEach(function(r){r.checked=false});
+    document.getElementById('dr-reason').textContent='"No reason provided"';
+    fetch('/api/notifications/admin').then(function(r){return r.json()}).then(function(d){
+        if(d.notifications){var dn=d.notifications.find(function(n){return n.title.indexOf('DISPUTE')>-1&&n.title.indexOf('#'+orderId)>-1});
+        if(dn){var rs=dn.message.indexOf('Reason: ');if(rs>-1)document.getElementById('dr-reason').textContent='"'+dn.message.substring(rs+8)+'"'}}
+    }).catch(function(){});
+    document.getElementById('drModal').classList.add('show');
+}
 
-        var nameVal  = document.getElementById('e-name').value.trim();
-        var priceVal = document.getElementById('e-price').value.trim();
+function submitDR(){
+    var oid=document.getElementById('dr-oid').value,comment=document.getElementById('dr-comment').value.trim();
+    if(!drActVal){toast('❌ Select an action!','error');return}
+    if(!comment){toast('❌ Add a comment!','error');return}
+    var btn=document.getElementById('dr-btn');btn.textContent='Submitting...';btn.disabled=true;
+    fetch('/api/orders/resolve-dispute/'+oid,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:drActVal,comment:comment})})
+    .then(function(r){return r.json()}).then(function(d){if(d.success){toast('✅ Resolved!','success');document.getElementById('drModal').classList.remove('show');loadOrders()}else toast('❌ '+d.message,'error')})
+    .catch(function(){toast('❌ Error!','error')}).finally(function(){btn.textContent='✅ Submit';btn.disabled=false});
+}
+document.getElementById('drModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
 
-        if (!nameVal)  { toast('❌ Name is required!',  'error'); return; }
-        if (!priceVal) { toast('❌ Price is required!', 'error'); return; }
+function loadUsers(){
+    fetch('/api/users').then(function(r){return r.json()}).then(function(users){
+        allUsers=users;var tb=document.getElementById('usr-body');
+        if(users.length===0){tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="eico">👥</div><p>No users</p></div></td></tr>';return}
+        tb.innerHTML=users.map(function(u){return'<tr><td style="font-weight:800;color:#c2185b">#'+u.id+'</td><td>'+u.fullname+'</td><td>'+u.email+'</td><td>'+u.phone+'</td><td>'+u.address+'</td><td style="font-weight:800;color:#e91e63;text-align:center">'+u.order_count+'</td><td style="font-size:11px">'+u.created_at+'</td></tr>'}).join('');
+    }).catch(function(){toast('❌ Failed','error')});
+}
 
-        var fd = new FormData();
-        fd.append('name',            nameVal);
-        fd.append('price',           priceVal);
-        fd.append('category',        document.getElementById('e-cat').value);
-        fd.append('stock_quantity',  document.getElementById('e-qty').value || '0');
-        fd.append('low_stock_alert', document.getElementById('e-low').value || '5');
-        fd.append('in_stock',        document.getElementById('e-stock').value);
-        fd.append('description',     document.getElementById('e-desc').value);
+function loadCoupons(){
+    fetch('/api/coupons').then(function(r){return r.json()}).then(function(coupons){
+        var tb=document.getElementById('cpn-body');
+        if(!coupons||coupons.length===0){tb.innerHTML='<tr><td colspan="9"><div class="empty-state"><p>No coupons yet</p></div></td></tr>';return}
+        tb.innerHTML=coupons.map(function(c){
+            var val=c.discount_type==='percentage'?c.discount_value+'%':'GH&#8373;'+c.discount_value;
+            return'<tr><td style="font-weight:800;color:#c2185b">'+c.code+'</td><td>'+c.discount_type+'</td><td style="font-weight:800">'+val+'</td><td>GH&#8373;'+c.min_order+'</td><td>'+c.used_count+'</td><td>'+(c.max_uses||'∞')+'</td><td><span class="badge '+(c.is_active?'b-confirmed':'b-cancelled')+'">'+(c.is_active?'Active':'Off')+'</span></td><td>'+(c.expires_at||'Never')+'</td><td><button class="btn btn-sm '+(c.is_active?'btn-warning':'btn-success')+'" onclick="toggleCpn('+c.id+')">'+(c.is_active?'Disable':'Enable')+'</button> <button class="btn btn-danger btn-sm" onclick="delCpn('+c.id+')">🗑️</button></td></tr>';
+        }).join('');
+    }).catch(function(){toast('❌ Failed','error')});
+}
 
-        var img = document.getElementById('e-img').files[0];
-        if (img) fd.append('image', img);
+function createCoupon(){
+    var code=document.getElementById('cp-code').value.trim().toUpperCase();
+    var valStr=document.getElementById('cp-val').value.trim();
+    if(!code){toast('❌ Code required!','error');return}
+    if(!valStr){toast('❌ Value required!','error');return}
+    var val=parseFloat(valStr);
+    if(isNaN(val)||val<=0){toast('❌ Value must be greater than 0!','error');return}
+    var minOrder=parseFloat(document.getElementById('cp-min').value)||0;
+    var maxUses=parseInt(document.getElementById('cp-max').value)||0;
+    var expires=document.getElementById('cp-exp').value||'';
+    var payload={code:code,discount_type:document.getElementById('cp-type').value,discount_value:val,min_order:minOrder,max_uses:maxUses,expires_at:expires};
+    var btn=document.getElementById('create-coupon-btn');
+    btn.textContent='Creating...';btn.disabled=true;
+    fetch('/api/coupons/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json()})
+    .then(function(d){
+        if(d.success){
+            toast('✅ '+d.message,'success');loadCoupons();
+            document.getElementById('cp-code').value='';
+            document.getElementById('cp-val').value='';
+            document.getElementById('cp-min').value='0';
+            document.getElementById('cp-max').value='0';
+            document.getElementById('cp-exp').value='';
+        }else toast('❌ '+d.message,'error');
+    }).catch(function(){toast('❌ Error!','error')})
+    .finally(function(){btn.textContent='🎟️ Create Coupon';btn.disabled=false});
+}
 
-        console.log('Updating item', id, 'stock_quantity:', document.getElementById('e-qty').value, 'in_stock:', document.getElementById('e-stock').value);
+function toggleCpn(id){fetch('/api/coupons/toggle/'+id,{method:'POST'}).then(function(){loadCoupons();toast('✅ Updated!','success')})}
+function delCpn(id){if(!confirm('Delete?'))return;fetch('/api/coupons/delete/'+id,{method:'DELETE'}).then(function(){loadCoupons();toast('✅ Deleted!','success')})}
 
-        fetch('/api/items/update/' + id, { method: 'POST', body: fd })
-        .then(function(r) {
-            console.log('Update response status:', r.status);
-            return r.json();
-        })
-        .then(function(d) {
-            console.log('Update response:', d);
-            if (d.success) {
-                toast('✅ ' + d.message, 'success');
-                closeEditModal();
-                loadItems();
-            } else {
-                toast('❌ ' + d.message, 'error');
-            }
-        }).catch(function(err) {
-            console.error('Edit error:', err);
-            toast('❌ Error updating item!', 'error');
-        });
-    });
+function loadReports(){
+    fetch('/api/reports/sales').then(function(r){return r.json()}).then(function(d){
+        document.getElementById('r-total').textContent='GH\u20b5'+d.total_revenue.toFixed(2);
+        document.getElementById('r-today').textContent='GH\u20b5'+d.today_revenue.toFixed(2);
+        document.getElementById('r-week').textContent='GH\u20b5'+d.week_revenue.toFixed(2);
+        document.getElementById('r-month').textContent='GH\u20b5'+d.month_revenue.toFixed(2);
+        document.getElementById('r-done').textContent=d.completed_orders;
+        document.getElementById('r-pend').textContent=d.pending_orders;
+        document.getElementById('r-canc').textContent=d.cancelled_orders;
+        var bs=document.getElementById('r-best');
+        if(d.best_sellers.length===0)bs.innerHTML='<p style="color:#aaa;text-align:center;padding:20px;font-weight:700">No data yet</p>';
+        else bs.innerHTML=d.best_sellers.map(function(b,i){return'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:2px solid #fce4ec"><span style="font-family:Fredoka One,cursive;color:#c2185b;font-size:15px;width:22px">#'+(i+1)+'</span><div style="flex:1"><div style="font-weight:800;color:#333;font-size:12px">'+b.name+'</div><div style="font-size:10px;color:#aaa;font-weight:700">'+b.orders+' orders</div></div><span style="font-family:Fredoka One,cursive;color:#e91e63;font-size:13px">GH\u20b5'+b.revenue.toFixed(2)+'</span></div>'}).join('');
+        var dc=document.getElementById('r-chart');
+        if(d.daily_sales.length===0)dc.innerHTML='<div class="empty-state" style="width:100%"><p>No data</p></div>';
+        else{var mx=Math.max.apply(null,d.daily_sales.map(function(s){return s.revenue}))||1;dc.innerHTML=d.daily_sales.map(function(s){var h=Math.max((s.revenue/mx)*150,5),day=s.date.split('-')[2];return'<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="font-family:Fredoka One,cursive;color:#e91e63;font-size:9px">GH\u20b5'+Math.round(s.revenue)+'</div><div style="width:100%;height:'+h+'px;background:linear-gradient(180deg,#e91e63,#ff6f00);border-radius:6px 6px 0 0;min-width:20px"></div><div style="font-size:10px;font-weight:800;color:#888">'+day+'</div><div style="font-size:9px;color:#aaa">'+s.orders+'</div></div>'}).join('')}
+    }).catch(function(e){console.error('Reports:',e)});
+}
 
-    document.getElementById('editModal').addEventListener('click', function(e) {
-        if (e.target === this) closeEditModal();
-    });
+function toggleNotifs(){var dd=document.getElementById('notif-dropdown');if(dd.classList.contains('show')){dd.classList.remove('show')}else{dd.classList.add('show');loadNotifs()}}
 
-    // ============================
-    // ORDERS
-    // ============================
-    function loadOrders(view) {
-        if (view) curOV = view;
+function loadNotifs(){
+    fetch('/api/notifications/admin').then(function(r){return r.json()}).then(function(d){
+        var cnt=document.getElementById('notif-count');
+        if(d.unread_count>0){cnt.textContent=d.unread_count;cnt.style.display='flex';if(d.unread_count>lastNC&&lastNC>=0&&d.notifications.length>0){var n=d.notifications[0];if(!n.is_read)showPop(n.title,n.message)}lastNC=d.unread_count}
+        else{cnt.style.display='none';lastNC=0}
+        var list=document.getElementById('notif-list');
+        if(!d.notifications||d.notifications.length===0){list.innerHTML='<div class="empty-state" style="padding:25px"><p>No notifications</p></div>';return}
+        list.innerHTML=d.notifications.map(function(n){return'<div class="notif-item'+(n.is_read?'':' unread')+'" onclick="markNR('+n.id+',this)"><div class="ni-title">'+(n.is_read?'':'🔴 ')+n.title+'</div><div class="ni-msg">'+n.message+'</div><div class="ni-time">'+n.created_at+'</div></div>'}).join('');
+    }).catch(function(){});
+}
 
-        // Update filter button styles
-        ['active', 'archived', 'all'].forEach(function(v) {
-            var b = document.getElementById('arc-' + v);
-            if (b) {
-                b.className = 'arc-btn ' + (v === curOV ? 'on' : 'off');
-            }
-        });
+function markNR(id,el){fetch('/api/notifications/read/'+id,{method:'POST'}).then(function(){if(el){el.classList.remove('unread');var t=el.querySelector('.ni-title');if(t)t.innerHTML=t.innerHTML.replace('🔴 ','')}loadNotifs()})}
 
-        // Update title
-        var titles = { active: '🛒 Active Orders', archived: '📦 Archived Orders', all: '🗂️ All Orders' };
-        var t = document.getElementById('ord-title');
-        if (t) t.textContent = titles[curOV] || '🛒 Orders';
+function markAllRead(){fetch('/api/notifications/read-all',{method:'POST',headers:{'Content-Type':'application/json'}}).then(function(){loadNotifs();toast('✅ All read!','success')})}
 
-        fetch('/api/orders?show=' + curOV)
-        .then(function(r) { return r.json(); })
-        .then(function(orders) {
-            allOrders = orders;
-            var tb = document.getElementById('ord-body');
-            if (orders.length === 0) {
-                tb.innerHTML = '<tr><td colspan="11"><div class="empty-state"><div class="eico">📭</div><p>No orders</p></div></td></tr>';
-                return;
-            }
-            tb.innerHTML = orders.map(function(o) {
-                return '<tr>' +
-                    '<td style="font-weight:800;color:#c2185b">#' + o.id + '</td>' +
-                    '<td>' + o.customer_name + '</td>' +
-                    '<td>' + o.customer_phone + '</td>' +
-                    '<td style="max-width:110px;font-size:11px">' + o.customer_address + '</td>' +
-                    '<td style="max-width:130px;font-size:11px">' + fmtItems(o.items) + '</td>' +
-                    '<td style="font-family:Fredoka One,cursive;color:#e91e63;white-space:nowrap">GH&#8373;' + o.total_price.toFixed(2) + '</td>' +
-                    '<td><span class="badge b-momo">' + (o.momo_number || 'N/A') + '</span></td>' +
-                    '<td><span class="badge b-trans" onclick="copyT(\'' + (o.transaction_id || '') + '\')">' + (o.transaction_id || 'N/A') + '</span></td>' +
-                    '<td><span class="badge ' + getSC(o.status) + '">' + o.status + '</span></td>' +
-                    '<td style="font-size:11px;white-space:nowrap">' + o.date_ordered + '</td>' +
-                    '<td>' + getOrdActions(o) + '</td>' +
-                    '</tr>';
-            }).join('');
-        }).catch(function(e) {
-            console.error('Orders error:', e);
-            toast('❌ Failed to load orders', 'error');
-        });
-    }
+function showPop(title,msg){
+    var old=document.getElementById('adm-pop');if(old)old.remove();
+    var p=document.createElement('div');p.id='adm-pop';
+    p.style.cssText='position:fixed;top:20px;right:20px;background:white;border-radius:18px;padding:18px;box-shadow:0 10px 40px rgba(233,30,99,0.3);border:3px solid #fce4ec;z-index:10000;max-width:360px;animation:popIn 0.3s ease;cursor:pointer';
+    p.onclick=function(){p.remove();toggleNotifs()};
+    p.innerHTML='<div style="display:flex;align-items:center;gap:10px"><div style="font-size:28px">🔔</div><div><div style="font-family:Fredoka One,cursive;color:#c2185b;font-size:14px">'+title+'</div><div style="font-size:12px;color:#666;font-weight:600;margin-top:3px">'+msg+'</div></div><button onclick="event.stopPropagation();this.parentElement.parentElement.remove()" style="background:#ffebee;border:none;color:#e53935;width:26px;height:26px;border-radius:50%;cursor:pointer;font-weight:800;flex-shrink:0;font-size:12px">x</button></div>';
+    document.body.appendChild(p);
+    setTimeout(function(){var el=document.getElementById('adm-pop');if(el){el.style.opacity='0';el.style.transition='all 0.3s';setTimeout(function(){el.remove()},300)}},10000);
+}
 
-    function getOrdActions(o) {
-        // Archived view - show restore only
-        if (curOV === 'archived') {
-            return '<button class="btn btn-info btn-sm" onclick="unarchiveOrd(' + o.id + ')">📤 Restore</button>';
-        }
-
-        // Active/All view
-        if (o.status === 'Delivered') {
-            return '<span style="color:#43a047;font-weight:800;font-size:11px">✅ Done</span> ' +
-                   '<button class="btn btn-ghost btn-sm" onclick="archiveOrd(' + o.id + ')" title="Archive this order">📦</button>';
-        }
-        if (o.status === 'Cancelled') {
-            return '<span style="color:#e53935;font-weight:800;font-size:11px">❌ Cancelled</span> ' +
-                   '<button class="btn btn-ghost btn-sm" onclick="archiveOrd(' + o.id + ')" title="Archive this order">📦</button>';
-        }
-        if (o.status === 'Refunded') {
-            return '<span style="color:#2e7d32;font-weight:800;font-size:11px">💰 Refunded</span> ' +
-                   '<button class="btn btn-ghost btn-sm" onclick="archiveOrd(' + o.id + ')" title="Archive this order">📦</button>';
-        }
-        if (o.status === 'Dispute Rejected') {
-            return '<span style="color:#c62828;font-weight:800;font-size:11px">❌ Rejected</span> ' +
-                   '<button class="btn btn-ghost btn-sm" onclick="archiveOrd(' + o.id + ')" title="Archive this order">📦</button>';
-        }
-        if (o.status === 'Awaiting Delivery') {
-            return '<span style="color:#1976d2;font-weight:800;font-size:11px">📦 Awaiting Customer</span>';
-        }
-        if (o.status === 'Disputed') {
-            return '<button class="btn btn-warning btn-sm" onclick="openDR(' + o.id + ')">⚠️ Resolve</button>';
-        }
-        if (o.status === 'Pending') {
-            return '<button class="btn btn-success btn-sm" onclick="updOrdStatus(' + o.id + ',\'Confirmed\')">✅ Confirm</button> ' +
-                   '<button class="btn btn-danger btn-sm" onclick="updOrdStatus(' + o.id + ',\'Cancelled\')">❌</button>';
-        }
-        if (o.status === 'Confirmed') {
-            return '<button class="btn btn-info btn-sm" onclick="updOrdStatus(' + o.id + ',\'Delivered\')">📦 Send</button>';
-        }
-        return '';
-    }
-
-    function updOrdStatus(id, status) {
-        fetch('/api/orders/status/' + id, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: status })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            if (d.success) { toast('✅ ' + d.message, 'success'); loadOrders(); }
-            else toast('❌ ' + d.message, 'error');
-        });
-    }
-
-    // ============================
-    // ARCHIVE FUNCTIONS
-    // ============================
-    function archiveOrd(id) {
-        if (!confirm('Archive this order?\n\nIt will move to the Archived tab.')) return;
-        fetch('/api/orders/archive/' + id, { method: 'POST' })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            if (d.success) { toast('📦 ' + d.message, 'success'); loadOrders(); }
-            else toast('❌ ' + d.message, 'error');
-        }).catch(function() { toast('❌ Error!', 'error'); });
-    }
-
-    function unarchiveOrd(id) {
-        fetch('/api/orders/unarchive/' + id, { method: 'POST' })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            if (d.success) { toast('📤 ' + d.message, 'success'); loadOrders(); }
-            else toast('❌ ' + d.message, 'error');
-        }).catch(function() { toast('❌ Error!', 'error'); });
-    }
-
-    function archiveAllDone() {
-        if (!confirm(
-            'Archive all completed orders?\n\n' +
-            'Will archive:\n' +
-            '✅ Delivered (customer confirmed receipt)\n' +
-            '❌ Cancelled\n' +
-            '💰 Refunded\n' +
-            '❌ Dispute Rejected\n\n' +
-            'Will NOT archive:\n' +
-            '📦 Awaiting Delivery (customer has not confirmed yet)'
-        )) return;
-        fetch('/api/orders/archive-completed', { method: 'POST' })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            if (d.success) { toast('📦 ' + d.message, 'success'); loadOrders(); }
-            else toast('❌ ' + d.message, 'error');
-        }).catch(function() { toast('❌ Error!', 'error'); });
-    }
-
-    // ============================
-    // DISPUTE RESOLUTION
-    // ============================
-    function openDR(orderId) {
-        var o = allOrders.find(function(x) { return x.id === orderId; });
-        if (!o) return;
-
-        drActVal = '';
-        document.getElementById('dr-oid').value        = orderId;
-        document.getElementById('dr-title').textContent = 'Order #' + orderId;
-        document.getElementById('dr-cust').textContent  = 'Customer: ' + o.customer_name + ' (' + o.customer_phone + ')';
-        document.getElementById('dr-itms').textContent  = 'Items: ' + fmtItems(o.items);
-        document.getElementById('dr-tot').textContent   = 'GH\u20b5 ' + o.total_price.toFixed(2);
-        document.getElementById('dr-comment').value     = '';
-
-        var radios = document.querySelectorAll('input[name="dract"]');
-        radios.forEach(function(r) { r.checked = false; });
-
-        var reason = 'No reason provided';
-        fetch('/api/notifications/admin')
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            if (d.notifications) {
-                var dn = d.notifications.find(function(n) {
-                    return n.title.indexOf('DISPUTE') > -1 && n.title.indexOf('#' + orderId) > -1;
-                });
-                if (dn) {
-                    var rs = dn.message.indexOf('Reason: ');
-                    if (rs > -1) reason = dn.message.substring(rs + 8);
-                }
-            }
-            document.getElementById('dr-reason').textContent = '"' + reason + '"';
-        }).catch(function() {
-            document.getElementById('dr-reason').textContent = '"' + reason + '"';
-        });
-
-        document.getElementById('drModal').classList.add('show');
-    }
-
-    function submitDR() {
-        var oid     = document.getElementById('dr-oid').value;
-        var comment = document.getElementById('dr-comment').value.trim();
-
-        if (!drActVal) { toast('❌ Select an action!', 'error'); return; }
-        if (!comment)  { toast('❌ Add a comment!',    'error'); return; }
-
-        var btn = document.getElementById('dr-btn');
-        btn.textContent = 'Submitting...';
-        btn.disabled    = true;
-
-        fetch('/api/orders/resolve-dispute/' + oid, {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ action: drActVal, comment: comment })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            if (d.success) {
-                toast('✅ Dispute resolved!', 'success');
-                document.getElementById('drModal').classList.remove('show');
-                loadOrders();
-            } else {
-                toast('❌ ' + d.message, 'error');
-            }
-        }).catch(function() { toast('❌ Error!', 'error'); })
-        .finally(function() {
-            btn.textContent = '✅ Submit Resolution';
-            btn.disabled    = false;
-        });
-    }
-
-    document.getElementById('drModal').addEventListener('click', function(e) {
-        if (e.target === this) this.classList.remove('show');
-    });
-
-    // ============================
-    // USERS
-    // ============================
-    function loadUsers() {
-        fetch('/api/users')
-        .then(function(r) { return r.json(); })
-        .then(function(users) {
-            allUsers = users;
-            var tb = document.getElementById('usr-body');
-            if (users.length === 0) {
-                tb.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="eico">👥</div><p>No users</p></div></td></tr>';
-                return;
-            }
-            tb.innerHTML = users.map(function(u) {
-                return '<tr>' +
-                    '<td style="font-weight:800;color:#c2185b">#' + u.id + '</td>' +
-                    '<td>' + u.fullname + '</td>' +
-                    '<td>' + u.email + '</td>' +
-                    '<td>' + u.phone + '</td>' +
-                    '<td>' + u.address + '</td>' +
-                    '<td style="font-weight:800;color:#e91e63;text-align:center">' + u.order_count + '</td>' +
-                    '<td style="font-size:11px">' + u.created_at + '</td>' +
-                    '</tr>';
-            }).join('');
-        }).catch(function() { toast('❌ Failed to load users', 'error'); });
-    }
-
-    // ============================
-    // COUPONS
-    // ============================
-    function loadCoupons() {
-        fetch('/api/coupons')
-        .then(function(r) { return r.json(); })
-        .then(function(coupons) {
-            var tb = document.getElementById('cpn-body');
-            if (!coupons || coupons.length === 0) {
-                tb.innerHTML = '<tr><td colspan="9"><div class="empty-state"><p>No coupons yet</p></div></td></tr>';
-                return;
-            }
-            tb.innerHTML = coupons.map(function(c) {
-                var val = c.discount_type === 'percentage' ? c.discount_value + '%' : 'GH&#8373;' + c.discount_value;
-                return '<tr>' +
-                    '<td style="font-weight:800;color:#c2185b">' + c.code + '</td>' +
-                    '<td>' + c.discount_type + '</td>' +
-                    '<td style="font-weight:800">' + val + '</td>' +
-                    '<td>GH&#8373;' + c.min_order + '</td>' +
-                    '<td>' + c.used_count + '</td>' +
-                    '<td>' + (c.max_uses || '∞') + '</td>' +
-                    '<td><span class="badge ' + (c.is_active ? 'b-confirmed' : 'b-cancelled') + '">' + (c.is_active ? 'Active' : 'Off') + '</span></td>' +
-                    '<td>' + (c.expires_at || 'Never') + '</td>' +
-                    '<td>' +
-                    '<button class="btn btn-sm ' + (c.is_active ? 'btn-warning' : 'btn-success') + '" onclick="toggleCpn(' + c.id + ')">' + (c.is_active ? 'Disable' : 'Enable') + '</button> ' +
-                    '<button class="btn btn-danger btn-sm" onclick="delCpn(' + c.id + ')">🗑️</button>' +
-                    '</td></tr>';
-            }).join('');
-        }).catch(function() { toast('❌ Failed to load coupons', 'error'); });
-    }
-
-    function createCoupon() {
-        var code = document.getElementById('cp-code').value.trim().toUpperCase();
-        var val  = document.getElementById('cp-val').value.trim();
-
-        if (!code) { toast('❌ Coupon code required!', 'error'); return; }
-        if (!val || isNaN(parseFloat(val))) { toast('❌ Valid discount value required!', 'error'); return; }
-
-        var minOrder = parseFloat(document.getElementById('cp-min').value) || 0;
-        var maxUses  = parseInt(document.getElementById('cp-max').value)   || 0;
-        var expires  = document.getElementById('cp-exp').value || '';
-
-        var payload = {
-            code:           code,
-            discount_type:  document.getElementById('cp-type').value,
-            discount_value: parseFloat(val),
-            min_order:      minOrder,
-            max_uses:       maxUses,
-            expires_at:     expires
-        };
-
-        console.log('Creating coupon:', payload);
-
-        fetch('/api/coupons/create', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify(payload)
-        })
-        .then(function(r) {
-            console.log('Response status:', r.status);
-            return r.json();
-        })
-        .then(function(d) {
-            console.log('Response:', d);
-            if (d.success) {
-                toast('✅ ' + d.message, 'success');
-                loadCoupons();
-                document.getElementById('cp-code').value = '';
-                document.getElementById('cp-val').value  = '';
-                document.getElementById('cp-min').value  = '0';
-                document.getElementById('cp-max').value  = '0';
-                document.getElementById('cp-exp').value  = '';
-            } else {
-                toast('❌ ' + d.message, 'error');
-            }
-        })
-        .catch(function(err) {
-            console.error('Coupon error:', err);
-            toast('❌ Error creating coupon!', 'error');
-        });
-    }
-
-    function toggleCpn(id) {
-        fetch('/api/coupons/toggle/' + id, { method: 'POST' })
-        .then(function() { loadCoupons(); toast('✅ Updated!', 'success'); });
-    }
-
-    function delCpn(id) {
-        if (!confirm('Delete this coupon?')) return;
-        fetch('/api/coupons/delete/' + id, { method: 'DELETE' })
-        .then(function() { loadCoupons(); toast('✅ Deleted!', 'success'); });
-    }
-
-    // ============================
-    // REPORTS
-    // ============================
-    function loadReports() {
-        fetch('/api/reports/sales')
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            document.getElementById('r-total').textContent = 'GH\u20b5' + d.total_revenue.toFixed(2);
-            document.getElementById('r-today').textContent = 'GH\u20b5' + d.today_revenue.toFixed(2);
-            document.getElementById('r-week').textContent  = 'GH\u20b5' + d.week_revenue.toFixed(2);
-            document.getElementById('r-month').textContent = 'GH\u20b5' + d.month_revenue.toFixed(2);
-            document.getElementById('r-done').textContent  = d.completed_orders;
-            document.getElementById('r-pend').textContent  = d.pending_orders;
-            document.getElementById('r-canc').textContent  = d.cancelled_orders;
-
-            var bs = document.getElementById('r-best');
-            if (d.best_sellers.length === 0) {
-                bs.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;font-weight:700">No data yet</p>';
-            } else {
-                bs.innerHTML = d.best_sellers.map(function(b, i) {
-                    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:2px solid #fce4ec">' +
-                        '<span style="font-family:Fredoka One,cursive;color:#c2185b;font-size:15px;width:22px">#' + (i + 1) + '</span>' +
-                        '<div style="flex:1"><div style="font-weight:800;color:#333;font-size:12px">' + b.name + '</div>' +
-                        '<div style="font-size:10px;color:#aaa;font-weight:700">' + b.orders + ' orders</div></div>' +
-                        '<span style="font-family:Fredoka One,cursive;color:#e91e63;font-size:13px">GH\u20b5' + b.revenue.toFixed(2) + '</span>' +
-                        '</div>';
-                }).join('');
-            }
-
-            var dc = document.getElementById('r-chart');
-            if (d.daily_sales.length === 0) {
-                dc.innerHTML = '<div class="empty-state" style="width:100%"><p>No data</p></div>';
-            } else {
-                var mx = Math.max.apply(null, d.daily_sales.map(function(s) { return s.revenue; })) || 1;
-                dc.innerHTML = d.daily_sales.map(function(s) {
-                    var h   = Math.max((s.revenue / mx) * 150, 5);
-                    var day = s.date.split('-')[2];
-                    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">' +
-                        '<div style="font-family:Fredoka One,cursive;color:#e91e63;font-size:9px">GH\u20b5' + Math.round(s.revenue) + '</div>' +
-                        '<div style="width:100%;height:' + h + 'px;background:linear-gradient(180deg,#e91e63,#ff6f00);border-radius:6px 6px 0 0;min-width:20px"></div>' +
-                        '<div style="font-size:10px;font-weight:800;color:#888">' + day + '</div>' +
-                        '<div style="font-size:9px;color:#aaa">' + s.orders + '</div>' +
-                        '</div>';
-                }).join('');
-            }
-        }).catch(function(e) { console.error('Reports error:', e); });
-    }
-
-    // ============================
-    // NOTIFICATIONS
-    // ============================
-    function toggleNotifs() {
-        var dd = document.getElementById('notif-dropdown');
-        if (dd.classList.contains('show')) {
-            dd.classList.remove('show');
-        } else {
-            dd.classList.add('show');
-            loadNotifs();
-        }
-    }
-
-    function loadNotifs() {
-        fetch('/api/notifications/admin')
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            var cnt = document.getElementById('notif-count');
-            if (d.unread_count > 0) {
-                cnt.textContent   = d.unread_count;
-                cnt.style.display = 'flex';
-                if (d.unread_count > lastNC && lastNC >= 0 && d.notifications.length > 0) {
-                    var n = d.notifications[0];
-                    if (!n.is_read) showPop(n.title, n.message);
-                }
-                lastNC = d.unread_count;
-            } else {
-                cnt.style.display = 'none';
-                lastNC = 0;
-            }
-
-            var list = document.getElementById('notif-list');
-            if (!d.notifications || d.notifications.length === 0) {
-                list.innerHTML = '<div class="empty-state" style="padding:25px"><p>No notifications</p></div>';
-                return;
-            }
-            list.innerHTML = d.notifications.map(function(n) {
-                return '<div class="notif-item' + (n.is_read ? '' : ' unread') + '" onclick="markNR(' + n.id + ',this)">' +
-                    '<div class="ni-title">' + (n.is_read ? '' : '🔴 ') + n.title + '</div>' +
-                    '<div class="ni-msg">' + n.message + '</div>' +
-                    '<div class="ni-time">' + n.created_at + '</div>' +
-                    '</div>';
-            }).join('');
-        }).catch(function() {});
-    }
-
-    function markNR(id, el) {
-        fetch('/api/notifications/read/' + id, { method: 'POST' })
-        .then(function() {
-            if (el) {
-                el.classList.remove('unread');
-                var t = el.querySelector('.ni-title');
-                if (t) t.innerHTML = t.innerHTML.replace('🔴 ', '');
-            }
-            loadNotifs();
-        });
-    }
-
-    function markAllRead() {
-        fetch('/api/notifications/read-all', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-        .then(function() { loadNotifs(); toast('✅ All marked read!', 'success'); });
-    }
-
-    function showPop(title, msg) {
-        var old = document.getElementById('adm-pop');
-        if (old) old.remove();
-        var p = document.createElement('div');
-        p.id = 'adm-pop';
-        p.style.cssText = 'position:fixed;top:20px;right:20px;background:white;border-radius:18px;padding:18px;box-shadow:0 10px 40px rgba(233,30,99,0.3);border:3px solid #fce4ec;z-index:10000;max-width:360px;animation:popIn 0.3s ease;cursor:pointer';
-        p.onclick = function() { p.remove(); toggleNotifs(); };
-        p.innerHTML = '<div style="display:flex;align-items:center;gap:10px">' +
-            '<div style="font-size:28px">🔔</div>' +
-            '<div><div style="font-family:Fredoka One,cursive;color:#c2185b;font-size:14px">' + title + '</div>' +
-            '<div style="font-size:12px;color:#666;font-weight:600;margin-top:3px">' + msg + '</div></div>' +
-            '<button onclick="event.stopPropagation();this.parentElement.parentElement.remove()" style="background:#ffebee;border:none;color:#e53935;width:26px;height:26px;border-radius:50%;cursor:pointer;font-weight:800;flex-shrink:0;font-size:12px">x</button>' +
-            '</div>';
-        document.body.appendChild(p);
-        setTimeout(function() {
-            var el = document.getElementById('adm-pop');
-            if (el) { el.style.opacity = '0'; el.style.transition = 'all 0.3s'; setTimeout(function() { el.remove(); }, 300); }
-        }, 10000);
-    }
-
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.notif-btn') && !e.target.closest('.notif-dropdown')) {
-            document.getElementById('notif-dropdown').classList.remove('show');
-        }
-    });
+document.addEventListener('click',function(e){if(!e.target.closest('.notif-btn')&&!e.target.closest('.notif-dropdown'))document.getElementById('notif-dropdown').classList.remove('show')});
 </script>
 </body>
 </html>
