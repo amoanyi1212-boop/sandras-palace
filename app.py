@@ -411,15 +411,25 @@ def update_item(item_id):
         if image and image.filename != "": item.image_url = upload_image(image)
         item.name = data.get("name", item.name); item.description = data.get("description", item.description)
         item.price = float(data.get("price", item.price)); item.category = data.get("category", item.category)
-        qty_str = data.get("stock_quantity","")
-        if qty_str != "":
-            try: item.stock_quantity = int(qty_str); item.in_stock = int(qty_str) > 0
-            except: item.in_stock = data.get("in_stock","true") == "true"
-        else: item.in_stock = data.get("in_stock","true") == "true"
-        low_str = data.get("low_stock_alert","")
-        if low_str != "":
-            try: item.low_stock_alert = int(low_str)
-            except: pass
+        # Update stock quantity
+        qty_str = data.get("stock_quantity", "")
+        if qty_str != "" and qty_str is not None:
+            try:
+                item.stock_quantity = int(qty_str)
+            except (ValueError, TypeError):
+                item.stock_quantity = 0
+
+        # Update in_stock - always respect the dropdown value
+        in_stock_str = data.get("in_stock", "true")
+        item.in_stock = (in_stock_str == "true")
+
+        # Update low stock alert
+        low_str = data.get("low_stock_alert", "")
+        if low_str != "" and low_str is not None:
+            try:
+                item.low_stock_alert = int(low_str)
+            except (ValueError, TypeError):
+                item.low_stock_alert = 5
         db.session.commit()
         return jsonify({"success": True, "message": "Item updated!"})
     except Exception as e: db.session.rollback(); print("Update error:", e); return jsonify({"success": False, "message": str(e)}), 500
@@ -763,7 +773,30 @@ def create_coupon():
         if data.get("expires_at"):
             try: expires = datetime.strptime(data["expires_at"], "%Y-%m-%d")
             except: pass
-        coupon = Coupon(code=code, discount_type=data.get("discount_type","percentage"), discount_value=float(data.get("discount_value")), min_order=float(data.get("min_order",0)), max_uses=int(data.get("max_uses",0)), is_active=True, expires_at=expires)
+        try:
+            dv = float(data.get("discount_value", 0))
+        except (ValueError, TypeError):
+            return jsonify({"success": False, "message": "Invalid discount value!"})
+
+        try:
+            mo = float(data.get("min_order", 0))
+        except (ValueError, TypeError):
+            mo = 0
+
+        try:
+            mu = int(data.get("max_uses", 0))
+        except (ValueError, TypeError):
+            mu = 0
+
+        coupon = Coupon(
+            code           = code,
+            discount_type  = data.get("discount_type", "percentage"),
+            discount_value = dv,
+            min_order      = mo,
+            max_uses       = mu,
+            is_active      = True,
+            expires_at     = expires
+        )
         db.session.add(coupon); db.session.commit()
         return jsonify({"success": True, "message": "Coupon created!"})
     except Exception as e: db.session.rollback(); return jsonify({"success": False, "message": str(e)}), 500

@@ -694,20 +694,33 @@
         var id = document.getElementById('e-id').value;
         if (!id) { toast('❌ No item selected!', 'error'); return; }
 
+        var nameVal  = document.getElementById('e-name').value.trim();
+        var priceVal = document.getElementById('e-price').value.trim();
+
+        if (!nameVal)  { toast('❌ Name is required!',  'error'); return; }
+        if (!priceVal) { toast('❌ Price is required!', 'error'); return; }
+
         var fd = new FormData();
-        fd.append('name',            document.getElementById('e-name').value);
-        fd.append('price',           document.getElementById('e-price').value);
+        fd.append('name',            nameVal);
+        fd.append('price',           priceVal);
         fd.append('category',        document.getElementById('e-cat').value);
-        fd.append('stock_quantity',  document.getElementById('e-qty').value);
-        fd.append('low_stock_alert', document.getElementById('e-low').value);
+        fd.append('stock_quantity',  document.getElementById('e-qty').value || '0');
+        fd.append('low_stock_alert', document.getElementById('e-low').value || '5');
         fd.append('in_stock',        document.getElementById('e-stock').value);
         fd.append('description',     document.getElementById('e-desc').value);
+
         var img = document.getElementById('e-img').files[0];
         if (img) fd.append('image', img);
 
+        console.log('Updating item', id, 'stock_quantity:', document.getElementById('e-qty').value, 'in_stock:', document.getElementById('e-stock').value);
+
         fetch('/api/items/update/' + id, { method: 'POST', body: fd })
-        .then(function(r) { return r.json(); })
+        .then(function(r) {
+            console.log('Update response status:', r.status);
+            return r.json();
+        })
         .then(function(d) {
+            console.log('Update response:', d);
             if (d.success) {
                 toast('✅ ' + d.message, 'success');
                 closeEditModal();
@@ -715,7 +728,10 @@
             } else {
                 toast('❌ ' + d.message, 'error');
             }
-        }).catch(function() { toast('❌ Error updating item!', 'error'); });
+        }).catch(function(err) {
+            console.error('Edit error:', err);
+            toast('❌ Error updating item!', 'error');
+        });
     });
 
     document.getElementById('editModal').addEventListener('click', function(e) {
@@ -999,30 +1015,52 @@
 
     function createCoupon() {
         var code = document.getElementById('cp-code').value.trim().toUpperCase();
-        var val  = document.getElementById('cp-val').value;
-        if (!code || !val) { toast('❌ Code and value required!', 'error'); return; }
+        var val  = document.getElementById('cp-val').value.trim();
+
+        if (!code) { toast('❌ Coupon code required!', 'error'); return; }
+        if (!val || isNaN(parseFloat(val))) { toast('❌ Valid discount value required!', 'error'); return; }
+
+        var minOrder = parseFloat(document.getElementById('cp-min').value) || 0;
+        var maxUses  = parseInt(document.getElementById('cp-max').value)   || 0;
+        var expires  = document.getElementById('cp-exp').value || '';
+
+        var payload = {
+            code:           code,
+            discount_type:  document.getElementById('cp-type').value,
+            discount_value: parseFloat(val),
+            min_order:      minOrder,
+            max_uses:       maxUses,
+            expires_at:     expires
+        };
+
+        console.log('Creating coupon:', payload);
+
         fetch('/api/coupons/create', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({
-                code:           code,
-                discount_type:  document.getElementById('cp-type').value,
-                discount_value: val,
-                min_order:      document.getElementById('cp-min').value || 0,
-                max_uses:       document.getElementById('cp-max').value || 0,
-                expires_at:     document.getElementById('cp-exp').value || ''
-            })
+            body:    JSON.stringify(payload)
         })
-        .then(function(r) { return r.json(); })
+        .then(function(r) {
+            console.log('Response status:', r.status);
+            return r.json();
+        })
         .then(function(d) {
+            console.log('Response:', d);
             if (d.success) {
                 toast('✅ ' + d.message, 'success');
                 loadCoupons();
                 document.getElementById('cp-code').value = '';
                 document.getElementById('cp-val').value  = '';
+                document.getElementById('cp-min').value  = '0';
+                document.getElementById('cp-max').value  = '0';
+                document.getElementById('cp-exp').value  = '';
             } else {
                 toast('❌ ' + d.message, 'error');
             }
+        })
+        .catch(function(err) {
+            console.error('Coupon error:', err);
+            toast('❌ Error creating coupon!', 'error');
         });
     }
 
