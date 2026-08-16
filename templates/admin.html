@@ -194,6 +194,8 @@
         <li><a onclick="showSection('manage-items')" id="nav-manage-items">📦 Items</a></li>
         <li><a onclick="showSection('orders')" id="nav-orders">🛒 Orders</a></li>
         <li><a onclick="showSection('users')" id="nav-users">👥 Users</a></li>
+        <li><a onclick="showSection('coupons')" id="nav-coupons">🎟️ Coupons</a></li>
+        <li><a onclick="showSection('reports')" id="nav-reports">📊 Reports</a></li>
     </ul>
     <button class="logout-btn" onclick="if(confirm('Logout?'))window.location='/admin/logout'">🚪 Logout</button>
 </div>
@@ -314,6 +316,59 @@
             </div>
         </div>
     </div>
+
+    <!-- COUPONS -->
+    <div class="section" id="section-coupons">
+        <div class="card">
+            <div class="card-header"><h2>🎟️ Create Coupon</h2></div>
+            <div class="form-grid">
+                <div class="form-group"><label>Code *</label><input type="text" id="cp-code" placeholder="e.g. SAVE20" style="text-transform:uppercase" /></div>
+                <div class="form-group"><label>Discount Type</label><select id="cp-type"><option value="percentage">Percentage (%)</option><option value="fixed">Fixed Amount (GH₵)</option></select></div>
+                <div class="form-group"><label>Discount Value *</label><input type="number" id="cp-value" placeholder="e.g. 20" min="0" step="0.01" /></div>
+                <div class="form-group"><label>Min Order (GH₵)</label><input type="number" id="cp-min" placeholder="0" min="0" value="0" /></div>
+                <div class="form-group"><label>Max Uses (0=unlimited)</label><input type="number" id="cp-max" placeholder="0" min="0" value="0" /></div>
+                <div class="form-group"><label>Expires On</label><input type="date" id="cp-expires" /></div>
+            </div>
+            <button class="btn btn-primary" onclick="createCoupon()">🎟️ Create Coupon</button>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>📋 All Coupons</h2><button class="btn btn-primary btn-sm" onclick="loadCoupons()">🔄</button></div>
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Min Order</th><th>Used</th><th>Max</th><th>Status</th><th>Expires</th><th>Action</th></tr></thead>
+                    <tbody id="coupons-body"><tr><td colspan="9"><div class="empty-state"><p>No coupons</p></div></td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="section" id="section-reports">
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+            <div class="stat-card"><div class="stat-icon yellow">💰</div><div class="stat-info"><h3 id="r-total" style="font-size:20px">GH₵ 0</h3><p>Total Revenue</p></div></div>
+            <div class="stat-card"><div class="stat-icon green">📅</div><div class="stat-info"><h3 id="r-today" style="font-size:20px">GH₵ 0</h3><p>Today</p></div></div>
+            <div class="stat-card"><div class="stat-icon blue">📆</div><div class="stat-info"><h3 id="r-week" style="font-size:20px">GH₵ 0</h3><p>This Week</p></div></div>
+            <div class="stat-card"><div class="stat-icon pink">📅</div><div class="stat-info"><h3 id="r-month" style="font-size:20px">GH₵ 0</h3><p>This Month</p></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:25px">
+            <div class="card">
+                <div class="card-header"><h2>📊 Order Stats</h2></div>
+                <div id="r-order-stats" style="display:flex;flex-wrap:wrap;gap:15px">
+                    <div style="flex:1;min-width:120px;background:#e8f5e9;border-radius:14px;padding:18px;text-align:center"><div style="font-family:'Fredoka One',cursive;font-size:28px;color:#43a047" id="r-completed">0</div><div style="font-size:12px;font-weight:800;color:#666">Completed</div></div>
+                    <div style="flex:1;min-width:120px;background:#fff8e1;border-radius:14px;padding:18px;text-align:center"><div style="font-family:'Fredoka One',cursive;font-size:28px;color:#f9a825" id="r-pending">0</div><div style="font-size:12px;font-weight:800;color:#666">Pending</div></div>
+                    <div style="flex:1;min-width:120px;background:#ffebee;border-radius:14px;padding:18px;text-align:center"><div style="font-family:'Fredoka One',cursive;font-size:28px;color:#e53935" id="r-cancelled">0</div><div style="font-size:12px;font-weight:800;color:#666">Cancelled</div></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h2>🏆 Best Sellers</h2></div>
+                <div id="r-best-sellers"><div class="empty-state" style="padding:20px"><p>No data yet</p></div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>📈 Daily Sales (Last 7 Days)</h2></div>
+            <div id="r-daily" style="display:flex;gap:10px;align-items:flex-end;height:200px;padding:20px 0"><div class="empty-state" style="width:100%"><p>No data yet</p></div></div>
+        </div>
+    </div>
 </div>
 
 <!-- EDIT MODAL -->
@@ -398,10 +453,10 @@ function showSection(s){
     document.querySelectorAll('.nav-menu a').forEach(function(x){x.classList.remove('active')});
     document.getElementById('section-'+s).classList.add('active');
     document.getElementById('nav-'+s).classList.add('active');
-    var t={'dashboard':['📊 Dashboard','Overview'],'add-item':['➕ Add Item','Add product'],'manage-items':['📦 Items','Manage stock'],'orders':['🛒 Orders','Manage orders'],'users':['👥 Users','Registered users']};
+    var t={'dashboard':['📊 Dashboard','Overview'],'add-item':['➕ Add Item','Add product'],'manage-items':['📦 Items','Manage stock'],'orders':['🛒 Orders','Manage orders'],'users':['👥 Users','Registered users'],'coupons':['🎟️ Coupons','Manage discount codes'],'reports':['📊 Reports','Sales analytics']};
     document.getElementById('page-title').textContent=t[s][0];
     document.getElementById('page-subtitle').textContent=t[s][1];
-    if(s==='dashboard')loadDashboard();if(s==='manage-items')loadItems();if(s==='orders')loadOrders();if(s==='users')loadUsers();
+    if(s==='dashboard')loadDashboard();if(s==='manage-items')loadItems();if(s==='orders')loadOrders();if(s==='users')loadUsers();if(s==='coupons')loadCoupons();if(s==='reports')loadReports();
 }
 
 function getStatusClass(s){
@@ -657,6 +712,62 @@ document.querySelectorAll('.nav-menu a').forEach(function(a){
         }
     });
 });
+
+// COUPONS
+function loadCoupons(){
+    fetch('/api/coupons').then(function(r){return r.json()}).then(function(coupons){
+        var tb=document.getElementById('coupons-body');
+        if(!coupons||coupons.length===0){tb.innerHTML='<tr><td colspan="9"><div class="empty-state"><p>No coupons</p></div></td></tr>';return}
+        tb.innerHTML=coupons.map(function(c){
+            return'<tr><td style="font-weight:800;color:#c2185b">'+c.code+'</td><td>'+c.discount_type+'</td><td style="font-weight:800">'+(c.discount_type==='percentage'?c.discount_value+'%':'GH&#8373; '+c.discount_value)+'</td><td>GH&#8373; '+c.min_order+'</td><td>'+c.used_count+'</td><td>'+(c.max_uses||'∞')+'</td><td><span class="badge '+(c.is_active?'badge-confirmed':'badge-cancelled')+'">'+(c.is_active?'Active':'Inactive')+'</span></td><td>'+(c.expires_at||'Never')+'</td><td><button class="btn btn-sm '+(c.is_active?'btn-warning':'btn-success')+'" onclick="toggleCoupon('+c.id+')">'+(c.is_active?'Off':'On')+'</button> <button class="btn btn-danger btn-sm" onclick="deleteCoupon('+c.id+')">🗑️</button></td></tr>';
+        }).join('');
+    });
+}
+
+function createCoupon(){
+    var data={code:document.getElementById('cp-code').value.trim().toUpperCase(),discount_type:document.getElementById('cp-type').value,discount_value:document.getElementById('cp-value').value,min_order:document.getElementById('cp-min').value||0,max_uses:document.getElementById('cp-max').value||0,expires_at:document.getElementById('cp-expires').value||''};
+    if(!data.code||!data.discount_value){toast('Code and value required!','error');return}
+    fetch('/api/coupons/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+    .then(function(r){return r.json()}).then(function(d){
+        if(d.success){toast('Coupon created!','success');loadCoupons();document.getElementById('cp-code').value='';document.getElementById('cp-value').value=''}
+        else toast(d.message||'Error!','error');
+    });
+}
+
+function toggleCoupon(id){fetch('/api/coupons/toggle/'+id,{method:'POST'}).then(function(){loadCoupons();toast('Updated!','success')})}
+function deleteCoupon(id){if(!confirm('Delete coupon?'))return;fetch('/api/coupons/delete/'+id,{method:'DELETE'}).then(function(){loadCoupons();toast('Deleted!','success')})}
+
+// REPORTS
+function loadReports(){
+    fetch('/api/reports/sales').then(function(r){return r.json()}).then(function(d){
+        document.getElementById('r-total').textContent='GH\u20b5 '+d.total_revenue.toFixed(2);
+        document.getElementById('r-today').textContent='GH\u20b5 '+d.today_revenue.toFixed(2);
+        document.getElementById('r-week').textContent='GH\u20b5 '+d.week_revenue.toFixed(2);
+        document.getElementById('r-month').textContent='GH\u20b5 '+d.month_revenue.toFixed(2);
+        document.getElementById('r-completed').textContent=d.completed_orders;
+        document.getElementById('r-pending').textContent=d.pending_orders;
+        document.getElementById('r-cancelled').textContent=d.cancelled_orders;
+
+        // Best sellers
+        var bs=document.getElementById('r-best-sellers');
+        if(d.best_sellers.length===0)bs.innerHTML='<p style="color:#aaa;text-align:center;padding:20px">No sales data yet</p>';
+        else bs.innerHTML=d.best_sellers.map(function(b,i){
+            return'<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:2px solid #fce4ec"><span style="font-family:Fredoka One,cursive;color:#c2185b;font-size:18px;width:30px">#'+(i+1)+'</span><div style="flex:1"><div style="font-weight:800;color:#333;font-size:14px">'+b.name+'</div><div style="font-size:12px;color:#aaa;font-weight:700">'+b.orders+' orders</div></div><span style="font-family:Fredoka One,cursive;color:#e91e63">GH\u20b5 '+b.revenue.toFixed(2)+'</span></div>';
+        }).join('');
+
+        // Daily chart
+        var dc=document.getElementById('r-daily');
+        if(d.daily_sales.length===0)dc.innerHTML='<div class="empty-state" style="width:100%"><p>No data yet</p></div>';
+        else{
+            var maxRev=Math.max.apply(null,d.daily_sales.map(function(s){return s.revenue}))||1;
+            dc.innerHTML=d.daily_sales.map(function(s){
+                var h=Math.max((s.revenue/maxRev)*150,5);
+                var day=s.date.split('-')[2];
+                return'<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="font-family:Fredoka One,cursive;color:#e91e63;font-size:11px">GH\u20b5'+Math.round(s.revenue)+'</div><div style="width:100%;height:'+h+'px;background:linear-gradient(180deg,#e91e63,#ff6f00);border-radius:8px 8px 0 0;min-width:30px"></div><div style="font-size:11px;font-weight:800;color:#888">'+day+'</div><div style="font-size:10px;color:#aaa">'+s.orders+'</div></div>';
+            }).join('');
+        }
+    }).catch(function(){});
+}
 
 function toast(m,t){var x=document.getElementById('toast');x.textContent=m;x.className='toast '+t+' show';setTimeout(function(){x.classList.remove('show')},3500)}
 </script>

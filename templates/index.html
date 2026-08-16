@@ -375,12 +375,50 @@
                 <div id="d-price" style="font-family:'Fredoka One',cursive;font-size:30px;color:#e91e63;margin-bottom:15px">GH₵ 0</div>
                 <div id="d-stock" style="margin-bottom:20px"></div>
                 <div style="background:#fff0f3;border-radius:16px;padding:20px;margin-bottom:20px;border:2px solid #fce4ec"><h3 style="font-family:'Fredoka One',cursive;font-size:16px;color:#c2185b;margin-bottom:10px">📝 Description</h3><p id="d-desc" style="font-size:15px;color:#555;line-height:1.8;font-weight:600;white-space:pre-wrap">No description</p></div>
-                <p id="d-date" style="font-size:13px;color:#aaa;font-weight:700;margin-bottom:20px">Added: -</p>
+                <p id="d-date" style="font-size:13px;color:#aaa;font-weight:700;margin-bottom:15px">Added: -</p>
+
+                <!-- Average Rating -->
+                <div id="d-avg-rating" style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+                    <div id="d-stars-display" style="font-size:20px"></div>
+                    <span id="d-rating-text" style="font-weight:800;color:#f57f17;font-size:16px"></span>
+                    <span id="d-review-count" style="font-size:13px;color:#aaa;font-weight:700"></span>
+                </div>
+
+                <!-- Wishlist Button -->
+                <button id="d-wish-btn" onclick="toggleWishDetail()" style="
+                    width:100%;padding:12px;margin-bottom:20px;
+                    background:white;border:3px solid #fce4ec;border-radius:14px;
+                    font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito';
+                    color:#e91e63;transition:all 0.2s;display:flex;align-items:center;
+                    justify-content:center;gap:8px;
+                ">🤍 Add to Wishlist</button>
                 <div id="d-actions" style="display:flex;align-items:center;gap:15px">
                     <div style="display:flex;align-items:center;gap:10px;background:#fff0f3;border-radius:14px;padding:8px 15px"><button onclick="chgDQty(-1)" style="width:35px;height:35px;border:3px solid #fce4ec;border-radius:10px;background:white;font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button><span id="d-qty" style="font-family:'Fredoka One',cursive;font-size:20px;color:#c2185b;min-width:30px;text-align:center">1</span><button onclick="chgDQty(1)" style="width:35px;height:35px;border:3px solid #fce4ec;border-radius:10px;background:white;font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button></div>
                     <button id="d-add" onclick="addFromDetail()" style="flex:1;padding:15px 25px;background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:'Nunito'">🛒 Add to Cart</button>
                 </div>
                 <div id="d-sub" style="text-align:right;margin-top:12px;font-family:'Fredoka One',cursive;font-size:18px;color:#e91e63">Subtotal: GH₵ 0</div>
+
+                <!-- Reviews Section -->
+                <div style="margin-top:25px;border-top:3px solid #fce4ec;padding-top:20px">
+                    <h3 style="font-family:'Fredoka One',cursive;color:#c2185b;font-size:18px;margin-bottom:15px">⭐ Customer Reviews</h3>
+
+                    <!-- Write Review -->
+                    <div id="d-write-review" style="background:#fff0f3;border-radius:16px;padding:18px;margin-bottom:15px;border:2px solid #fce4ec">
+                        <p style="font-weight:800;color:#555;font-size:14px;margin-bottom:10px">Write a Review:</p>
+                        <div class="stars" id="d-star-input" style="margin-bottom:10px">
+                            <span class="star" onclick="setRating(1)">☆</span>
+                            <span class="star" onclick="setRating(2)">☆</span>
+                            <span class="star" onclick="setRating(3)">☆</span>
+                            <span class="star" onclick="setRating(4)">☆</span>
+                            <span class="star" onclick="setRating(5)">☆</span>
+                        </div>
+                        <textarea id="d-review-text" placeholder="Share your experience..." style="width:100%;padding:12px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;font-family:'Nunito';min-height:60px;resize:vertical;margin-bottom:10px"></textarea>
+                        <button onclick="submitReview()" style="padding:10px 20px;background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-family:'Nunito';font-size:13px">Submit Review</button>
+                    </div>
+
+                    <!-- Reviews List -->
+                    <div id="d-reviews-list"><p style="color:#aaa;font-size:13px;font-weight:700;text-align:center;padding:20px">No reviews yet. Be the first!</p></div>
+                </div>
             </div>
         </div>
     </div>
@@ -391,7 +429,22 @@
     <div class="modal">
         <div class="m-head"><h2 id="o-title">📋 Delivery Details</h2><button class="m-x" onclick="closeOrder()">✕</button></div>
         <div class="m-body">
-            <div class="o-summary"><h3>🛒 Order</h3><div id="o-items"></div><div class="o-s-total"><span>Total</span><span id="o-total">GH₵ 0</span></div></div>
+            <div class="o-summary">
+                <h3>🛒 Order</h3>
+                <div id="o-items"></div>
+                <div class="o-s-total"><span>Subtotal</span><span id="o-subtotal">GH₵ 0</span></div>
+
+                <!-- Coupon Code -->
+                <div style="margin-top:15px;border-top:2px solid #fce4ec;padding-top:15px">
+                    <div class="coupon-input">
+                        <input type="text" id="o-coupon" placeholder="🎟️ Coupon code" style="text-transform:uppercase" />
+                        <button onclick="applyCoupon()">Apply</button>
+                    </div>
+                    <div id="coupon-result"></div>
+                </div>
+
+                <div class="o-s-total" style="border-top:2px solid #fce4ec;padding-top:10px;margin-top:10px"><span>Total</span><span id="o-total">GH₵ 0</span></div>
+            </div>
             <div id="step1"><div class="fg"><label>👤 Name</label><input type="text" id="o-name" /></div><div class="fg"><label>📱 Phone</label><input type="tel" id="o-phone" /></div><div class="fg"><label>📍 Address</label><textarea id="o-addr"></textarea></div><button class="m-btn" onclick="goStep2()">💳 Next: Payment</button></div>
             <div id="step2" style="display:none">
                 <div class="momo-box"><div style="font-size:35px;margin-bottom:8px">📱</div><h3 style="font-family:'Fredoka One',cursive;color:#f57f17;font-size:17px;margin-bottom:15px">Send MTN MoMo To:</h3><div class="momo-acc"><div class="momo-num">0550618807</div><div class="momo-name">👤 Sandra Nkrumah</div></div><div class="momo-acc" style="margin-bottom:15px"><div class="momo-num">0540882629</div><div class="momo-name">👤 Milicent Nkrumah</div></div><div class="momo-amt" id="o-amt">Amount: GH₵ 0</div></div>
@@ -415,6 +468,25 @@
 
 <!-- DISPUTE -->
 <div class="modal-overlay" id="disputeModal"><div class="modal"><div class="m-head"><h2>⚠️ Raise Dispute</h2><button class="m-x" onclick="document.getElementById('disputeModal').classList.remove('show')">✕</button></div><div class="m-body"><input type="hidden" id="dispute-oid" /><div class="fg"><label>Why are you disputing?</label><textarea id="dispute-reason" placeholder="Explain..."></textarea></div><button class="m-btn" style="background:linear-gradient(135deg,#e53935,#ef5350)" onclick="submitDispute()">⚠️ Submit Dispute</button></div></div></div>
+
+<!-- WISHLIST -->
+<div class="modal-overlay" id="wishModal">
+    <div class="modal">
+        <div class="m-head"><h2>❤️ My Wishlist</h2><button class="m-x" onclick="document.getElementById('wishModal').classList.remove('show')">✕</button></div>
+        <div class="m-body"><div id="wish-list" style="max-height:400px;overflow-y:auto"><div class="empty-state"><div class="e-icon">❤️</div><p>Wishlist empty</p></div></div></div>
+    </div>
+</div>
+
+<!-- ORDER TRACKING -->
+<div class="modal-overlay" id="trackModal">
+    <div class="modal">
+        <div class="m-head"><h2>📍 Order Tracking</h2><button class="m-x" onclick="document.getElementById('trackModal').classList.remove('show')">✕</button></div>
+        <div class="m-body">
+            <h3 id="track-title" style="font-family:'Fredoka One',cursive;color:#c2185b;margin-bottom:20px">Order #0</h3>
+            <div id="track-steps"></div>
+        </div>
+    </div>
+</div>
 
 <!-- IMAGE VIEWER -->
 <div id="imgViewer" onclick="closeImgViewer()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;align-items:center;justify-content:center;cursor:zoom-out">
@@ -464,6 +536,7 @@ function updateUI(){
         menu.innerHTML='<div class="dd-head">\u{1f451} '+user.fullname+'</div>'+
             '<div class="dd-item" onclick="openNotifs()">🔔 Notifications <span id="dd-nc" style="background:#e53935;color:white;border-radius:50%;padding:2px 8px;font-size:11px;margin-left:5px;display:none">0</span></div>'+
             '<div class="dd-item" onclick="openMyOrders()">📦 My Orders</div>'+
+            '<div class="dd-item" onclick="openWishlist()">❤️ Wishlist</div>'+
             '<div class="dd-item" onclick="doLogout()">🚪 Logout</div>'+
             '<div class="dd-item" onclick="openDeactivate()" style="color:#e53935">⚠️ Deactivate Account</div>';
     }else{
@@ -553,7 +626,8 @@ function openMyOrders(){
             var sc=getStatusClass(o.status);
             var btns='';
             if(o.status==='Awaiting Delivery'){btns='<button class="confirm-btn" onclick="confirmDel('+o.id+')">✅ Confirm Received</button><button class="dispute-btn" onclick="openDispute('+o.id+')">⚠️ Raise Dispute</button>'}
-            return'<div class="my-o-card"><div class="my-o-head"><h4>Order #'+o.id+'</h4><span class="badge badge-'+sc+'">'+o.status+'</span></div><div class="my-o-items">'+fmtItems(o.items)+'</div><div class="my-o-foot"><span style="color:#aaa;font-size:13px">'+o.date_ordered+'</span><span class="my-o-price">GH&#8373; '+o.total_price.toFixed(2)+'</span></div>'+btns+'</div>';
+            var trackBtn='<button onclick="trackOrder('+o.id+')" style="width:100%;padding:8px;margin-top:8px;background:none;border:2px solid #1976d2;color:#1976d2;border-radius:10px;font-weight:800;cursor:pointer;font-family:Nunito;font-size:12px">📍 Track Order</button>';
+            return'<div class="my-o-card"><div class="my-o-head"><h4>Order #'+o.id+'</h4><span class="badge badge-'+sc+'">'+o.status+'</span></div><div class="my-o-items">'+fmtItems(o.items)+'</div><div class="my-o-foot"><span style="color:#aaa;font-size:13px">'+o.date_ordered+'</span><span class="my-o-price">GH&#8373; '+o.total_price.toFixed(2)+'</span></div>'+btns+trackBtn+'</div>';
         }).join('')}
         document.getElementById('ordersModal').classList.add('show');
     }).catch(function(){toast('Error!','error')});
@@ -615,6 +689,13 @@ function openDetail(id){
     document.getElementById('d-sub').style.display='block';
     document.getElementById('d-add').textContent=detailItem.in_stock?'🛒 Add to Cart':'📋 Pre-order';
     document.getElementById('detailModal').classList.add('show');
+    // Load reviews
+    loadReviews(detailItem.id);
+    // Update wishlist button
+    updateDetailWishBtn();
+    // Reset review input
+    setRating(0);
+    document.getElementById('d-review-text').value = '';
 }
 function closeDetail(){document.getElementById('detailModal').classList.remove('show')}
 function chgDQty(d){detailQty+=d;if(detailQty<1)detailQty=1;if(detailQty>99)detailQty=99;document.getElementById('d-qty').textContent=detailQty;if(detailItem)document.getElementById('d-sub').textContent='Subtotal: GH\u20b5 '+(detailItem.price*detailQty).toFixed(2)}
@@ -651,6 +732,11 @@ function openCheckout(){
     if(cart.length===0){toast('Cart empty!','error');return}
     if(!user){toast('Please login!','error');closeCart();openAuth('login');return}
     var tp=cart.reduce(function(s,i){return s+(i.price*i.quantity)},0);
+    originalTotal = tp;
+    appliedCoupon = null;
+    document.getElementById('o-coupon').value = '';
+    document.getElementById('coupon-result').innerHTML = '';
+    document.getElementById('o-subtotal').textContent = 'GH\u20b5 ' + tp.toFixed(2);
     document.getElementById('o-items').innerHTML=cart.map(function(i){return'<div class="o-s-item"><span>'+i.name+' x'+i.quantity+'</span><span>GH&#8373; '+(i.price*i.quantity).toFixed(2)+'</span></div>'}).join('');
     document.getElementById('o-total').textContent='GH\u20b5 '+tp.toFixed(2);
     document.getElementById('o-amt').textContent='Amount: GH\u20b5 '+tp.toFixed(2);
@@ -665,7 +751,7 @@ function placeOrder(){
     var momo=document.getElementById('o-momo').value.trim(),trans=document.getElementById('o-trans').value.trim();
     if(!momo){toast('Select payment number!','error');return}if(!trans){toast('Enter Transaction ID!','error');return}
     var btn=document.getElementById('pay-btn');btn.textContent='Placing...';btn.disabled=true;
-    var tp=cart.reduce(function(s,i){return s+(i.price*i.quantity)},0);
+    var tp = appliedCoupon ? appliedCoupon.new_total : cart.reduce(function(s,i){return s+(i.price*i.quantity)},0);
     fetch('/api/orders/place',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({customer_name:document.getElementById('o-name').value.trim(),customer_phone:document.getElementById('o-phone').value.trim(),customer_address:document.getElementById('o-addr').value.trim(),items:cart.map(function(i){return{id:i.id,name:i.name,price:i.price,quantity:i.quantity}}),total_price:tp,transaction_id:trans,momo_number:momo})})
     .then(function(r){return r.json()}).then(function(d){
         if(d.success){
@@ -678,6 +764,8 @@ function placeOrder(){
                 setTimeout(checkNotifs,2000);
                 setTimeout(loadItems,3000);
                 if(d.whatsapp_url){setTimeout(function(){window.open(d.whatsapp_url,'_blank')},2500)}
+                if(appliedCoupon&&appliedCoupon.coupon_id){fetch('/api/coupons/use/'+appliedCoupon.coupon_id,{method:'POST'})}
+                appliedCoupon=null;
             }
         else if(d.need_login){toast('Login first!','error');closeOrder();openAuth('login')}
         else toast(d.message||'Error!','error');
@@ -727,6 +815,269 @@ addToCart=function(id){
     if(btn){btn.textContent='Added!';setTimeout(function(){btn.textContent=item.in_stock?'🛒 Add':'📋 Pre-order'},1500)}
 };
 
+// ===========================
+// REVIEWS
+// ===========================
+var selectedRating = 0;
+
+function setRating(r) {
+    selectedRating = r;
+    var stars = document.querySelectorAll('#d-star-input .star');
+    stars.forEach(function(s, i) {
+        s.textContent = i < r ? '★' : '☆';
+        s.style.color = i < r ? '#f9a825' : '#ccc';
+    });
+}
+
+function loadReviews(itemId) {
+    fetch('/api/reviews/' + itemId)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        // Show average rating
+        var avgStars = '';
+        for (var i = 1; i <= 5; i++) avgStars += i <= Math.round(data.avg_rating) ? '★' : '☆';
+        document.getElementById('d-stars-display').textContent = avgStars;
+        document.getElementById('d-stars-display').style.color = '#f9a825';
+        document.getElementById('d-rating-text').textContent = data.avg_rating > 0 ? data.avg_rating + '/5' : '';
+        document.getElementById('d-review-count').textContent = data.count > 0 ? '(' + data.count + ' reviews)' : '';
+
+        // Show reviews list
+        var list = document.getElementById('d-reviews-list');
+        if (data.reviews.length === 0) {
+            list.innerHTML = '<p style="color:#aaa;font-size:13px;font-weight:700;text-align:center;padding:20px">No reviews yet. Be the first!</p>';
+        } else {
+            list.innerHTML = data.reviews.map(function(r) {
+                var stars = '';
+                for (var i = 1; i <= 5; i++) stars += i <= r.rating ? '★' : '☆';
+                return '<div class="review-card">' +
+                    '<div class="review-header">' +
+                    '<div><span class="review-name">' + r.user_name + '</span> <span style="color:#f9a825;font-size:14px">' + stars + '</span></div>' +
+                    '<span class="review-date">' + r.created_at + '</span>' +
+                    '</div>' +
+                    '<p class="review-text">' + (r.comment || '') + '</p>' +
+                    '</div>';
+            }).join('');
+        }
+    })
+    .catch(function() {});
+}
+
+function submitReview() {
+    if (!user) { toast('Login to review!', 'error'); return; }
+    if (!detailItem) return;
+    if (selectedRating === 0) { toast('Select a rating!', 'error'); return; }
+
+    var comment = document.getElementById('d-review-text').value.trim();
+
+    fetch('/api/reviews/add', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            item_id: detailItem.id,
+            rating: selectedRating,
+            comment: comment
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.success) {
+            toast(d.message, 'success');
+            document.getElementById('d-review-text').value = '';
+            setRating(0);
+            loadReviews(detailItem.id);
+        } else {
+            toast(d.message || 'Error!', 'error');
+        }
+    })
+    .catch(function() { toast('Error!', 'error'); });
+}
+
+// ===========================
+// WISHLIST
+// ===========================
+var userWishlist = [];
+
+function loadWishlistIds() {
+    if (!user) return;
+    fetch('/api/wishlist')
+    .then(function(r) { return r.json(); })
+    .then(function(items) {
+        userWishlist = items.map(function(i) { return i.item_id; });
+        updateWishlistIcons();
+    })
+    .catch(function() {});
+}
+
+function updateWishlistIcons() {
+    allItems.forEach(function(i) {
+        var btn = document.getElementById('wish-' + i.id);
+        if (btn) {
+            if (userWishlist.indexOf(i.id) > -1) {
+                btn.textContent = '❤️';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '🤍';
+                btn.classList.remove('active');
+            }
+        }
+    });
+}
+
+function toggleWish(itemId) {
+    if (!user) { toast('Login first!', 'error'); return; }
+    var inList = userWishlist.indexOf(itemId) > -1;
+
+    if (inList) {
+        fetch('/api/wishlist/remove/' + itemId, {method: 'DELETE'})
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.success) {
+                userWishlist = userWishlist.filter(function(id) { return id !== itemId; });
+                updateWishlistIcons();
+                toast('Removed from wishlist', 'success');
+            }
+        });
+    } else {
+        fetch('/api/wishlist/add/' + itemId, {method: 'POST'})
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.success) {
+                userWishlist.push(itemId);
+                updateWishlistIcons();
+                toast('Added to wishlist!', 'success');
+            } else {
+                toast(d.message || 'Error', 'error');
+            }
+        });
+    }
+}
+
+function toggleWishDetail() {
+    if (!detailItem) return;
+    toggleWish(detailItem.id);
+    updateDetailWishBtn();
+}
+
+function updateDetailWishBtn() {
+    if (!detailItem) return;
+    var btn = document.getElementById('d-wish-btn');
+    if (userWishlist.indexOf(detailItem.id) > -1) {
+        btn.innerHTML = '❤️ In Wishlist';
+        btn.style.background = '#fce4ec';
+        btn.style.borderColor = '#e91e63';
+    } else {
+        btn.innerHTML = '🤍 Add to Wishlist';
+        btn.style.background = 'white';
+        btn.style.borderColor = '#fce4ec';
+    }
+}
+
+function openWishlist() {
+    document.getElementById('dd-menu').classList.remove('show');
+    if (!user) { openAuth('login'); return; }
+    fetch('/api/wishlist')
+    .then(function(r) { return r.json(); })
+    .then(function(items) {
+        var list = document.getElementById('wish-list');
+        if (!items || items.length === 0) {
+            list.innerHTML = '<div class="empty-state"><div class="e-icon">❤️</div><p>Wishlist is empty!</p></div>';
+        } else {
+            list.innerHTML = items.map(function(i) {
+                return '<div style="display:flex;gap:12px;padding:12px 0;border-bottom:2px solid #fce4ec;align-items:center">' +
+                    '<img src="' + getImg(i.image_url) + '" style="width:60px;height:60px;border-radius:10px;object-fit:cover" onerror="this.src='/static/noimg.png'" />' +
+                    '<div style="flex:1">' +
+                    '<div style="font-family:Fredoka One,cursive;color:#c2185b;font-size:14px">' + i.name + '</div>' +
+                    '<div style="font-family:Fredoka One,cursive;color:#e91e63;font-size:16px">GH&#8373; ' + i.price.toFixed(2) + '</div>' +
+                    '<div style="font-size:11px;color:' + (i.in_stock ? '#43a047' : '#e53935') + ';font-weight:800">' + (i.in_stock ? '✅ In Stock (' + (i.stock_quantity || 0) + ')' : '❌ Out of Stock') + '</div>' +
+                    '</div>' +
+                    '<div style="display:flex;flex-direction:column;gap:5px">' +
+                    '<button onclick="addToCart(' + i.item_id + ');document.getElementById('wishModal').classList.remove('show')" style="padding:6px 12px;background:linear-gradient(135deg,#e91e63,#ff6f00);color:white;border:none;border-radius:8px;font-weight:800;cursor:pointer;font-size:11px">🛒 Add</button>' +
+                    '<button onclick="toggleWish(' + i.item_id + ');setTimeout(openWishlist,500)" style="padding:6px 12px;background:#ffebee;color:#e53935;border:none;border-radius:8px;font-weight:800;cursor:pointer;font-size:11px">🗑️</button>' +
+                    '</div>' +
+                    '</div>';
+            }).join('');
+        }
+        document.getElementById('wishModal').classList.add('show');
+    })
+    .catch(function() { toast('Error!', 'error'); });
+}
+
+// ===========================
+// COUPON
+// ===========================
+var appliedCoupon = null;
+var originalTotal = 0;
+
+function applyCoupon() {
+    var code = document.getElementById('o-coupon').value.trim();
+    if (!code) { toast('Enter a coupon code!', 'error'); return; }
+
+    fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: code, total: originalTotal})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        var result = document.getElementById('coupon-result');
+        if (d.success) {
+            appliedCoupon = d;
+            result.innerHTML = '<div class="coupon-success">🎟️ ' + d.message + ' You save GH&#8373; ' + d.discount.toFixed(2) + '</div>';
+            document.getElementById('o-total').textContent = 'GH₵ ' + d.new_total.toFixed(2);
+            document.getElementById('o-amt').textContent = 'Amount: GH₵ ' + d.new_total.toFixed(2);
+            toast('Coupon applied!', 'success');
+        } else {
+            appliedCoupon = null;
+            result.innerHTML = '<div style="background:#ffebee;border:2px solid #ef5350;border-radius:12px;padding:12px;text-align:center;color:#c62828;font-weight:800;font-size:14px;margin-bottom:15px">' + d.message + '</div>';
+            document.getElementById('o-total').textContent = 'GH₵ ' + originalTotal.toFixed(2);
+            document.getElementById('o-amt').textContent = 'Amount: GH₵ ' + originalTotal.toFixed(2);
+        }
+    })
+    .catch(function() { toast('Error!', 'error'); });
+}
+
+// ===========================
+// ORDER TRACKING
+// ===========================
+function trackOrder(orderId) {
+    fetch('/api/orders/track/' + orderId)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (!d.success) { toast(d.message || 'Error!', 'error'); return; }
+
+        document.getElementById('track-title').textContent = 'Order #' + d.order_id + ' - ' + d.status;
+
+        var steps = document.getElementById('track-steps');
+        steps.innerHTML = d.steps.map(function(s, i) {
+            var isLast = i === d.steps.length - 1;
+            return '<div class="track-step">' +
+                '<div class="track-icon ' + (s.done ? 'done' : 'pending') + '">' + s.icon + '</div>' +
+                '<div class="track-info">' +
+                '<div class="track-name ' + (s.done ? 'done' : 'pending') + '">' + s.step + '</div>' +
+                (s.date ? '<div class="track-date">' + s.date + '</div>' : '') +
+                '</div>' +
+                (!isLast ? '<div class="track-line ' + (s.done ? 'done' : '') + '"></div>' : '') +
+                '</div>';
+        }).join('');
+
+        document.getElementById('trackModal').classList.add('show');
+    })
+    .catch(function() { toast('Error!', 'error'); });
+}
+
+// ===========================
+// UPDATE EXISTING FUNCTIONS
+// ===========================
+
+// Load wishlist after auth check
+var origCheckAuth = checkAuth;
+checkAuth = function() {
+    fetch('/api/auth/check').then(function(r) { return r.json(); }).then(function(d) {
+        if (d.logged_in) { user = d.user; updateUI(); setTimeout(checkNotifs, 1000); setTimeout(loadWishlistIds, 1500); }
+        else { user = null; updateUI(); }
+    }).catch(function() {});
+};
+
 function toast(m,t){var x=document.getElementById('toast');x.textContent=m;x.className='toast '+t+' show';setTimeout(function(){x.classList.remove('show')},3000)}
 
 // CLOSE MODALS
@@ -739,6 +1090,8 @@ document.getElementById('notifModal').addEventListener('click',function(e){if(e.
 document.getElementById('disputeModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
 document.getElementById('imgViewer').addEventListener('click',function(e){if(e.target===this)closeImgViewer()});
 document.getElementById('deactModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
+document.getElementById('wishModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
+document.getElementById('trackModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
 </script>
 </body>
 </html>
