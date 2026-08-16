@@ -45,7 +45,9 @@
         .stat-icon.pink{background:#fce4ec}.stat-icon.green{background:#e8f5e9}.stat-icon.red{background:#ffebee}.stat-icon.yellow{background:#fff8e1}.stat-icon.blue{background:#e3f2fd}
         .stat-info h3{font-family:'Fredoka One',cursive;font-size:26px;color:#c2185b}
         .stat-info p{font-size:12px;color:#aaa;font-weight:700}
-        .section{display:none}.section.active{display:block}
+        .section{display:none !important}.section.active{display:block !important}
+        .modal-overlay{z-index:9999 !important}
+        .modal-overlay.show{display:flex !important}
         .card{background:white;border-radius:22px;padding:25px;box-shadow:0 4px 20px rgba(233,30,99,0.08);margin-bottom:22px;border:2px solid #fce4ec}
         .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:10px}
         .card-header h2{font-family:'Fredoka One',cursive;font-size:20px;color:#c2185b}
@@ -110,8 +112,8 @@
         .arc-btn{padding:6px 14px;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito';transition:all 0.2s}
         .arc-btn.on{background:linear-gradient(135deg,#e91e63,#ff6f00);color:white}
         .arc-btn.off{background:#fce4ec;color:#c2185b}
-        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-        .modal-overlay.show{display:flex}
+        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+        .modal-overlay.show{display:flex !important}
         .modal{background:white;border-radius:26px;padding:30px;width:92%;max-width:580px;max-height:90vh;overflow-y:auto;animation:popIn 0.3s ease;border:3px solid #fce4ec}
         @keyframes popIn{from{opacity:0;transform:scale(0.82)}to{opacity:1;transform:scale(1)}}
         .modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
@@ -263,17 +265,38 @@
 
     <!-- COUPONS -->
     <div class="section" id="section-coupons">
-        <div class="card">
+        <div class="card" style="display:block !important;visibility:visible !important">
             <div class="card-header"><h2>🎟️ Create Coupon</h2></div>
-            <div class="form-grid">
-                <div class="form-group"><label>Code *</label><input type="text" id="cp-code" placeholder="e.g. SAVE20" style="text-transform:uppercase" /></div>
-                <div class="form-group"><label>Type</label><select id="cp-type"><option value="percentage">Percentage (%)</option><option value="fixed">Fixed Amount (GH₵)</option></select></div>
-                <div class="form-group"><label>Value *</label><input type="number" id="cp-val" placeholder="e.g. 20" min="0.01" step="0.01" /></div>
-                <div class="form-group"><label>Min Order (GH₵)</label><input type="number" id="cp-min" placeholder="0" min="0" value="0" /></div>
-                <div class="form-group"><label>Max Uses (0 = unlimited)</label><input type="number" id="cp-max" placeholder="0" min="0" value="0" /></div>
-                <div class="form-group"><label>Expires On</label><input type="date" id="cp-exp" /></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+                <div style="margin-bottom:18px">
+                    <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">Code *</label>
+                    <input type="text" id="cp-code" placeholder="e.g. SAVE20" style="width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:Nunito;text-transform:uppercase" />
+                </div>
+                <div style="margin-bottom:18px">
+                    <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">Type</label>
+                    <select id="cp-type" style="width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:Nunito;cursor:pointer">
+                        <option value="percentage">Percentage (%)</option>
+                        <option value="fixed">Fixed Amount (GH₵)</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:18px">
+                    <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">Discount Value *</label>
+                    <input type="number" id="cp-val" placeholder="e.g. 20" min="0.01" step="0.01" style="width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:Nunito" />
+                </div>
+                <div style="margin-bottom:18px">
+                    <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">Min Order (GH₵)</label>
+                    <input type="number" id="cp-min" placeholder="0" min="0" value="0" style="width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:Nunito" />
+                </div>
+                <div style="margin-bottom:18px">
+                    <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">Max Uses (0 = unlimited)</label>
+                    <input type="number" id="cp-max" placeholder="0" min="0" value="0" style="width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:Nunito" />
+                </div>
+                <div style="margin-bottom:18px">
+                    <label style="display:block;font-size:13px;font-weight:800;color:#555;margin-bottom:7px">Expires On</label>
+                    <input type="date" id="cp-exp" style="width:100%;padding:12px 14px;border:3px solid #fce4ec;border-radius:12px;font-size:13px;font-weight:600;outline:none;background:#fffbfc;font-family:Nunito" />
+                </div>
             </div>
-            <button class="btn btn-primary" id="create-coupon-btn" onclick="createCoupon()">🎟️ Create Coupon</button>
+            <button class="btn btn-primary" id="create-coupon-btn" onclick="createCoupon()" style="margin-top:10px">🎟️ Create Coupon</button>
         </div>
         <div class="card">
             <div class="card-header"><h2>📋 All Coupons</h2><button class="btn btn-primary btn-sm" onclick="loadCoupons()">🔄</button></div>
@@ -466,8 +489,22 @@ function toggleStock(id){fetch('/api/items/toggle/'+id,{method:'POST'}).then(fun
 function delItem(id){if(!confirm('Delete permanently?'))return;fetch('/api/items/delete/'+id,{method:'DELETE'}).then(function(r){return r.json()}).then(function(d){if(d.success){toast('✅ Deleted','success');loadItems()}else toast('❌ '+d.message,'error')})}
 
 function openEditModal(id){
+    // Load items if not loaded yet
+    if(allItems.length===0){
+        loadItems();
+        setTimeout(function(){openEditModal(id)},1000);
+        return;
+    }
     var item=allItems.find(function(i){return i.id===id});
-    if(!item){toast('❌ Item not found!','error');return}
+    if(!item){
+        // Try fetching directly
+        fetch('/api/items').then(function(r){return r.json()}).then(function(items){
+            allItems=items;
+            var i=items.find(function(x){return x.id===id});
+            if(i){openEditModal(id)}else toast('❌ Item not found!','error');
+        });
+        return;
+    }
     document.getElementById('e-id').value=item.id;
     document.getElementById('e-name').value=item.name||'';
     document.getElementById('e-price').value=item.price||0;
@@ -478,10 +515,19 @@ function openEditModal(id){
     document.getElementById('e-desc').value=item.description||'';
     document.getElementById('e-prev').innerHTML='';
     document.getElementById('e-img').value='';
-    document.getElementById('editModal').classList.add('show');
+    // Force show modal
+    var modal=document.getElementById('editModal');
+    modal.style.display='flex';
+    modal.classList.add('show');
 }
 
-function closeEditModal(){document.getElementById('editModal').classList.remove('show')}
+function closeEditModal(){
+    var modal=document.getElementById('editModal');
+    modal.style.display='none';
+    modal.classList.remove('show');
+}
+
+
 
 document.getElementById('editForm').addEventListener('submit',function(e){
     e.preventDefault();
