@@ -368,7 +368,7 @@
     <div class="modal" style="max-width:600px">
         <div class="m-head"><h2 id="d-title">Item</h2><button class="m-x" onclick="closeDetail()">✕</button></div>
         <div class="m-body" style="padding:0">
-            <div style="position:relative;overflow:hidden"><img id="d-img" src="" style="width:100%;height:300px;object-fit:cover;background:#fff0f3" onerror="this.src='/static/noimg.png'" /><div id="d-oos" style="display:none;position:absolute;top:15px;right:15px;background:linear-gradient(135deg,#e53935,#ef5350);color:white;padding:8px 18px;border-radius:25px;font-size:14px;font-weight:800">Sold Out</div></div>
+            <div style="position:relative;overflow:hidden;cursor:zoom-in" onclick="viewFullImg()"><img id="d-img" src="" style="width:100%;height:300px;object-fit:cover;background:#fff0f3" onerror="this.src='/static/noimg.png'" /><div style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,0.5);color:white;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:800">🔍 Tap to zoom</div><div id="d-oos" style="display:none;position:absolute;top:15px;right:15px;background:linear-gradient(135deg,#e53935,#ef5350);color:white;padding:8px 18px;border-radius:25px;font-size:14px;font-weight:800">Sold Out</div></div>
             <div style="padding:25px">
                 <span id="d-cat" style="background:#fce4ec;color:#c2185b;padding:5px 14px;border-radius:25px;font-size:12px;font-weight:800;display:inline-block;margin-bottom:12px">Category</span>
                 <h2 id="d-name" style="font-family:'Fredoka One',cursive;font-size:26px;color:#c2185b;margin-bottom:10px">Name</h2>
@@ -416,6 +416,28 @@
 <!-- DISPUTE -->
 <div class="modal-overlay" id="disputeModal"><div class="modal"><div class="m-head"><h2>⚠️ Raise Dispute</h2><button class="m-x" onclick="document.getElementById('disputeModal').classList.remove('show')">✕</button></div><div class="m-body"><input type="hidden" id="dispute-oid" /><div class="fg"><label>Why are you disputing?</label><textarea id="dispute-reason" placeholder="Explain..."></textarea></div><button class="m-btn" style="background:linear-gradient(135deg,#e53935,#ef5350)" onclick="submitDispute()">⚠️ Submit Dispute</button></div></div></div>
 
+<!-- IMAGE VIEWER -->
+<div id="imgViewer" onclick="closeImgViewer()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;align-items:center;justify-content:center;cursor:zoom-out">
+    <img id="viewer-img" src="" style="max-width:95%;max-height:90vh;object-fit:contain;border-radius:12px" />
+    <button onclick="closeImgViewer()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;color:white;width:45px;height:45px;border-radius:50%;font-size:22px;cursor:pointer;font-weight:800">✕</button>
+</div>
+
+<!-- DEACTIVATE ACCOUNT -->
+<div class="modal-overlay" id="deactModal">
+    <div class="modal">
+        <div class="m-head" style="background:linear-gradient(135deg,#e53935,#ef5350)"><h2>⚠️ Deactivate Account</h2><button class="m-x" onclick="document.getElementById('deactModal').classList.remove('show')">✕</button></div>
+        <div class="m-body">
+            <div style="background:#ffebee;border-radius:16px;padding:18px;margin-bottom:20px;border:2px solid #ef5350">
+                <p style="color:#c62828;font-weight:700;font-size:14px">⚠️ Your account will be deactivated. You can reactivate it anytime by logging in again.</p>
+            </div>
+            <div class="fg"><label>🔒 Enter your password to confirm</label><input type="password" id="deact-pass" placeholder="Your password" /></div>
+            <div class="fg"><label>💬 Why are you leaving? (optional)</label><textarea id="deact-reason" placeholder="Tell us why..."></textarea></div>
+            <button class="m-btn" style="background:linear-gradient(135deg,#e53935,#ef5350)" onclick="deactivateAccount()">⚠️ Deactivate My Account</button>
+            <button class="m-btn grey" onclick="document.getElementById('deactModal').classList.remove('show')">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -442,7 +464,8 @@ function updateUI(){
         menu.innerHTML='<div class="dd-head">\u{1f451} '+user.fullname+'</div>'+
             '<div class="dd-item" onclick="openNotifs()">🔔 Notifications <span id="dd-nc" style="background:#e53935;color:white;border-radius:50%;padding:2px 8px;font-size:11px;margin-left:5px;display:none">0</span></div>'+
             '<div class="dd-item" onclick="openMyOrders()">📦 My Orders</div>'+
-            '<div class="dd-item" onclick="doLogout()">🚪 Logout</div>';
+            '<div class="dd-item" onclick="doLogout()">🚪 Logout</div>'+
+            '<div class="dd-item" onclick="openDeactivate()" style="color:#e53935">⚠️ Deactivate Account</div>';
     }else{
         btn.textContent='Login';
         menu.innerHTML='<div class="dd-item" onclick="openAuth(\'login\')">✨ Login</div><div class="dd-item" onclick="openAuth(\'reg\')">🎉 Sign Up</div>';
@@ -581,14 +604,25 @@ function openDetail(id){
     document.getElementById('d-date').textContent='Added: '+detailItem.date_added;
     document.getElementById('d-qty').textContent='1';
     document.getElementById('d-sub').textContent='Subtotal: GH\u20b5 '+detailItem.price.toFixed(2);
-    if(detailItem.in_stock){document.getElementById('d-stock').innerHTML='<span class="badge badge-confirmed" style="font-size:14px;padding:8px 18px">✅ In Stock</span>';document.getElementById('d-oos').style.display='none';document.getElementById('d-actions').style.display='flex';document.getElementById('d-sub').style.display='block'}
-    else{document.getElementById('d-stock').innerHTML='<span class="badge badge-cancelled" style="font-size:14px;padding:8px 18px">❌ Out of Stock</span>';document.getElementById('d-oos').style.display='block';document.getElementById('d-actions').style.display='none';document.getElementById('d-sub').style.display='none'}
+    var dsq=detailItem.stock_quantity||0;
+    var stockBadge='';
+    if(detailItem.in_stock&&dsq>5)stockBadge='<span class="badge badge-confirmed" style="font-size:14px;padding:8px 18px">✅ '+dsq+' In Stock</span>';
+    else if(detailItem.in_stock&&dsq>0)stockBadge='<span class="badge" style="font-size:14px;padding:8px 18px;background:#fff8e1;color:#f57f17">⚠️ Only '+dsq+' left!</span>';
+    else stockBadge='<span class="badge" style="font-size:14px;padding:8px 18px;background:#e3f2fd;color:#1976d2">📋 Pre-order Available</span>';
+    document.getElementById('d-stock').innerHTML=stockBadge;
+    document.getElementById('d-oos').style.display=detailItem.in_stock?'none':'block';
+    document.getElementById('d-actions').style.display='flex';
+    document.getElementById('d-sub').style.display='block';
+    document.getElementById('d-add').textContent=detailItem.in_stock?'🛒 Add to Cart':'📋 Pre-order';
     document.getElementById('detailModal').classList.add('show');
 }
 function closeDetail(){document.getElementById('detailModal').classList.remove('show')}
 function chgDQty(d){detailQty+=d;if(detailQty<1)detailQty=1;if(detailQty>99)detailQty=99;document.getElementById('d-qty').textContent=detailQty;if(detailItem)document.getElementById('d-sub').textContent='Subtotal: GH\u20b5 '+(detailItem.price*detailQty).toFixed(2)}
 function addFromDetail(){
-    if(!detailItem||!detailItem.in_stock)return;
+    if(!detailItem)return;
+    if(!detailItem.in_stock){
+        if(!confirm('This item is out of stock. Pre-order?'))return;
+    }
     var ex=cart.find(function(c){return c.id===detailItem.id});if(ex)ex.quantity+=detailQty;else{var cp={};for(var k in detailItem)cp[k]=detailItem[k];cp.quantity=detailQty;cart.push(cp)}
     updateCart();toast(detailItem.name+' x'+detailQty+' added!','success');
     var btn=document.getElementById('d-add');btn.textContent='✅ Added!';btn.style.background='linear-gradient(135deg,#43a047,#66bb6a)';
@@ -634,11 +668,64 @@ function placeOrder(){
     var tp=cart.reduce(function(s,i){return s+(i.price*i.quantity)},0);
     fetch('/api/orders/place',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({customer_name:document.getElementById('o-name').value.trim(),customer_phone:document.getElementById('o-phone').value.trim(),customer_address:document.getElementById('o-addr').value.trim(),items:cart.map(function(i){return{id:i.id,name:i.name,price:i.price,quantity:i.quantity}}),total_price:tp,transaction_id:trans,momo_number:momo})})
     .then(function(r){return r.json()}).then(function(d){
-        if(d.success){closeOrder();document.getElementById('s-oid').textContent='Order #'+d.order_id;document.getElementById('successModal').classList.add('show');cart=[];updateCart();document.getElementById('o-momo').value='';document.getElementById('o-trans').value='';setTimeout(checkNotifs,2000)}
+        if(d.success){
+                closeOrder();
+                document.getElementById('s-oid').textContent='Order #'+d.order_id;
+                document.getElementById('successModal').classList.add('show');
+                cart=[];updateCart();
+                document.getElementById('o-momo').value='';
+                document.getElementById('o-trans').value='';
+                setTimeout(checkNotifs,2000);
+                setTimeout(loadItems,3000);
+                if(d.whatsapp_url){setTimeout(function(){window.open(d.whatsapp_url,'_blank')},2500)}
+            }
         else if(d.need_login){toast('Login first!','error');closeOrder();openAuth('login')}
         else toast(d.message||'Error!','error');
     }).catch(function(){toast('Error!','error')}).finally(function(){btn.textContent='✅ I Have Paid';btn.disabled=false});
 }
+
+// IMAGE VIEWER
+function viewFullImg(){
+    if(!detailItem)return;
+    var v=document.getElementById('imgViewer');
+    document.getElementById('viewer-img').src=getImg(detailItem.image_url);
+    v.style.display='flex';
+}
+function closeImgViewer(){document.getElementById('imgViewer').style.display='none'}
+
+// DEACTIVATE ACCOUNT
+function openDeactivate(){
+    document.getElementById('dd-menu').classList.remove('show');
+    document.getElementById('deact-pass').value='';
+    document.getElementById('deact-reason').value='';
+    document.getElementById('deactModal').classList.add('show');
+}
+
+function deactivateAccount(){
+    var pw=document.getElementById('deact-pass').value.trim();
+    var reason=document.getElementById('deact-reason').value.trim()||'No reason';
+    if(!pw){toast('Enter your password!','error');return}
+    fetch('/api/auth/deactivate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw,reason:reason})})
+    .then(function(r){return r.json()}).then(function(d){
+        if(d.success){document.getElementById('deactModal').classList.remove('show');user=null;updateUI();toast('Account deactivated. Login anytime to reactivate.','success')}
+        else toast(d.message||'Error!','error');
+    }).catch(function(){toast('Error!','error')});
+}
+
+// PRE-ORDER SUPPORT
+var origAddToCart=addToCart;
+addToCart=function(id){
+    var item=allItems.find(function(i){return i.id===id});
+    if(!item)return;
+    if(!item.in_stock){
+        if(!confirm('This item is currently out of stock.\nWould you like to pre-order it?'))return;
+    }
+    var ex=cart.find(function(c){return c.id===id});
+    if(ex)ex.quantity++;else{var cp={};for(var k in item)cp[k]=item[k];cp.quantity=1;cart.push(cp)}
+    updateCart();toast(item.name+(item.in_stock?' added!':' pre-ordered!'),'success');
+    var btn=document.getElementById('cb-'+id);
+    if(btn){btn.textContent='Added!';setTimeout(function(){btn.textContent=item.in_stock?'🛒 Add':'📋 Pre-order'},1500)}
+};
 
 function toast(m,t){var x=document.getElementById('toast');x.textContent=m;x.className='toast '+t+' show';setTimeout(function(){x.classList.remove('show')},3000)}
 
@@ -650,6 +737,8 @@ document.getElementById('successModal').addEventListener('click',function(e){if(
 document.getElementById('ordersModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
 document.getElementById('notifModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
 document.getElementById('disputeModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
+document.getElementById('imgViewer').addEventListener('click',function(e){if(e.target===this)closeImgViewer()});
+document.getElementById('deactModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
 </script>
 </body>
 </html>

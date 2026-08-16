@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 import os
 import logging
 import traceback
+import urllib.parse
 import cloudinary
 import cloudinary.uploader
 
@@ -77,18 +78,21 @@ class User(db.Model):
     address    = db.Column(db.String(300), nullable=False)
     password   = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime,    default=datetime.utcnow)
+    is_active  = db.Column(db.Boolean,     default=True)
     orders     = db.relationship("Order",  backref="user", lazy=True)
 
 class Item(db.Model):
     __tablename__ = "items"
-    id          = db.Column(db.Integer,     primary_key=True)
-    name        = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.String(500))
-    price       = db.Column(db.Float,       nullable=False)
-    category    = db.Column(db.String(50))
-    in_stock    = db.Column(db.Boolean,     default=True)
-    image_url   = db.Column(db.String(500), default="/static/noimg.png")
-    date_added  = db.Column(db.DateTime,    default=datetime.utcnow)
+    id              = db.Column(db.Integer,     primary_key=True)
+    name            = db.Column(db.String(100), nullable=False)
+    description     = db.Column(db.String(500))
+    price           = db.Column(db.Float,       nullable=False)
+    category        = db.Column(db.String(50))
+    in_stock        = db.Column(db.Boolean,     default=True)
+    stock_quantity  = db.Column(db.Integer,      default=0)
+    low_stock_alert = db.Column(db.Integer,      default=5)
+    image_url       = db.Column(db.String(500),  default="/static/noimg.png")
+    date_added      = db.Column(db.DateTime,     default=datetime.utcnow)
 
 class Order(db.Model):
     __tablename__ = "orders"
@@ -237,6 +241,36 @@ def create_tables():
                                 conn.commit()
                             except Exception:
                                 pass
+                    # Add stock columns to items table
+                    for icol, idefn in [
+                        ("stock_quantity",  "INTEGER DEFAULT 0"),
+                        ("low_stock_alert", "INTEGER DEFAULT 5"),
+                    ]:
+                        try:
+                            conn.execute(db.text(
+                                "ALTER TABLE items ADD COLUMN IF NOT EXISTS "
+                                + icol + " " + idefn
+                            ))
+                            conn.commit()
+                        except Exception:
+                            try:
+                                conn.execute(db.text(
+                                    "ALTER TABLE items ADD COLUMN "
+                                    + icol + " " + idefn
+                                ))
+                                conn.commit()
+                            except Exception:
+                                pass
+
+                    # Add is_active to users
+                    try:
+                        conn.execute(db.text(
+                            "ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT TRUE"
+                        ))
+                        conn.commit()
+                    except Exception:
+                        pass
+
                     try:
                         conn.execute(db.text("""
                             CREATE TABLE IF NOT EXISTS notifications (
@@ -375,6 +409,11 @@ def user_login():
             return jsonify({"success": False,
                 "message": "Invalid email or password!"})
 
+        # Reactivate if deactivated
+        if hasattr(user, 'is_active') and not user.is_active:
+            user.is_active = True
+            db.session.commit()
+
         session["user_id"]    = user.id
         session["user_name"]  = user.fullname
         session["user_email"] = user.email
@@ -462,6 +501,8 @@ def get_items():
             "price":       i.price,
             "category":    i.category    or "General",
             "in_stock":    i.in_stock,
+            "stock_quantity":  i.stock_quantity if hasattr(i, 'stock_quantity') and i.stock_quantity else 0,
+            "low_stock_alert": i.low_stock_alert if hasattr(i, 'low_stock_alert') and i.low_stock_alert else 5,
             "image_url":   i.image_url   or "/static/noimg.png",
             "date_added":  i.date_added.strftime("%Y-%m-%d") if i.date_added else ""
         } for i in items])
@@ -479,13 +520,26 @@ def add_item():
         url   = "/static/noimg.png"
         if image and image.filename != "":
             url = upload_image(image)
+        qty = 0
+        low = 5
+        try:
+            qty = int(data.get("stock_quantity", 0))
+        except (ValueError, TypeError):
+            qty = 0
+        try:
+            low = int(data.get("low_stock_alert", 5))
+        except (ValueError, TypeError):
+            low = 5
+
         new = Item(
-            name        = data.get("name"),
-            description = data.get("description", ""),
-            price       = float(data.get("price")),
-            category    = data.get("category", "General"),
-            in_stock    = data.get("in_stock", "true") == "true",
-            image_url   = url
+            name            = data.get("name"),
+            description     = data.get("description", ""),
+            price           = float(data.get("price")),
+            category        = data.get("category", "General"),
+            in_stock        = qty > 0 if qty > 0 else data.get("in_stock", "true") == "true",
+            stock_quantity  = qty,
+            low_stock_alert = low,
+            image_url       = url
         )
         db.session.add(new)
         db.session.commit()
@@ -509,7 +563,24 @@ def update_item(item_id):
         item.description = data.get("description", item.description)
         item.price       = float(data.get("price", item.price))
         item.category    = data.get("category",    item.category)
-        item.in_stock    = data.get("in_stock", "true") == "true"
+
+        # Update stock quantity safely
+        qty_str = data.get("stock_quantity", "")
+        if qty_str != "" and qty_str is not None:
+            try:
+                item.stock_quantity = int(qty_str)
+                item.in_stock = int(qty_str) > 0
+            except (ValueError, TypeError):
+                item.in_stock = data.get("in_stock", "true") == "true"
+        else:
+            item.in_stock = data.get("in_stock", "true") == "true"
+
+        low_str = data.get("low_stock_alert", "")
+        if low_str != "" and low_str is not None:
+            try:
+                item.low_stock_alert = int(low_str)
+            except (ValueError, TypeError):
+                pass
         db.session.commit()
         return jsonify({"success": True, "message": "Updated!"})
     except Exception as e:
@@ -596,6 +667,87 @@ def place_order():
             conn.commit()
             order_id = result.fetchone()[0]
 
+        # SAFE stock reduction - errors won't block the order
+        try:
+            items_ordered = data.get("items", [])
+            for oi in items_ordered:
+                oi_id  = oi.get("id")
+                oi_qty = oi.get("quantity", 1)
+                if oi_id:
+                    try:
+                        with db.engine.connect() as sc:
+                            # Reduce stock
+                            sc.execute(db.text(
+                                "UPDATE items SET stock_quantity = "
+                                "GREATEST(COALESCE(stock_quantity,0) - :q, 0) "
+                                "WHERE id = :id"
+                            ), {"q": oi_qty, "id": oi_id})
+
+                            # Mark out of stock if zero
+                            sc.execute(db.text(
+                                "UPDATE items SET in_stock = FALSE "
+                                "WHERE id = :id AND stock_quantity <= 0"
+                            ), {"id": oi_id})
+
+                            sc.commit()
+
+                            # Check low stock
+                            row = sc.execute(db.text(
+                                "SELECT name, stock_quantity, low_stock_alert "
+                                "FROM items WHERE id = :id"
+                            ), {"id": oi_id}).fetchone()
+
+                            if row:
+                                if row[1] is not None and row[2] is not None:
+                                    if row[1] <= row[2] and row[1] > 0:
+                                        send_notification(0, True,
+                                            "Low Stock: " + str(row[0]),
+                                            str(row[0]) + " has only " +
+                                            str(row[1]) + " left!", 0)
+                                    elif row[1] <= 0:
+                                        send_notification(0, True,
+                                            "OUT OF STOCK: " + str(row[0]),
+                                            str(row[0]) + " is now out of stock!", 0)
+                    except Exception as si_err:
+                        print("Stock item error:", si_err)
+        except Exception as stock_err:
+            print("Stock reduction error:", stock_err)
+            # Order continues even if stock update fails!
+
+        # Build WhatsApp link (SAFE - won't block order)
+        wa_url = ""
+        try:
+            momo_raw = data.get("momo_number", "")
+            wa_phone = ""
+            if "0550618807" in momo_raw:
+                wa_phone = "233550618807"
+            elif "0540882629" in momo_raw:
+                wa_phone = "233540882629"
+
+            if wa_phone:
+                items_text = ""
+                for oi in data.get("items", []):
+                    items_text += str(oi.get("name","")) + " x" + str(oi.get("quantity",1)) + "\n"
+
+                wa_msg = (
+                    "*NEW ORDER #" + str(order_id) + "*\n"
+                    "\n"
+                    "Customer: " + str(data.get("customer_name", "")) + "\n"
+                    "Phone: " + str(data.get("customer_phone", "")) + "\n"
+                    "\n"
+                    "*Items:*\n" + items_text +
+                    "\n"
+                    "*Total: GH" + chr(8373) + " " + str(data.get("total_price", "")) + "*\n"
+                    "Trans ID: " + str(data.get("transaction_id", "")) + "\n"
+                    "\n"
+                    "Address: " + str(data.get("customer_address", ""))
+                )
+
+                wa_url = "https://wa.me/" + wa_phone + "?text=" + urllib.parse.quote(wa_msg)
+        except Exception as wa_err:
+            print("WhatsApp error:", wa_err)
+            wa_url = ""
+
         send_notification(0, True,
             "New Order #" + str(order_id),
             user.fullname + " placed order GH" + chr(8373) +
@@ -608,11 +760,15 @@ def place_order():
             "Your order has been received! We will confirm shortly.",
             order_id)
 
-        return jsonify({
+        result = {
             "success":  True,
             "message":  "Order placed!",
             "order_id": order_id
-        })
+        }
+        if wa_url:
+            result["whatsapp_url"] = wa_url
+
+        return jsonify(result)
 
     except Exception as e:
         print("Place order error:", e)
@@ -1044,6 +1200,46 @@ def debug_columns():
             })
     except Exception as e:
         return jsonify({"error": str(e)})
+
+
+@app.route("/api/auth/deactivate", methods=["POST"])
+def deactivate_account():
+    if not session.get("user_id"):
+        return jsonify({"success": False}), 401
+    try:
+        data     = request.get_json()
+        password = data.get("password", "")
+        reason   = data.get("reason", "No reason")
+
+        user = User.query.get(session["user_id"])
+        if not user:
+            return jsonify({"success": False, "message": "User not found!"}), 404
+
+        if not check_password_hash(user.password, password):
+            return jsonify({"success": False,
+                "message": "Wrong password! Cannot deactivate."})
+
+        user.is_active = False
+        db.session.commit()
+
+        # Notify admin
+        send_notification(0, True,
+            "Account Deactivated",
+            user.fullname + " (" + user.email + ") deactivated. Reason: " + reason,
+            0)
+
+        # Logout
+        session.pop("user_id",    None)
+        session.pop("user_name",  None)
+        session.pop("user_email", None)
+
+        return jsonify({
+            "success": True,
+            "message": "Account deactivated. You can reactivate by logging in again."
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
 
 # ==============================
 # RUN

@@ -262,7 +262,8 @@
                     <div class="form-group"><label>✨ Name *</label><input type="text" id="a-name" required /></div>
                     <div class="form-group"><label>💰 Price (GH₵) *</label><input type="number" id="a-price" step="0.01" min="0" required /></div>
                     <div class="form-group"><label>📁 Category</label><select id="a-cat"><option>General</option><option>Food</option><option>Drinks</option><option>Snacks</option><option>Household</option><option>Electronics</option><option>Clothing</option><option>Other</option></select></div>
-                    <div class="form-group"><label>📊 Stock</label><select id="a-stock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select></div>
+                    <div class="form-group"><label>📦 Stock Quantity *</label><input type="number" id="a-qty" placeholder="How many in stock?" min="0" value="0" /></div>
+                    <div class="form-group"><label>⚠️ Alert When Below</label><input type="number" id="a-low" placeholder="5" min="1" value="5" /></div>
                     <div class="form-group full-width"><label>📝 Description</label><textarea id="a-desc" placeholder="Describe item..."></textarea></div>
                     <div class="form-group full-width"><label>📷 Image</label>
                         <div class="image-upload-area" onclick="document.getElementById('a-img').click()"><div class="upload-icon">📷</div><p>Click to upload</p></div>
@@ -325,7 +326,8 @@
                 <div class="form-group"><label>Name *</label><input type="text" id="e-name" required /></div>
                 <div class="form-group"><label>Price (GH₵) *</label><input type="number" id="e-price" step="0.01" min="0" required /></div>
                 <div class="form-group"><label>Category</label><select id="e-cat"><option>General</option><option>Food</option><option>Drinks</option><option>Snacks</option><option>Household</option><option>Electronics</option><option>Clothing</option><option>Other</option></select></div>
-                <div class="form-group"><label>Stock</label><select id="e-stock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select></div>
+                <div class="form-group"><label>📦 Stock Quantity</label><input type="number" id="e-qty" min="0" value="0" /></div>
+                    <div class="form-group"><label>⚠️ Alert When Below</label><input type="number" id="e-low" min="1" value="5" /></div>
                 <div class="form-group full-width"><label>Description</label><textarea id="e-desc"></textarea></div>
                 <div class="form-group full-width"><label>Image</label>
                     <div class="image-upload-area" onclick="document.getElementById('e-img').click()"><div class="upload-icon">📷</div><p>Click to change</p></div>
@@ -438,7 +440,8 @@ function loadDashboard(){
 document.getElementById('addForm').addEventListener('submit',function(e){
     e.preventDefault();var fd=new FormData();
     fd.append('name',document.getElementById('a-name').value);fd.append('price',document.getElementById('a-price').value);
-    fd.append('category',document.getElementById('a-cat').value);fd.append('in_stock',document.getElementById('a-stock').value);
+    fd.append('category',document.getElementById('a-cat').value);fd.append('stock_quantity',document.getElementById('a-qty').value);
+    fd.append('low_stock_alert',document.getElementById('a-low').value);
     fd.append('description',document.getElementById('a-desc').value);
     var img=document.getElementById('a-img').files[0];if(img)fd.append('image',img);
     fetch('/api/items/add',{method:'POST',body:fd}).then(function(r){return r.json()}).then(function(d){
@@ -451,7 +454,7 @@ function loadItems(){fetch('/api/items').then(function(r){return r.json()}).then
 function displayItems(items){
     var g=document.getElementById('items-grid');
     if(items.length===0){g.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📦</div><p>No items</p></div>';return}
-    g.innerHTML=items.map(function(i){return'<div class="item-card'+(i.in_stock?'':' out-of-stock')+'"><img class="item-image" src="'+getImg(i.image_url)+'" onerror="this.src=\'/static/noimg.png\'" /><div class="item-info"><h3>'+i.name+'</h3><p class="category">📁 '+i.category+'</p><p class="price">GH&#8373; '+i.price.toFixed(2)+'</p><span class="stock-badge '+(i.in_stock?'in-stock':'out-stock')+'">'+(i.in_stock?'✅ In Stock':'❌ Out')+'</span><div class="item-actions"><button class="btn btn-warning btn-sm" onclick="editItem('+i.id+')">✏️</button><button class="btn btn-sm '+(i.in_stock?'btn-danger':'btn-success')+'" onclick="toggleStock('+i.id+')">'+(i.in_stock?'❌':'✅')+'</button><button class="btn btn-danger btn-sm" onclick="deleteItem('+i.id+')">🗑️</button></div></div></div>'}).join('');
+    g.innerHTML=items.map(function(i){return'<div class="item-card'+(i.in_stock?'':' out-of-stock')+'"><img class="item-image" src="'+getImg(i.image_url)+'" onerror="this.src=\'/static/noimg.png\'" /><div class="item-info"><h3>'+i.name+'</h3><p class="category">📁 '+i.category+'</p><p class="price">GH&#8373; '+i.price.toFixed(2)+'</p><span class="stock-badge '+(i.in_stock?'in-stock':'out-stock')+'">'+(i.in_stock?'✅ '+(i.stock_quantity||0)+' in stock':'❌ Out ('+(i.stock_quantity||0)+')')+'</span><div class="item-actions"><button class="btn btn-warning btn-sm" onclick="editItem('+i.id+')">✏️</button><button class="btn btn-sm '+(i.in_stock?'btn-danger':'btn-success')+'" onclick="toggleStock('+i.id+')">'+(i.in_stock?'❌':'✅')+'</button><button class="btn btn-danger btn-sm" onclick="deleteItem('+i.id+')">🗑️</button></div></div></div>'}).join('');
 }
 function filterItems(){
     var s=document.getElementById('search-input').value.toLowerCase(),c=document.getElementById('filter-category').value,st=document.getElementById('filter-stock').value;
@@ -465,14 +468,16 @@ function editItem(id){
     var i=allItems.find(function(x){return x.id===id});if(!i)return;
     document.getElementById('e-id').value=i.id;document.getElementById('e-name').value=i.name;
     document.getElementById('e-price').value=i.price;document.getElementById('e-cat').value=i.category;
-    document.getElementById('e-stock').value=String(i.in_stock);document.getElementById('e-desc').value=i.description||'';
+    document.getElementById('e-qty').value=i.stock_quantity||0;
+    document.getElementById('e-low').value=i.low_stock_alert||5;document.getElementById('e-desc').value=i.description||'';
     document.getElementById('e-prev').innerHTML='';document.getElementById('editModal').classList.add('show');
 }
 function closeModal(){document.getElementById('editModal').classList.remove('show')}
 document.getElementById('editForm').addEventListener('submit',function(e){
     e.preventDefault();var fd=new FormData(),id=document.getElementById('e-id').value;
     fd.append('name',document.getElementById('e-name').value);fd.append('price',document.getElementById('e-price').value);
-    fd.append('category',document.getElementById('e-cat').value);fd.append('in_stock',document.getElementById('e-stock').value);
+    fd.append('category',document.getElementById('e-cat').value);fd.append('stock_quantity',document.getElementById('e-qty').value);
+    fd.append('low_stock_alert',document.getElementById('e-low').value);
     fd.append('description',document.getElementById('e-desc').value);
     var img=document.getElementById('e-img').files[0];if(img)fd.append('image',img);
     fetch('/api/items/update/'+id,{method:'POST',body:fd}).then(function(r){return r.json()}).then(function(d){
